@@ -1,10 +1,10 @@
 import supertest, { Response } from 'supertest'
 import { createPsychicServer } from '.'
-import { HttpMethod, PsychicServer } from '../src'
 import supersession from './supersession'
 
 export class SpecRequest {
-  private server: PsychicServer | undefined
+  private PsychicServer: any
+  private server: any
 
   public async get(uri: string, expectedStatus: number, opts: SpecRequestOptsGet = {}): Promise<Response> {
     return await this.makeRequest('get', uri, expectedStatus, opts as SpecRequestOptsAll)
@@ -26,8 +26,9 @@ export class SpecRequest {
     return await this.makeRequest('delete', uri, expectedStatus, opts as SpecRequestOptsAll)
   }
 
-  public async init() {
-    this.server ||= await createPsychicServer()
+  public async init(PsychicServer: any) {
+    this.PsychicServer = PsychicServer
+    this.server ||= await createPsychicServer(PsychicServer)
   }
 
   public async session(
@@ -37,7 +38,7 @@ export class SpecRequest {
     opts: SpecRequestSessionOpts = {},
   ): Promise<ReturnType<typeof supertest>> {
     return await new Promise((accept, reject) => {
-      createPsychicServer()
+      createPsychicServer(this.PsychicServer)
         .then(server => {
           const session = supersession(server)
 
@@ -134,3 +135,4 @@ export interface SpecRequestSessionOpts extends SpecRequestOptsAll {
 }
 
 export default new SpecRequest()
+export type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options'

@@ -1,9 +1,9 @@
+import { CookieAccessInfo as CookieAccess } from 'cookiejar'
+import http from 'http'
 import methods from 'methods'
 import request from 'supertest'
-import { HttpMethod, PsychicServer } from '../src'
-import http from 'http'
 import URL, { UrlWithStringQuery } from 'url'
-import { CookieAccessInfo as CookieAccess } from 'cookiejar'
+import { HttpMethod } from './spec-request'
 
 // NOTE: this is not original code.
 // it was adapted from a non-typescript library with an uncertain future:
@@ -19,7 +19,7 @@ class Supersession {
   private cookieAccess: CookieAccess
 
   constructor(
-    server: PsychicServer,
+    server: any,
     private options: AgentOptions = {},
   ) {
     if (!server.app) {
@@ -92,7 +92,7 @@ methods.forEach(function (m) {
 })
 
 export default function supersession(
-  server: PsychicServer,
+  server: any,
   config: AgentOptions = {},
 ): ReturnType<typeof request> {
   return new Supersession(server, config) as unknown as ReturnType<typeof request>
