@@ -1,6 +1,6 @@
 import supertest, { Response } from 'supertest'
 import { createPsychicServer } from '.'
-import supersession from './supersession'
+import supersession, { HttpMethod } from './supersession'
 
 export class SpecRequest {
   private PsychicServer: any
@@ -135,4 +135,3 @@ export interface SpecRequestSessionOpts extends SpecRequestOptsAll {
 }
 
 export default new SpecRequest()
-export type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options'

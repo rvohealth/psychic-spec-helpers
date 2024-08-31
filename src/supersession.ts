@@ -1,9 +1,7 @@
 import { CookieAccessInfo as CookieAccess } from 'cookiejar'
 import http from 'http'
-import methods from 'methods'
 import request from 'supertest'
 import URL, { UrlWithStringQuery } from 'url'
-import { HttpMethod } from './spec-request'
 
 // NOTE: this is not original code.
 // it was adapted from a non-typescript library with an uncertain future:
@@ -84,7 +82,10 @@ class Supersession {
   }
 }
 
-methods.forEach(function (m) {
+export const HttpMethods = ['get', 'post', 'put', 'patch', 'delete', 'options'] as const
+export type HttpMethod = (typeof HttpMethods)[number]
+
+HttpMethods.forEach(function (m) {
   ;(Supersession as any).prototype[m as any] = function () {
     var args = [].slice.call(arguments)
     return this.request.apply(this, [m].concat(args))
