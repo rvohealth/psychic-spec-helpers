@@ -22,7 +22,7 @@ export class SpecRequest {
     return await this.makeRequest('patch', uri, expectedStatus, opts as SpecRequestOptsAll)
   }
 
-  public async delete(uri: string, expectedStatus: number, opts: SpecRequestOptsGet = {}): Promise<Response> {
+  public async delete(uri: string, expectedStatus: number, opts: SpecRequestOptsPost = {}): Promise<Response> {
     return await this.makeRequest('delete', uri, expectedStatus, opts as SpecRequestOptsAll)
   }
 
