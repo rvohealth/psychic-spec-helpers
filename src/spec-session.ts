@@ -1,11 +1,11 @@
 import supertest, { Response } from 'supertest'
 import { createPsychicServer } from '.'
 import supersession, { HttpMethod } from './supersession'
-import { SpecSession } from './spec-session'
 
-export class SpecRequest {
-  private PsychicServer: any
-  private server: any
+// like SpecRequest, but meant to be bound to an instance
+// of supersession, enabling chained requests to collect cookies
+export class SpecSession {
+  constructor(private _session: ReturnType<typeof supersession>) {}
 
   public async get(
     uri: string,
@@ -47,69 +47,17 @@ export class SpecRequest {
     return await this.makeRequest('delete', uri, expectedStatus, opts as SpecRequestOptsAll)
   }
 
-  public async init(PsychicServer: any) {
-    this.PsychicServer = PsychicServer
-    this.server ||= await createPsychicServer(PsychicServer)
-  }
-
-  public async session(
-    uri: string,
-    credentials: object,
-    expectedStatus: number,
-    opts: SpecRequestSessionOpts = {}
-  ): Promise<SpecSession> {
-    return await new Promise((accept, reject) => {
-      createPsychicServer(this.PsychicServer)
-        .then(server => {
-          const session = supersession(server)
-
-          // supersession is borrowed from a non-typescript repo, which
-          // does not have strong types around http methods, so we need to any cast
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
-          ;(session[(opts.httpMethod || 'post') as keyof typeof session] as any)(uri)
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            .send(credentials)
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            .expect(expectedStatus)
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            .query(opts.query || {})
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            .set(opts.headers || {})
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            .end((err: Error) => {
-              if (err) return reject(err)
-
-              return accept(new SpecSession(session))
-            })
-        })
-        .catch(() => null)
-    })
-  }
-
   private async makeRequest(
     method: 'get' | 'post' | 'put' | 'patch' | 'delete',
     uri: string,
     expectedStatus: number,
     opts: SpecRequestOptsAll = {}
   ) {
-    // TODO: find out why this is necessary. Currently, without initializing the server
-    // at the beginning of the specs, supertest is unable to use our server to handle requests.
-    // it gives the appearance of being an issue with a runaway promise (i.e. missing await)
-    // but I can't find it anywhere, so I am putting this init method in as a temporary fix.
-    if (!this.server)
-      throw new Error(
-        `
-  ERROR:
-    When making use of the send spec helper, you must first call "await specRequest.init()"
-    from a beforEach hook at the root of your specs.
-`
-      )
-
     if (expectedStatus === 500) {
       process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = '1'
     }
 
-    const req = supertest.agent(this.server.app)
+    const req = this._session
     let request = req[method](uri)
     if (opts.headers) request = request.set(opts.headers)
     if (opts.query) request = request.query(opts.query)
@@ -154,6 +102,4 @@ export interface SpecRequestOpts {
 export interface SpecRequestSessionOpts extends SpecRequestOptsAll {
   httpMethod?: HttpMethod
 }
-
-export default new SpecRequest()
 

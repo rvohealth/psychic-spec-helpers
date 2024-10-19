@@ -1,6 +1,6 @@
 {
   "name": "@rvohealth/psychic-spec-helpers",
-  "version": "0.0.4",
+  "version": "0.0.4-fgbeta-1",
   "description": "psychic framework spec helpers",
   "main": "dist/src/index.js",
   "files": [
