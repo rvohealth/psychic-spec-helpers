@@ -3,8 +3,7 @@ import '@rvohealth/dream-spec-helpers'
 import _specRequest from './spec-request'
 
 export { SpecRequest } from './spec-request'
-
-
+export { SpecSession } from './spec-session'
 
 const _server: any = undefined
 export async function createPsychicServer(PsychicServer: any) {
