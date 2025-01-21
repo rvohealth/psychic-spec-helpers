@@ -82,7 +82,9 @@ export class SpecRequest {
               return accept(new SpecSession(session))
             })
         })
-        .catch(() => null)
+        .catch(err => {
+          throw err
+        })
     })
   }
 
@@ -100,7 +102,7 @@ export class SpecRequest {
       throw new Error(
         `
   ERROR:
-    When making use of the send spec helper, you must first call "await specRequest.init()"
+    When making use of the send spec helper, you must first call "await specRequest.init(PsychicServer)"
     from a beforEach hook at the root of your specs.
 `
       )
@@ -109,7 +111,7 @@ export class SpecRequest {
       process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = '1'
     }
 
-    const req = supertest.agent(this.server.app)
+    const req = supertest.agent(this.server.expressApp)
     let request = req[method](uri)
     if (opts.headers) request = request.set(opts.headers)
     if (opts.query) request = request.query(opts.query)
@@ -156,4 +158,3 @@ export interface SpecRequestSessionOpts extends SpecRequestOptsAll {
 }
 
 export default new SpecRequest()
-

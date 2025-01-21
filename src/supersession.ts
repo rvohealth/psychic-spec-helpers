@@ -18,15 +18,15 @@ class Supersession {
 
   constructor(
     server: any,
-    private options: AgentOptions = {},
+    private options: AgentOptions = {}
   ) {
-    if (!server.app) {
+    if (!server.expressApp) {
       throw new Error('Supersession requires an `app`')
     }
 
-    this.agent = request.agent(server.app, options)
+    this.agent = request.agent(server.expressApp, options)
 
-    const app = http.createServer(server.app)
+    const app = http.createServer(server.expressApp)
     const url = (request as any).Test.prototype.serverAddress(app, '/')
 
     this.app = app
@@ -94,7 +94,7 @@ HttpMethods.forEach(function (m) {
 
 export default function supersession(
   server: any,
-  config: AgentOptions = {},
+  config: AgentOptions = {}
 ): ReturnType<typeof request> {
   return new Supersession(server, config) as unknown as ReturnType<typeof request>
 }
