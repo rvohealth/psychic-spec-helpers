@@ -1,6 +1,5 @@
-import supertest, { Response } from 'supertest'
-import { createPsychicServer } from '.'
-import supersession, { HttpMethod } from './supersession'
+import { Response } from 'supertest'
+import supersession, { HttpMethod } from './supersession.js'
 
 // like SpecRequest, but meant to be bound to an instance
 // of supersession, enabling chained requests to collect cookies
@@ -102,4 +101,3 @@ export interface SpecRequestOpts {
 export interface SpecRequestSessionOpts extends SpecRequestOptsAll {
   httpMethod?: HttpMethod
 }
-

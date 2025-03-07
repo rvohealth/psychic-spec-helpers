@@ -1,7 +1,7 @@
 import supertest, { Response } from 'supertest'
-import { createPsychicServer } from '.'
-import supersession, { HttpMethod } from './supersession'
-import { SpecSession } from './spec-session'
+import { createPsychicServer } from '../index.js'
+import supersession, { HttpMethod } from './supersession.js'
+import { SpecSession } from './SpecSession.js'
 
 export class SpecRequest {
   private PsychicServer: any
