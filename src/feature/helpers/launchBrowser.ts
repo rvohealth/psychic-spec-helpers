@@ -4,7 +4,7 @@ export default async function launchBrowser(opts?: LaunchOptions) {
   return await puppeteer.launch({
     browser: 'firefox',
     dumpio: process.env.DEBUG === '1',
-    headless: true,
+    headless: process.env.HEADLESS !== '0',
     ...opts,
   })
 }

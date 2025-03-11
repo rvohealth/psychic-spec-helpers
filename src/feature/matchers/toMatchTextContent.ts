@@ -1,23 +1,27 @@
-import { Page } from 'puppeteer'
-import evaluateWithRetryAndTimeout from '../internal/evaluateWithRetryAndTimeout.js'
-import getAllTextContentFromPage from '../internal/getAllTextContentFromPage.js'
-import requirePuppeteerPage from '../internal/requirePuppeteerPage.js'
+import { Page, WaitForSelectorOptions } from 'puppeteer'
 
-export default async function toMatchTextContent(argumentPassedToExpect: Page, expected: string) {
-  return await evaluateWithRetryAndTimeout(
-    argumentPassedToExpect,
-    async () => {
-      requirePuppeteerPage(argumentPassedToExpect)
-
-      const actual = await getAllTextContentFromPage(argumentPassedToExpect)
-      return {
-        pass: actual.includes(expected),
-        actual,
-      }
-    },
-    {
-      successText: r => `Expected ${r} to match text ${expected}`,
-      failureText: r => `Expected ${r} not to match text ${expected}`,
+export default async function toMatchTextContent(
+  page: Page,
+  text: string,
+  { selector = 'body' }: { selector?: string } & WaitForSelectorOptions = {}
+) {
+  try {
+    await page.waitForSelector(`${selector}::-p-text(${text.replace(/"/g, '\\"')})`)
+    return {
+      pass: true,
+      message: () => {
+        throw new Error('Cannot negate toMatchTextContent, use toNotMatchTextContent instead')
+      },
     }
-  )
+  } catch {
+    return {
+      pass: false,
+      message: () => `
+expected ${selector} with text:
+        ${text}
+
+but no text was found within that selector
+      `,
+    }
+  }
 }

@@ -1,21 +1,22 @@
-import { Page } from 'puppeteer'
-import evaluateWithRetryAndTimeout from '../internal/evaluateWithRetryAndTimeout.js'
-import requirePuppeteerPage from '../internal/requirePuppeteerPage.js'
+import { Page, WaitForSelectorOptions } from 'puppeteer'
 
-export default async function toNotHaveSelector(page: Page, expectedSelector: string) {
-  return await evaluateWithRetryAndTimeout(
-    page,
-    async () => {
-      requirePuppeteerPage(page)
-
-      return {
-        pass: !(await page.$(expectedSelector)),
-        actual: expectedSelector,
-      }
-    },
-    {
-      successText: r => `Expected ${r} not to have selector: ${expectedSelector}`,
-      failureText: r => `Expected ${r} to have selector: ${expectedSelector}`,
+export default async function toNotHaveSelector(
+  page: Page,
+  selector: string,
+  opts?: WaitForSelectorOptions
+) {
+  try {
+    await page.waitForSelector(selector, { hidden: true, ...opts })
+    return {
+      pass: true,
+      message: () => {
+        throw new Error('Cannot negate toNotHaveSelector, use toHaveSelector instead')
+      },
     }
-  )
+  } catch {
+    return {
+      pass: false,
+      message: () => `Expected page to not have visible selector, but it did: ${selector}`,
+    }
+  }
 }
