@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@rvoh/psychic-spec-helpers",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "psychic framework spec helpers",
   "main": "./dist/cjs/src/index.js",
   "module": "./dist/esm/src/index.js",
@@ -19,7 +19,6 @@
     "dist/**/*"
   ],
   "scripts": {
-    "publish": "yarn npm publish --access public",
     "build": "echo \"building psychic-spec-helpers...\" && rm -rf dist && npx tsc -p ./tsconfig.json",
     "prepack": "yarn build"
   },

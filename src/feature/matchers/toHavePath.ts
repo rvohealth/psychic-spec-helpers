@@ -16,7 +16,9 @@ export default async function toHavePath(page: Page, expectedPath: string) {
       }
     },
     {
-      successText: () => `Expected page to have path: "${expectedPath}"`,
+      successText: () => {
+        throw new Error('cannot negate toHavePath')
+      },
       failureText: () => `Expected page not to have path: "${expectedPath}"`,
     }
   )

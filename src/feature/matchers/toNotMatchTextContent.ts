@@ -19,7 +19,9 @@ export default async function toNotMatchTextContent(
       }
     },
     {
-      successText: r => `Expected ${r} not to match text ${expected}`,
+      successText: () => {
+        throw new Error('Cannot negate toNotMatchTextContent, use toMatchTextContent instead')
+      },
       failureText: r => `Expected ${r} to match text ${expected}`,
     }
   )

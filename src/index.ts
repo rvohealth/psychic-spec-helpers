@@ -1,5 +1,7 @@
 import { ExpectToEvaluateOpts } from './feature/internal/evaluateWithRetryAndTimeout.js'
 import { CustomMatcherResult } from './feature/helpers/providePuppeteerViteMatchers.js'
+import { Page, WaitForSelectorOptions } from 'puppeteer'
+import { ToFillMatcherOpts } from './feature/matchers/toFill.js'
 
 // unit spec helpers
 export { default as specRequest } from './unit/SpecRequest.js'
@@ -16,6 +18,7 @@ export { default as visit } from './feature/helpers/visit.js'
 
 declare global {
   function context(description: string, callback: () => void): void
+  const page: InstanceType<typeof Page>
 }
 
 declare module 'vitest' {
@@ -33,20 +36,20 @@ interface PuppeteerAssertions {
   // begin: fspec matchers
   toMatchTextContent(expected: any): Promise<CustomMatcherResult>
   toNotMatchTextContent(expected: any): Promise<CustomMatcherResult>
-  toHaveSelector(expected: any): Promise<CustomMatcherResult>
-  toNotHaveSelector(expected: any): Promise<CustomMatcherResult>
-  toCheck(expected: any): Promise<CustomMatcherResult>
-  toClick(expected: any): Promise<CustomMatcherResult>
-  toClickLink(expected: any): Promise<CustomMatcherResult>
-  toClickLink(expected: any): Promise<CustomMatcherResult>
-  toClickSelector(expected: any): Promise<CustomMatcherResult>
+  toHaveSelector(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  toNotHaveSelector(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  toCheck(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  toClick(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  toClickLink(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  toClickButton(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  toClickSelector(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toHavePath(expected: any): Promise<CustomMatcherResult>
   toHaveUrl(expected: any): Promise<CustomMatcherResult>
-  toHaveChecked(expected: any): Promise<CustomMatcherResult>
-  toHaveUnchecked(expected: any): Promise<CustomMatcherResult>
-  toHaveLink(expected: any): Promise<CustomMatcherResult>
-  toFill(cssSelector: string, text: string): Promise<CustomMatcherResult>
-  toUncheck(expected: any): Promise<CustomMatcherResult>
+  toHaveChecked(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  toHaveUnchecked(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  toHaveLink(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  toFill(cssSelector: string, text: string, opts?: ToFillMatcherOpts): Promise<CustomMatcherResult>
+  toUncheck(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toEvaluate(
     expected: (a: any) => boolean | Promise<boolean>,
     opts: ExpectToEvaluateOpts

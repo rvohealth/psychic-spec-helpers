@@ -1,26 +1,27 @@
-import { Page } from 'puppeteer'
-import evaluateWithRetryAndTimeout from '../internal/evaluateWithRetryAndTimeout.js'
-import evaluationFailure from '../internal/evaluationFailure.js'
-import requirePuppeteerPage from '../internal/requirePuppeteerPage.js'
+import { Page, WaitForSelectorOptions } from 'puppeteer'
 
-export default async function toHaveChecked(page: Page, expectedText: string) {
-  return await evaluateWithRetryAndTimeout(
-    page,
-    async () => {
-      requirePuppeteerPage(page)
+export default async function toHaveChecked(
+  page: Page,
+  expectedText: string,
+  opts?: WaitForSelectorOptions
+) {
+  try {
+    const checkbox = await page.waitForSelector(
+      `input[type="checkbox"][value="${expectedText}"]`,
+      opts
+    )
+    const isChecked = await page.evaluate(checkbox => checkbox.checked, checkbox)
 
-      const checkbox = await page.$(`input[type="checkbox"][value="${expectedText}"]`)
-      if (!checkbox) return evaluationFailure(`A checkbox was not found with "${expectedText}"`)
-
-      const isChecked = await page.evaluate(checkbox => checkbox.checked, checkbox)
-      return {
-        pass: isChecked,
-        actual: expectedText,
-      }
-    },
-    {
-      successText: r => `Expected page to have checked checkbox with text: "${expectedText}"`,
-      failureText: r => `Expected page not to have checked checkbox with text: "${expectedText}"`,
+    return {
+      pass: isChecked,
+      message: () => {
+        throw new Error('cannot negate toHaveChecked, try toHaveUnchecked')
+      },
     }
-  )
+  } catch {
+    return {
+      pass: false,
+      message: () => `Expected page to have checked checkbox with text: "${expectedText}"`,
+    }
+  }
 }

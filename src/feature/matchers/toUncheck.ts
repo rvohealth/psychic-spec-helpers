@@ -1,35 +1,34 @@
-import { Page } from 'puppeteer'
-import evaluateWithRetryAndTimeout from '../internal/evaluateWithRetryAndTimeout.js'
-import evaluationFailure from '../internal/evaluationFailure.js'
-import requirePuppeteerPage from '../internal/requirePuppeteerPage.js'
+import { Page, WaitForSelectorOptions } from 'puppeteer'
 
-export default async function toUncheck(page: Page, expectedText: string) {
-  return await evaluateWithRetryAndTimeout(
-    page,
-    async () => {
-      requirePuppeteerPage(page)
+export default async function toUncheck(
+  page: Page,
+  expectedText: string,
+  opts?: WaitForSelectorOptions
+) {
+  try {
+    const el = await page.waitForSelector(`label::-p-text(${expectedText}`, opts)
+    await el!.click()
 
-      const checkbox = await page.$(`input[type="checkbox"][value="${expectedText}"]`)
-      if (!checkbox) return evaluationFailure(`A checkbox was not found with "${expectedText}"`)
-
-      const isChecked = await page.evaluate(checkbox => checkbox.checked, checkbox)
-      if (!isChecked)
-        return evaluationFailure(
-          `A checkbox was found with "${expectedText}", but it is already unchecked`
-        )
-
-      await checkbox.click()
-      const isCheckedNow = await page.evaluate(checkbox => checkbox.checked, checkbox)
-
+    const isChecked = await page.evaluate(checkbox => checkbox.checked, el)
+    if (!isChecked)
       return {
-        pass: !isCheckedNow,
-        actual: expectedText,
+        pass: false,
+        message: () => `A checkbox was found with "${expectedText}", but it is already unchecked`,
       }
-    },
-    {
-      successText: r => `Expected page to have uncheckable checkbox with text: "${expectedText}"`,
-      failureText: r =>
-        `Expected page not to have uncheckable checkbox with text: "${expectedText}"`,
+
+    await el!.click()
+    const isUncheckedNow = await page.evaluate(checkbox => checkbox.checked, el)
+
+    return {
+      pass: isUncheckedNow,
+      message: () => {
+        throw new Error('Cannot negate toUncheck, try toCheck')
+      },
     }
-  )
+  } catch (error) {
+    return {
+      pass: false,
+      message: `Expected page to have checkable element with text: "${expectedText}"`,
+    }
+  }
 }

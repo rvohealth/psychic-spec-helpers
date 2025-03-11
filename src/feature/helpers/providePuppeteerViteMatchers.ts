@@ -1,4 +1,4 @@
-import { Page } from 'puppeteer'
+import { Page, WaitForSelectorOptions } from 'puppeteer'
 import evaluateWithRetryAndTimeout, {
   ExpectToEvaluateOpts,
   ExpectToEvaluateReturnType,
@@ -18,44 +18,48 @@ import toHaveUrl from '../matchers/toHaveUrl.js'
 import toHaveLink from '../matchers/toHaveLink.js'
 import toHaveChecked from '../matchers/toHaveChecked.js'
 import toHaveUnchecked from '../matchers/toHaveUnchecked.js'
-import toFill from '../matchers/toFill.js'
+import toFill, { ToFillMatcherOpts } from '../matchers/toFill.js'
 
 export default function providePuppeteerViteMatchers() {
   ;((global as any).expect as any).extend({
-    async toMatchTextContent(page: Page, text: string) {
-      return await toMatchTextContent(page, text)
+    async toMatchTextContent(
+      page: Page,
+      text: string,
+      opts?: { selector?: string } & WaitForSelectorOptions
+    ) {
+      return await toMatchTextContent(page, text, opts)
     },
 
     async toNotMatchTextContent(page: Page, text: string) {
       return await toNotMatchTextContent(page, text)
     },
 
-    async toHaveSelector(page: Page, cssSelector: string) {
-      return await toHaveSelector(page, cssSelector)
+    async toHaveSelector(page: Page, cssSelector: string, opts?: WaitForSelectorOptions) {
+      return await toHaveSelector(page, cssSelector, opts)
     },
 
-    async toNotHaveSelector(page: Page, cssSelector: string) {
-      return await toNotHaveSelector(page, cssSelector)
+    async toNotHaveSelector(page: Page, cssSelector: string, opts?: WaitForSelectorOptions) {
+      return await toNotHaveSelector(page, cssSelector, opts)
     },
 
-    async toCheck(page: Page, text: string) {
-      return await toCheck(page, text)
+    async toCheck(page: Page, text: string, opts?: WaitForSelectorOptions) {
+      return await toCheck(page, text, opts)
     },
 
-    async toClick(page: Page, text: string) {
-      return await toClick(page, text)
+    async toClick(page: Page, text: string, opts?: WaitForSelectorOptions) {
+      return await toClick(page, text, opts)
     },
 
-    async toClickLink(page: Page, text: string) {
-      return await toClickLink(page, text)
+    async toClickLink(page: Page, text: string, opts?: WaitForSelectorOptions) {
+      return await toClickLink(page, text, opts)
     },
 
-    async toClickButton(page: Page, text: string) {
-      return await toClickButton(page, text)
+    async toClickButton(page: Page, text: string, opts?: WaitForSelectorOptions) {
+      return await toClickButton(page, text, opts)
     },
 
-    async toClickSelector(page: Page, cssSelector: string) {
-      return await toClickSelector(page, cssSelector)
+    async toClickSelector(page: Page, cssSelector: string, opts?: WaitForSelectorOptions) {
+      return await toClickSelector(page, cssSelector, opts)
     },
 
     async toHavePath(page: Page, path: string) {
@@ -66,24 +70,24 @@ export default function providePuppeteerViteMatchers() {
       return await toHaveUrl(page, url)
     },
 
-    async toHaveChecked(page: Page, text: string) {
-      return await toHaveChecked(page, text)
+    async toHaveChecked(page: Page, text: string, opts?: WaitForSelectorOptions) {
+      return await toHaveChecked(page, text, opts)
     },
 
-    async toHaveUnchecked(page: Page, checked: string) {
-      return await toHaveUnchecked(page, checked)
+    async toHaveUnchecked(page: Page, checked: string, opts?: WaitForSelectorOptions) {
+      return await toHaveUnchecked(page, checked, opts)
     },
 
-    async toHaveLink(page: Page, text: string) {
-      return await toHaveLink(page, text)
+    async toHaveLink(page: Page, text: string, opts?: WaitForSelectorOptions) {
+      return await toHaveLink(page, text, opts)
     },
 
-    async toFill(page: Page, cssSelector: string, text: string) {
-      return await toFill(page, cssSelector, text)
+    async toFill(page: Page, cssSelector: string, text: string, opts?: ToFillMatcherOpts) {
+      return await toFill(page, cssSelector, text, opts)
     },
 
-    async toUncheck(page: Page, text: string) {
-      return await toUncheck(page, text)
+    async toUncheck(page: Page, text: string, opts?: WaitForSelectorOptions) {
+      return await toUncheck(page, text, opts)
     },
 
     async toEvaluate(

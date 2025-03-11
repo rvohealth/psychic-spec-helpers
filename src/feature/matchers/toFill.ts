@@ -1,28 +1,41 @@
-import { Page } from 'puppeteer'
-import evaluateWithRetryAndTimeout from '../internal/evaluateWithRetryAndTimeout.js'
-import evaluationFailure from '../internal/evaluationFailure.js'
-import requirePuppeteerPage from '../internal/requirePuppeteerPage.js'
+import { Page, WaitForSelectorOptions } from 'puppeteer'
+import metaOrControlKey from '../helpers/metaOrControlKey.js'
 
-export default async function toFill(page: Page, cssSelector: string, text: string) {
-  return await evaluateWithRetryAndTimeout(
-    page,
-    async () => {
-      requirePuppeteerPage(page)
+export default async function toFill(
+  page: Page,
+  cssSelector: string,
+  text: string,
+  opts?: ToFillMatcherOpts
+) {
+  try {
+    await page.waitForSelector(cssSelector, opts)
 
-      try {
-        await page.type(cssSelector, text)
-      } catch {
-        return evaluationFailure(text)
-      }
-
-      return {
-        pass: true,
-        actual: text,
-      }
-    },
-    {
-      successText: () => `Expected page to have clickable link with text: "${text}"`,
-      failureText: () => `Expected page not to have clickable link with text: "${text}"`,
+    // unless the user opts out, clear the input
+    // before typing into it, since most of the
+    // time this is what people will expect to
+    // happen.
+    if (!opts?.bypassInputValueReset) {
+      await page.focus(cssSelector)
+      await page.keyboard.down(metaOrControlKey())
+      await page.keyboard.press('A')
+      await page.keyboard.up(metaOrControlKey())
+      await page.keyboard.press('Backspace')
     }
-  )
+
+    await page.type(cssSelector, text)
+
+    return {
+      pass: true,
+      message: () => {
+        throw new Error('cannot negate toFill')
+      },
+    }
+  } catch {
+    return {
+      pass: false,
+      message: () => `failed to fill input matching selector ${cssSelector} with text "text"`,
+    }
+  }
 }
+
+export type ToFillMatcherOpts = WaitForSelectorOptions & { bypassInputValueReset: boolean }
