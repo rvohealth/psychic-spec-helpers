@@ -2,19 +2,22 @@ import { ChildProcessWithoutNullStreams, spawn } from 'child_process'
 import { createServer } from 'net'
 import sleep from '../../shared/sleep.js'
 
-let serverProcess: ChildProcessWithoutNullStreams | undefined = undefined
+const devServerProcesses: Record<string, ChildProcessWithoutNullStreams | undefined> = {}
 
-export default async function launchViteServer({
-  port = 3000,
-  cmd = 'yarn client',
-  timeout = 5000,
-}: { port?: number; cmd?: string; timeout?: number } = {}) {
-  if (serverProcess) return
+export default async function launchDevServer(
+  key: string,
+  {
+    port = 3000,
+    cmd = 'yarn client',
+    timeout = 5000,
+  }: { port?: number; cmd?: string; timeout?: number } = {}
+) {
+  if (devServerProcesses[key]) return
 
   if (process.env.DEBUG === '1') console.log('Starting server...')
   const [_cmd, ...args] = cmd.split(' ')
 
-  serverProcess = spawn(_cmd, args, {
+  const proc = spawn(_cmd, args, {
     detached: true,
     env: {
       ...process.env,
@@ -23,42 +26,49 @@ export default async function launchViteServer({
     },
   })
 
-  await waitForPort(port, timeout)
+  await waitForPort(key, port, timeout)
 
-  serverProcess.stdout.on('data', data => {
-    if (process.env.DEBUG === '1') console.log(`Server output: ${data}`)
-  })
-
-  serverProcess.on('error', err => {
+  proc.on('error', err => {
     throw err
   })
 
-  serverProcess.stdout.on('data', data => {
+  proc.stdout.on('data', data => {
     if (process.env.DEBUG === '1') console.log(`Server output: ${data}`)
   })
 
-  serverProcess.stderr.on('data', data => {
+  proc.stderr.on('data', data => {
     if (process.env.DEBUG === '1') console.error(`Server error: ${data}`)
   })
 
-  serverProcess.on('error', err => {
+  proc.on('error', err => {
     console.error(`Server process error: ${err as unknown as string}`)
   })
 
-  serverProcess.on('close', code => {
+  proc.on('close', code => {
     if (process.env.DEBUG === '1') console.log(`Server process exited with code ${code}`)
   })
 }
 
-export function stopViteServer() {
-  if (serverProcess?.pid) {
+export function stopDevServer(key: string) {
+  const proc = devServerProcesses[key]
+  if (!proc) {
+    throw new Error(`Cannot find a dev server by the key: ${key}`)
+  }
+
+  if (proc?.pid) {
     if (process.env.DEBUG === '1') console.log('Stopping server...')
     // serverProcess.kill('SIGINT')
-    process.kill(-serverProcess.pid, 'SIGKILL')
-    serverProcess = undefined
+    process.kill(-proc.pid, 'SIGKILL')
+    delete devServerProcesses[key]
 
     if (process.env.DEBUG === '1') console.log('server stopped')
   }
+}
+
+export function stopDevServers() {
+  Object.keys(devServerProcesses).forEach(key => {
+    stopDevServer(key)
+  })
 }
 
 async function isPortAvailable(port: number): Promise<boolean> {
@@ -79,7 +89,7 @@ async function isPortAvailable(port: number): Promise<boolean> {
   })
 }
 
-async function waitForPort(port: number, timeout: number = 5000) {
+async function waitForPort(key: string, port: number, timeout: number = 5000) {
   if (await isPortAvailable(port)) {
     return true
   }
@@ -92,7 +102,7 @@ async function waitForPort(port: number, timeout: number = 5000) {
     }
 
     if (Date.now() > startTime + timeout) {
-      stopViteServer()
+      stopDevServer(key)
       throw new Error('waited too long for port: ' + port)
     }
 
