@@ -26,6 +26,8 @@ export default async function launchDevServer(
     },
   })
 
+  devServerProcesses[key] = proc
+
   await waitForPort(key, port, timeout)
 
   proc.on('error', err => {
