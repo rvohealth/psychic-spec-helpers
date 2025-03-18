@@ -13,7 +13,11 @@ export { SpecSession } from './unit/SpecSession.js'
 export { default as providePuppeteerViteMatchers } from './feature/helpers/providePuppeteerViteMatchers.js'
 export { default as launchBrowser } from './feature/helpers/launchBrowser.js'
 export { default as launchPage } from './feature/helpers/launchPage.js'
-export { default as launchViteServer, stopViteServer } from './feature/helpers/launchViteServer.js'
+export {
+  default as launchDevServer,
+  stopDevServers,
+  stopDevServer,
+} from './feature/helpers/launchDevServer.js'
 export { default as visit } from './feature/helpers/visit.js'
 
 declare global {
