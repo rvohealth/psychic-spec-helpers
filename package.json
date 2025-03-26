@@ -3,6 +3,11 @@
   "name": "@rvoh/psychic-spec-helpers",
   "version": "0.4.1",
   "description": "psychic framework spec helpers",
+  "author": "RVO Health",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rvohealth/psychic-spec-helpers.git"
+  },
   "main": "./dist/cjs/src/index.js",
   "module": "./dist/esm/src/index.js",
   "types": "./dist/types/src/index.d.ts",
