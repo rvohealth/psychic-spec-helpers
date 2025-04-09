@@ -21,8 +21,16 @@ export {
 export { default as visit } from './feature/helpers/visit.js'
 
 declare global {
-  function context(description: string, callback: () => void): void
+  const context: (typeof import('vitest'))['describe']
   const page: InstanceType<typeof Page>
+  const visit: (typeof import('./feature/helpers/visit.js'))['default']
+  const check: (typeof import('./feature/helpers/matcher-globals/check.js'))['default']
+  const click: (typeof import('./feature/helpers/matcher-globals/click.js'))['default']
+  const clickButton: (typeof import('./feature/helpers/matcher-globals/clickButton.js'))['default']
+  const clickLink: (typeof import('./feature/helpers/matcher-globals/clickLink.js'))['default']
+  const clickSelector: (typeof import('./feature/helpers/matcher-globals/clickSelector.js'))['default']
+  const fillIn: (typeof import('./feature/helpers/matcher-globals/fillIn.js'))['default']
+  const uncheck: (typeof import('./feature/helpers/matcher-globals/uncheck.js'))['default']
 }
 
 declare module 'vitest' {
