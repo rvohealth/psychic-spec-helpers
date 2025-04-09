@@ -3,22 +3,30 @@ import evaluateWithRetryAndTimeout, {
   ExpectToEvaluateOpts,
   ExpectToEvaluateReturnType,
 } from '../internal/evaluateWithRetryAndTimeout.js'
+import toCheck from '../matchers/toCheck.js'
+import toClick from '../matchers/toClick.js'
+import toClickButton from '../matchers/toClickButton.js'
+import toClickLink from '../matchers/toClickLink.js'
+import toClickSelector from '../matchers/toClickSelector.js'
+import toFill, { ToFillMatcherOpts } from '../matchers/toFill.js'
+import toHaveChecked from '../matchers/toHaveChecked.js'
+import toHaveLink from '../matchers/toHaveLink.js'
+import toHavePath from '../matchers/toHavePath.js'
 import toHaveSelector from '../matchers/toHaveSelector.js'
+import toHaveUnchecked from '../matchers/toHaveUnchecked.js'
+import toHaveUrl from '../matchers/toHaveUrl.js'
 import toMatchTextContent from '../matchers/toMatchTextContent.js'
 import toNotHaveSelector from '../matchers/toNotHaveSelector.js'
 import toNotMatchTextContent from '../matchers/toNotMatchTextContent.js'
-import toCheck from '../matchers/toCheck.js'
 import toUncheck from '../matchers/toUncheck.js'
-import toClick from '../matchers/toClick.js'
-import toClickLink from '../matchers/toClickLink.js'
-import toClickButton from '../matchers/toClickButton.js'
-import toClickSelector from '../matchers/toClickSelector.js'
-import toHavePath from '../matchers/toHavePath.js'
-import toHaveUrl from '../matchers/toHaveUrl.js'
-import toHaveLink from '../matchers/toHaveLink.js'
-import toHaveChecked from '../matchers/toHaveChecked.js'
-import toHaveUnchecked from '../matchers/toHaveUnchecked.js'
-import toFill, { ToFillMatcherOpts } from '../matchers/toFill.js'
+import check from './matcher-globals/check.js'
+import click from './matcher-globals/click.js'
+import clickButton from './matcher-globals/clickButton.js'
+import clickLink from './matcher-globals/clickLink.js'
+import clickSelector from './matcher-globals/clickSelector.js'
+import fillIn from './matcher-globals/fillIn.js'
+import uncheck from './matcher-globals/uncheck.js'
+import visit from './visit.js'
 
 export default function providePuppeteerViteMatchers() {
   ;((global as any).expect as any).extend({
@@ -98,6 +106,21 @@ export default function providePuppeteerViteMatchers() {
       return await evaluateWithRetryAndTimeout(argumentPassedToExpect, evaluationFn, opts)
     },
   })
+
+  // set globals
+
+  // define global context variable, setting it equal to describe
+  ;(global as any).context ||= describe
+
+  // define global helper functions
+  ;(global as any).check = check
+  ;(global as any).click = click
+  ;(global as any).clickButton = clickButton
+  ;(global as any).clickLink = clickLink
+  ;(global as any).clickSelector = clickSelector
+  ;(global as any).fillIn = fillIn
+  ;(global as any).uncheck = uncheck
+  ;(global as any).visit = visit
 }
 
 export interface CustomMatcherResult {
