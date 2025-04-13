@@ -451,7 +451,6 @@ __metadata:
     "@types/supertest": "*"
     puppeteer: "*"
     supertest: "*"
-    ts-node: "*"
     typescript: "*"
   languageName: unknown
   linkType: soft

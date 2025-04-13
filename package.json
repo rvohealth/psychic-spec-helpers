@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@rvoh/psychic-spec-helpers",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "psychic framework spec helpers",
   "author": "RVO Health",
   "repository": {
@@ -33,7 +33,6 @@
     "@types/supertest": "*",
     "puppeteer": "*",
     "supertest": "*",
-    "ts-node": "*",
     "typescript": "*"
   },
   "devDependencies": {
