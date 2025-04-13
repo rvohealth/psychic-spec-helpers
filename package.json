@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@rvoh/psychic-spec-helpers",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "psychic framework spec helpers",
   "author": "RVO Health",
   "repository": {
