@@ -6,7 +6,7 @@ export default async function toClickButton(
   opts?: WaitForSelectorOptions
 ) {
   try {
-    const el = await page.waitForSelector('button::-p-text(Submit)', opts)
+    const el = await page.waitForSelector(`button::-p-text("${expectedText}")`, opts)
     await el!.click()
 
     return {
