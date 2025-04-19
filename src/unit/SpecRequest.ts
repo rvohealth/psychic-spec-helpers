@@ -139,13 +139,12 @@ export interface SpecRequestOptsAll extends SpecRequestOpts {
 }
 
 export interface SpecRequestOptsGet extends SpecRequestOpts {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  query?: any
+  query?: Record<string, unknown>
 }
 
 export interface SpecRequestOptsPost extends SpecRequestOpts {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data?: any
+  data?: Record<string, unknown>
 }
 
 export interface SpecRequestOpts {

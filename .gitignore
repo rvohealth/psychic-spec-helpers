@@ -1,5 +1,13 @@
 node_modules
+.env*
+*.log
+.node-version
+.DS_Store
+.vim/*
 dist
+
+spec/tmp.txt
+spec/tmp/*
 
 .pnp.*
 .yarn/*
