@@ -70,12 +70,12 @@ export default function providePuppeteerViteMatchers() {
       return await toClickSelector(page, cssSelector, opts)
     },
 
-    async toHavePath(page: Page, path: string) {
-      return await toHavePath(page, path)
+    async toHavePath(page: Page, path: string, opts?: WaitForSelectorOptions) {
+      return await toHavePath(page, path, opts)
     },
 
-    async toHaveUrl(page: Page, url: string) {
-      return await toHaveUrl(page, url)
+    async toHaveUrl(page: Page, url: string, opts?: WaitForSelectorOptions) {
+      return await toHaveUrl(page, url, opts)
     },
 
     async toHaveChecked(page: Page, text: string, opts?: WaitForSelectorOptions) {

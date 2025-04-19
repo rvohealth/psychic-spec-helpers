@@ -21,7 +21,9 @@ export {
 export { default as visit } from './feature/helpers/visit.js'
 
 declare global {
+  // @ts-expect-error context redefined
   const context: (typeof import('vitest'))['describe']
+
   const page: InstanceType<typeof Page>
   const visit: (typeof import('./feature/helpers/visit.js'))['default']
   const check: (typeof import('./feature/helpers/matcher-globals/check.js'))['default']
@@ -46,8 +48,8 @@ interface PuppeteerAssertions {
   toEqualCalendarDate(expected: any): CustomMatcherResult
 
   // begin: fspec matchers
-  toMatchTextContent(expected: any): Promise<CustomMatcherResult>
-  toNotMatchTextContent(expected: any): Promise<CustomMatcherResult>
+  toMatchTextContent(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  toNotMatchTextContent(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toHaveSelector(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toNotHaveSelector(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toCheck(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
@@ -55,8 +57,8 @@ interface PuppeteerAssertions {
   toClickLink(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toClickButton(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toClickSelector(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
-  toHavePath(expected: any): Promise<CustomMatcherResult>
-  toHaveUrl(expected: any): Promise<CustomMatcherResult>
+  toHavePath(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  toHaveUrl(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toHaveChecked(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toHaveUnchecked(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toHaveLink(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>

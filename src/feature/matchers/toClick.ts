@@ -18,7 +18,7 @@ export default async function toClick(
   } catch (error) {
     return {
       pass: false,
-      message: `Expected page to have clickable element with text: "${expectedText}"`,
+      message: () => `Expected page to have clickable element with text: "${expectedText}"`,
     }
   }
 }

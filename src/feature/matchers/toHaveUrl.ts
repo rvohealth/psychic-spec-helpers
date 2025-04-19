@@ -1,21 +1,36 @@
-import { Page } from 'puppeteer'
-import evaluateWithRetryAndTimeout from '../internal/evaluateWithRetryAndTimeout.js'
+import { Page, WaitForSelectorOptions } from 'puppeteer'
 import requirePuppeteerPage from '../internal/requirePuppeteerPage.js'
 
-export default async function toHaveUrl(page: Page, expectedUrl: string) {
+export default async function toHaveUrl(
+  page: Page,
+  expectedUrl: string,
+  opts: WaitForSelectorOptions = {}
+) {
   requirePuppeteerPage(page)
 
-  return await evaluateWithRetryAndTimeout(
-    page,
-    async () => {
-      return {
-        pass: page.url() === expectedUrl,
-        actual: expectedUrl,
-      }
-    },
-    {
-      successText: () => `Expected page to have path: "${expectedUrl}"`,
-      failureText: () => `Expected page not to have path: "${expectedUrl}"`,
+  try {
+    await page.waitForFunction(
+      path => {
+        function trimUrl(url: string) {
+          return url.replace(/\/$/, '')
+        }
+
+        // @ts-expect-error window
+        return trimUrl(window.location.href || '') === trimUrl(path || '')
+      },
+      opts,
+      expectedUrl
+    )
+    return {
+      pass: true,
+      message: () => {
+        throw new Error('cannot negate toHaveUrl, use toNotHaveUrl instead.')
+      },
     }
-  )
+  } catch (err) {
+    return {
+      pass: false,
+      message: () => `page did not navigate to expected url: ${expectedUrl}`,
+    }
+  }
 }

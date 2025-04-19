@@ -18,7 +18,8 @@ export default async function toClickSelector(
   } catch (error) {
     return {
       pass: false,
-      message: `Expected page to have clickable element with matching selector: "${cssSelector}"`,
+      message: () =>
+        `Expected page to have clickable element with matching selector: "${cssSelector}"`,
     }
   }
 }

@@ -5,10 +5,13 @@ export default async function toCheck(
   expectedText: string,
   opts?: WaitForSelectorOptions
 ) {
-  try {
-    const el = await page.waitForSelector(`label::-p-text(${expectedText}`, opts)
-    await el!.click()
+  const failure = {
+    pass: false,
+    message: () => `Expected page to have checkable element with text: "${expectedText}"`,
+  }
 
+  try {
+    await expect(page).toClickSelector(`label::-p-text("${expectedText}")`, opts)
     return {
       pass: true,
       message: () => {
@@ -16,9 +19,6 @@ export default async function toCheck(
       },
     }
   } catch (error) {
-    return {
-      pass: false,
-      message: `Expected page to have checkable element with text: "${expectedText}"`,
-    }
+    return failure
   }
 }

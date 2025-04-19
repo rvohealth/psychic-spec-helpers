@@ -18,7 +18,7 @@ export default async function toClickButton(
   } catch (error) {
     return {
       pass: false,
-      message: `Expected page to have clickable link with matching text: "${expectedText}"`,
+      message: () => `Expected page to have clickable link with matching text: "${expectedText}"`,
     }
   }
 }

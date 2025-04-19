@@ -1,8 +1,9 @@
 import { DreamApplication } from '@rvoh/dream'
 import { provideDreamViteMatchers, truncate } from '@rvoh/dream-spec-helpers'
 import { PsychicServer } from '@rvoh/psychic'
-import { providePuppeteerViteMatchers } from '@rvoh/psychic-spec-helpers'
+import { providePuppeteerViteMatchers } from '../../../src/index.js'
 import initializePsychicApplication from '../../../test-app/src/cli/helpers/initializePsychicApplication.js'
+import getPage from '../helpers/getPage.js'
 
 provideDreamViteMatchers()
 providePuppeteerViteMatchers()
@@ -34,10 +35,18 @@ beforeAll(async () => {
 
   server = new PsychicServer()
   await server.start(parseInt(process.env.DEV_SERVER_PORT || '7778'))
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+  if (!(global as any).page) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+    ;(global as any).page = await getPage()
+  }
 })
 
 beforeEach(async () => {
   await truncate(DreamApplication)
+
+  await visit('/')
 })
 
 afterAll(async () => {

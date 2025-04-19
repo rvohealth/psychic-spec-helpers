@@ -3,10 +3,13 @@ import { Page, WaitForSelectorOptions } from 'puppeteer'
 export default async function toMatchTextContent(
   page: Page,
   text: string,
-  { selector = 'body' }: { selector?: string } & WaitForSelectorOptions = {}
+  opts: { selector?: string } & WaitForSelectorOptions = {}
 ) {
   try {
-    await page.waitForSelector(`${selector}::-p-text(${text.replace(/"/g, '\\"')})`)
+    await page.waitForSelector(
+      `${opts.selector || 'body'}::-p-text(${text.replace(/"/g, '\\"')})`,
+      opts
+    )
     return {
       pass: true,
       message: () => {
@@ -17,7 +20,7 @@ export default async function toMatchTextContent(
     return {
       pass: false,
       message: () => `
-expected ${selector} with text:
+expected ${opts.selector || 'body'} with text:
         ${text}
 
 but no text was found within that selector
