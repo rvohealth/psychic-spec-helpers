@@ -54,7 +54,6 @@ export class SpecRequest {
 
   public async session(
     uri: string,
-    credentials: object,
     expectedStatus: number,
     opts: SpecRequestSessionOpts = {}
   ): Promise<SpecSession> {
@@ -65,10 +64,13 @@ export class SpecRequest {
 
           // supersession is borrowed from a non-typescript repo, which
           // does not have strong types around http methods, so we need to any cast
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
-          ;(session[(opts.httpMethod || 'post') as keyof typeof session] as any)(uri)
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            .send(credentials)
+          let req = session[(opts.httpMethod || 'post') as 'post'](`/${uri.replace(/^\//, '')}`)
+
+          if (opts.data) {
+            req = req.send(opts.data)
+          }
+
+          req
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             .expect(expectedStatus)
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -112,7 +114,7 @@ export class SpecRequest {
     }
 
     const req = supertest.agent(this.server.expressApp)
-    let request = req[method](uri)
+    let request = req[method](`/${uri.replace(/^\//, '')}`)
     if (opts.headers) request = request.set(opts.headers)
     if (opts.query) request = request.query(opts.query)
     if (method !== 'get') request = request.send(opts.data)

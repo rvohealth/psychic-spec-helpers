@@ -16,6 +16,15 @@ export default async (psy: PsychicApplication) => {
   psy.set('inflections', inflections)
   psy.set('routes', routesCb)
 
+  psy.set('encryption', {
+    cookies: {
+      current: {
+        algorithm: 'aes-256-gcm',
+        key: process.env.APP_ENCRYPTION_KEY!,
+      },
+    },
+  })
+
   psy.set('paths', {
     apiRoutes: 'test-app/src/conf/routes.ts',
     controllers: 'test-app/src/app/controllers',

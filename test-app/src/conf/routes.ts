@@ -7,4 +7,8 @@ export default (r: PsychicRouter) => {
   r.patch('/spec-request/patch-test', SpecRequestController, 'testPatch')
   r.put('/spec-request/put-test', SpecRequestController, 'testPut')
   r.delete('/spec-request/delete-test', SpecRequestController, 'testDelete')
+
+  // session
+  r.get('spec-session/auth-test', SpecRequestController, 'authTest')
+  r.post('spec-session/start-session', SpecRequestController, 'sessionStart')
 }

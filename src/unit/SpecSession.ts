@@ -57,7 +57,7 @@ export class SpecSession {
     }
 
     const req = this._session
-    let request = req[method](uri)
+    let request = req[method](`/${uri.replace(/^\//, '')}`)
     if (opts.headers) request = request.set(opts.headers)
     if (opts.query) request = request.query(opts.query)
     if (method !== 'get') request = request.send(opts.data)

@@ -30,4 +30,19 @@ export default class SpecRequestController extends ApplicationController {
   public testDelete() {
     this.testPost()
   }
+
+  public authTest() {
+    const token = this.getCookie('authToken')
+    if (token === 'authenticated') this.noContent()
+    this.unauthorized()
+  }
+
+  public sessionStart() {
+    if (this.params.password === 'goodpass') {
+      this.setCookie('authToken', 'authenticated')
+      this.noContent()
+    }
+
+    this.unauthorized()
+  }
 }
