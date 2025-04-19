@@ -1,0 +1,14 @@
+# Ignore generated files
+asyncapi/v1/asyncapi.yml
+.github/
+
+.yarn/
+.yarnrc.yml
+
+test-app/src/client/src/api/openapi.ts
+test-app/src/types/*
+test-app/src/conf/routeTypes.ts
+openapi*
+
+client/tsconfig.json
+client/eslint.config.js

@@ -1,6 +1,7 @@
 describe('toCheck', () => {
   it('succeeds when label for checkbox is found', async () => {
     await expect(page).toCheck('My checkbox')
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
     const inputValue = await page.$eval('#my-checkbox', input => input.checked).catch(() => null)
     expect(inputValue).toBe(true)
   })

@@ -8,8 +8,10 @@ export default async function toUncheck(
   try {
     const labelSelector = `label::-p-text("${expectedText}")`
 
+    // eslint-disable-next-line
     const forAttributeValue = await page.$eval(labelSelector, label => label.getAttribute('for'))
     const inputElement = await page.waitForSelector(`#${forAttributeValue}`, opts)
+    // eslint-disable-next-line
     const isChecked = await page.evaluate(checkbox => checkbox.checked, inputElement)
     if (!isChecked)
       return {
@@ -27,7 +29,7 @@ export default async function toUncheck(
         throw new Error('Cannot negate toUncheck, try toCheck')
       },
     }
-  } catch (error) {
+  } catch {
     return {
       pass: false,
       message: () => `Expected page to have checkable element with text: "${expectedText}"`,

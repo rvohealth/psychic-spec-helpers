@@ -22,7 +22,7 @@ describe('specRequest#patch', () => {
       headers: expect.objectContaining({
         headera: 'A',
         headerb: 'B',
-      }),
+      }) as object,
     })
   })
 

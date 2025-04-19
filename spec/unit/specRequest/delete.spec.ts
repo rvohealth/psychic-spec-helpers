@@ -22,7 +22,7 @@ describe('specRequest#delete', () => {
       headers: expect.objectContaining({
         headera: 'A',
         headerb: 'B',
-      }),
+      }) as object,
     })
   })
 

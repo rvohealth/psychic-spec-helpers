@@ -36,35 +36,56 @@ declare global {
 }
 
 declare module 'vitest' {
+  // eslint-disable-next-line
   interface ExpectStatic extends PuppeteerAssertions {}
+  // eslint-disable-next-line
   interface Assertion extends PuppeteerAssertions {}
 }
 
 interface PuppeteerAssertions {
   // begin: dream matchers
+  // eslint-disable-next-line
   toMatchDreamModel(expected: any): CustomMatcherResult
+  // eslint-disable-next-line
   toMatchDreamModels(expected: any): CustomMatcherResult
   toBeWithin(precision: number, expected: number): CustomMatcherResult
+  // eslint-disable-next-line
   toEqualCalendarDate(expected: any): CustomMatcherResult
 
   // begin: fspec matchers
+  // eslint-disable-next-line
   toMatchTextContent(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toNotMatchTextContent(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toHaveSelector(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toNotHaveSelector(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toCheck(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toClick(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toClickLink(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toClickButton(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toClickSelector(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toHavePath(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toHaveUrl(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toHaveChecked(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toHaveUnchecked(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toHaveLink(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toFill(cssSelector: string, text: string, opts?: ToFillMatcherOpts): Promise<CustomMatcherResult>
+  // eslint-disable-next-line
   toUncheck(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toEvaluate(
+    // eslint-disable-next-line
     expected: (a: any) => boolean | Promise<boolean>,
     opts: ExpectToEvaluateOpts
   ): Promise<CustomMatcherResult>

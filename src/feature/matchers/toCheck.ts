@@ -18,7 +18,7 @@ export default async function toCheck(
         throw new Error('Cannot negate toCheck')
       },
     }
-  } catch (error) {
+  } catch {
     return failure
   }
 }

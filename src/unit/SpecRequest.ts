@@ -4,7 +4,9 @@ import supersession, { HttpMethod } from './supersession.js'
 import { SpecSession } from './SpecSession.js'
 
 export class SpecRequest {
+  // eslint-disable-next-line
   private PsychicServer: any
+  // eslint-disable-next-line
   private server: any
 
   public async get(
@@ -47,7 +49,9 @@ export class SpecRequest {
     return await this.makeRequest('delete', uri, expectedStatus, opts as SpecRequestOptsAll)
   }
 
+  // eslint-disable-next-line
   public async init(PsychicServer: any) {
+    // eslint-disable-next-line
     this.PsychicServer = PsychicServer
     this.server ||= await createPsychicServer(PsychicServer)
   }
@@ -71,13 +75,9 @@ export class SpecRequest {
           }
 
           req
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             .expect(expectedStatus)
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             .query(opts.query || {})
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             .set(opts.headers || {})
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             .end((err: Error) => {
               if (err) return reject(err)
 
@@ -113,6 +113,7 @@ export class SpecRequest {
       process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = '1'
     }
 
+    // eslint-disable-next-line
     const req = supertest.agent(this.server.expressApp)
     let request = req[method](`/${uri.replace(/^\//, '')}`)
     if (opts.headers) request = request.set(opts.headers)
@@ -145,7 +146,6 @@ export interface SpecRequestOptsGet extends SpecRequestOpts {
 }
 
 export interface SpecRequestOptsPost extends SpecRequestOpts {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: Record<string, unknown>
 }
 
