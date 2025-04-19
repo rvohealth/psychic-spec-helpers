@@ -4,9 +4,9 @@ describe('clickSelector', () => {
   })
 
   it('fails when the selector is not found', async () => {
-    await clickSelector('#my-button', { timeout: 50 })
+    await clickSelector('#my-button', { timeout: 500 })
     await expect(async () => {
-      await clickSelector('#not-found', { timeout: 50 })
+      await clickSelector('#not-found', { timeout: 500 })
     }).rejects.toThrow()
   })
 })

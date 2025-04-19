@@ -15,7 +15,7 @@ export default async function toClickSelector(
         throw new Error('Cannot negate toNotMatchTextContent, use toMatchTextContent instead')
       },
     }
-  } catch (error) {
+  } catch {
     return {
       pass: false,
       message: () =>

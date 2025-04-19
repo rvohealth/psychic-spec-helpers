@@ -8,14 +8,16 @@ export default async function toHaveUnchecked(
   try {
     const labelSelector = `label::-p-text("${expectedText}")`
 
+    // eslint-disable-next-line
     const forAttributeValue = await page.$eval(labelSelector, label => label.getAttribute('for'))
     const inputElement = await page.waitForSelector(`#${forAttributeValue}`, opts)
+    // eslint-disable-next-line
     const isChecked = await page.evaluate(checkbox => checkbox.checked, inputElement)
 
     if (isChecked) {
       return {
         pass: false,
-        message: () => `Found element: ${inputElement}, but it was checked`,
+        message: () => `Found element: ${expectedText}, but it was checked`,
       }
     }
 

@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@rvoh/psychic-spec-helpers",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "description": "psychic framework spec helpers",
   "author": "RVO Health",
   "repository": {
@@ -30,6 +30,8 @@
     "uspec": "vitest --config ./spec/unit/vite.config.ts",
     "fspec": "vitest --config ./spec/features/vite.config.ts",
     "build": "echo \"building psychic-spec-helpers...\" && rm -rf dist && npx tsc -p ./tsconfig.json",
+    "lint": "yarn run eslint --no-warn-ignored \"src/**/*.ts\" \"spec/**/*.ts\" && yarn run prettier . --check",
+    "format": "yarn run prettier . --write",
     "prepack": "yarn build"
   },
   "packageManager": "yarn@4.4.1",
@@ -56,11 +58,13 @@
     "kysely-codegen": "^0.17.0",
     "luxon-jest-matchers": "^0.1.14",
     "pg": "^8.13.1",
+    "prettier": "^3.5.3",
     "puppeteer": "^24.4.0",
     "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.3",
     "typescript": "^5.5.4",
+    "typescript-eslint": "^8.30.1",
     "vitest": "^3.1.1"
   },
   "dependencies": {

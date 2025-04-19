@@ -15,7 +15,7 @@ export default async function toClickButton(
         throw new Error('Cannot negate toClickLink')
       },
     }
-  } catch (error) {
+  } catch {
     return {
       pass: false,
       message: () => `Expected page to have clickable link with matching text: "${expectedText}"`,

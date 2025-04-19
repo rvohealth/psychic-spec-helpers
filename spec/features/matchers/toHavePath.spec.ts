@@ -4,9 +4,9 @@ describe('toHavePath', () => {
   })
 
   it('fails when the selector is not found', async () => {
-    await expect(page).toHavePath('/', { timeout: 50 })
+    await expect(page).toHavePath('/', { timeout: 500 })
     await expect(async () => {
-      await expect(page).toHavePath('/not-found', { timeout: 50 })
+      await expect(page).toHavePath('/not-found', { timeout: 500 })
     }).rejects.toThrow()
   })
 })

@@ -47,6 +47,7 @@ beforeEach(async () => {
   await truncate(DreamApplication)
 
   await visit('/')
+  await expect(page).toMatchTextContent('My div')
 })
 
 afterAll(async () => {

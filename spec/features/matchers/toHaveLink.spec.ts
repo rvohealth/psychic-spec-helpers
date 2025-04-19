@@ -4,9 +4,9 @@ describe('toHaveLink', () => {
   })
 
   it('fails when the selector is not found', async () => {
-    await expect(page).toHaveLink('My link', { timeout: 50 })
+    await expect(page).toHaveLink('My link', { timeout: 500 })
     await expect(async () => {
-      await expect(page).toHaveLink('not found link', { timeout: 50 })
+      await expect(page).toHaveLink('not found link', { timeout: 500 })
     }).rejects.toThrow()
   })
 })

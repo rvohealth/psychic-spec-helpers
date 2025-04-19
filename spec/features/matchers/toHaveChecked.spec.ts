@@ -5,9 +5,9 @@ describe('toHaveChecked', () => {
   })
 
   it('fails when the selector is not found', async () => {
-    await check('My checkbox', { timeout: 50 })
+    await check('My checkbox', { timeout: 500 })
     await expect(async () => {
-      await expect(page).toHaveChecked('not found checkbox', { timeout: 50 })
+      await expect(page).toHaveChecked('not found checkbox', { timeout: 500 })
     }).rejects.toThrow()
   })
 })

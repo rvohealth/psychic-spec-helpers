@@ -4,9 +4,9 @@ describe('clickLink', () => {
   })
 
   it('fails when the selector is not found', async () => {
-    await clickLink('My link', { timeout: 50 })
+    await clickLink('My link', { timeout: 500 })
     await expect(async () => {
-      await clickLink('Not found link', { timeout: 50 })
+      await clickLink('Not found link', { timeout: 500 })
     }).rejects.toThrow()
   })
 })

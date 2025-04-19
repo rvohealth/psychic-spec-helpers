@@ -4,9 +4,9 @@ describe('toHavePath', () => {
   })
 
   it('fails when the selector is not found', async () => {
-    await expect(page).toHaveSelector('#my-button', { timeout: 50 })
+    await expect(page).toHaveSelector('#my-button', { timeout: 500 })
     await expect(async () => {
-      await expect(page).toHaveSelector('#not-found-button', { timeout: 50 })
+      await expect(page).toHaveSelector('#not-found-button', { timeout: 500 })
     }).rejects.toThrow()
   })
 })

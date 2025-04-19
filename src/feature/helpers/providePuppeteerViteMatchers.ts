@@ -29,7 +29,8 @@ import uncheck from './matcher-globals/uncheck.js'
 import visit from './visit.js'
 
 export default function providePuppeteerViteMatchers() {
-  ;((global as any).expect as any).extend({
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+  ;(global as any).expect.extend({
     async toMatchTextContent(
       page: Page,
       text: string,
@@ -100,6 +101,7 @@ export default function providePuppeteerViteMatchers() {
 
     async toEvaluate(
       argumentPassedToExpect: Page,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       evaluationFn: (a: any) => ExpectToEvaluateReturnType | Promise<ExpectToEvaluateReturnType>,
       opts: ExpectToEvaluateOpts
     ) {
@@ -110,16 +112,25 @@ export default function providePuppeteerViteMatchers() {
   // set globals
 
   // define global context variable, setting it equal to describe
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   ;(global as any).context ||= describe
 
   // define global helper functions
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   ;(global as any).check = check
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   ;(global as any).click = click
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   ;(global as any).clickButton = clickButton
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   ;(global as any).clickLink = clickLink
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   ;(global as any).clickSelector = clickSelector
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   ;(global as any).fillIn = fillIn
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   ;(global as any).uncheck = uncheck
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   ;(global as any).visit = visit
 }
 

@@ -16,6 +16,7 @@ export default async function toHaveUrl(
         }
 
         // @ts-expect-error window
+        // eslint-disable-next-line
         return trimUrl(window.location.href || '') === trimUrl(path || '')
       },
       opts,
@@ -27,7 +28,7 @@ export default async function toHaveUrl(
         throw new Error('cannot negate toHaveUrl, use toNotHaveUrl instead.')
       },
     }
-  } catch (err) {
+  } catch {
     return {
       pass: false,
       message: () => `page did not navigate to expected url: ${expectedUrl}`,

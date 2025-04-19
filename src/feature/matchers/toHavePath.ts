@@ -16,6 +16,7 @@ export default async function toHavePath(
         }
 
         // @ts-expect-error window
+        // eslint-disable-next-line
         return trimPath(new URL(window.location.href).pathname) === trimPath(path)
       },
       opts,
@@ -27,7 +28,7 @@ export default async function toHavePath(
         throw new Error('cannot negate toHavePath, use toNotHavePath instead.')
       },
     }
-  } catch (err) {
+  } catch {
     return {
       pass: false,
       message: () => `page did not navigate to expected path: ${expectedPath}`,

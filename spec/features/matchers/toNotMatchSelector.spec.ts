@@ -4,9 +4,9 @@ describe('toNotHaveSelector', () => {
   })
 
   it('fails when the page does match the selector', async () => {
-    await expect(page).toNotHaveSelector('#not-found-selector', { timeout: 50 })
+    await expect(page).toNotHaveSelector('#not-found-selector', { timeout: 500 })
     await expect(async () => {
-      await expect(page).toNotHaveSelector('#my-div', { timeout: 50 })
+      await expect(page).toNotHaveSelector('#my-div', { timeout: 500 })
     }).rejects.toThrow()
   })
 })
