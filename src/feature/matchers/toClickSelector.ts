@@ -15,10 +15,11 @@ export default async function toClickSelector(
         throw new Error('Cannot negate toNotMatchTextContent, use toMatchTextContent instead')
       },
     }
-  } catch (error) {
+  } catch {
     return {
       pass: false,
-      message: `Expected page to have clickable element with matching selector: "${cssSelector}"`,
+      message: () =>
+        `Expected page to have clickable element with matching selector: "${cssSelector}"`,
     }
   }
 }

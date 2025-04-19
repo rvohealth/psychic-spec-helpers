@@ -6,29 +6,33 @@ export default async function toUncheck(
   opts?: WaitForSelectorOptions
 ) {
   try {
-    const el = await page.waitForSelector(`label::-p-text(${expectedText}`, opts)
-    await el!.click()
+    const labelSelector = `label::-p-text("${expectedText}")`
 
-    const isChecked = await page.evaluate(checkbox => checkbox.checked, el)
+    // eslint-disable-next-line
+    const forAttributeValue = await page.$eval(labelSelector, label => label.getAttribute('for'))
+    const inputElement = await page.waitForSelector(`#${forAttributeValue}`, opts)
+    // eslint-disable-next-line
+    const isChecked = await page.evaluate(checkbox => checkbox.checked, inputElement)
     if (!isChecked)
       return {
         pass: false,
         message: () => `A checkbox was found with "${expectedText}", but it is already unchecked`,
       }
 
-    await el!.click()
-    const isUncheckedNow = await page.evaluate(checkbox => checkbox.checked, el)
+    await expect(page).toHaveSelector(`#${forAttributeValue}:checked`)
+    await expect(page).toClickSelector(labelSelector)
+    await expect(page).toNotHaveSelector(`#${forAttributeValue}:checked`)
 
     return {
-      pass: isUncheckedNow,
+      pass: true,
       message: () => {
         throw new Error('Cannot negate toUncheck, try toCheck')
       },
     }
-  } catch (error) {
+  } catch {
     return {
       pass: false,
-      message: `Expected page to have checkable element with text: "${expectedText}"`,
+      message: () => `Expected page to have checkable element with text: "${expectedText}"`,
     }
   }
 }

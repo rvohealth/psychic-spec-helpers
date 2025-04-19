@@ -38,4 +38,4 @@ export default async function toFill(
   }
 }
 
-export type ToFillMatcherOpts = WaitForSelectorOptions & { bypassInputValueReset: boolean }
+export type ToFillMatcherOpts = WaitForSelectorOptions & { bypassInputValueReset?: boolean }

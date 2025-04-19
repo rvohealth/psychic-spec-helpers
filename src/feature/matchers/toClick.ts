@@ -15,10 +15,10 @@ export default async function toClick(
         throw new Error('Cannot negate toClick')
       },
     }
-  } catch (error) {
+  } catch {
     return {
       pass: false,
-      message: `Expected page to have clickable element with text: "${expectedText}"`,
+      message: () => `Expected page to have clickable element with text: "${expectedText}"`,
     }
   }
 }

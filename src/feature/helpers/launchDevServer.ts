@@ -77,7 +77,7 @@ async function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
     const server = createServer()
       .once('error', err => {
-        if ((err as any).code === 'EADDRINUSE') {
+        if ((err as unknown as Record<string, string>).code === 'EADDRINUSE') {
           resolve(false)
         } else {
           resolve(true)
