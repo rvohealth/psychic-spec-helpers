@@ -79,8 +79,8 @@ export class SpecSession {
 }
 
 export interface SpecRequestOptsAll extends SpecRequestOpts {
-  query?: Record<string, unknown>
-  data?: Record<string, unknown>
+  query?: object
+  data?: object
 }
 
 export interface SpecRequestOptsGet extends SpecRequestOpts {
