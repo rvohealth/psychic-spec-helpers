@@ -137,16 +137,16 @@ export class SpecRequest {
 }
 
 export interface SpecRequestOptsAll extends SpecRequestOpts {
-  query?: Record<string, unknown>
-  data?: Record<string, unknown>
+  query?: object
+  data?: object
 }
 
 export interface SpecRequestOptsGet extends SpecRequestOpts {
-  query?: Record<string, unknown>
+  query?: object
 }
 
 export interface SpecRequestOptsPost extends SpecRequestOpts {
-  data?: Record<string, unknown>
+  data?: object
 }
 
 export interface SpecRequestOpts {
