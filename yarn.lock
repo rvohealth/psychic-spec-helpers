@@ -825,7 +825,7 @@ __metadata:
     "@eslint/js": "npm:=9.0.0"
     "@rvoh/dream": "npm:^0.39.0"
     "@rvoh/dream-spec-helpers": "npm:^0.2.4"
-    "@rvoh/psychic": "npm:^0.30.0"
+    "@rvoh/psychic": "npm:^0.31.0"
     "@types/cookiejar": "npm:^2"
     "@types/express": "npm:^4"
     "@types/node": "npm:^22.5.1"
@@ -855,9 +855,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rvoh/psychic@npm:^0.30.0":
-  version: 0.30.0
-  resolution: "@rvoh/psychic@npm:0.30.0"
+"@rvoh/psychic@npm:^0.31.0":
+  version: 0.31.0
+  resolution: "@rvoh/psychic@npm:0.31.0"
   dependencies:
     "@types/cookie-parser": "npm:^1.4.8"
     "@types/cors": "npm:^2.8.17"
@@ -874,7 +874,7 @@ __metadata:
     "@types/express": "*"
     commander: "*"
     express: "*"
-  checksum: 10c0/d026a0b4eccb4e81849a162ee3bc10f15e92ee7fad4b43a36eeffcea22deb3acf0a1ea35c157224a0966c2fdac883e58833831b7f513e476b08777fef3aa898f
+  checksum: 10c0/24929c3c3c628c21989eefce6f166402af3045adffc857a8c30449cf165e0b7350074e17d0f1bbe5e8382eaf518076f044fdcb242ab81f185279f7611c692feb
   languageName: node
   linkType: hard
 
