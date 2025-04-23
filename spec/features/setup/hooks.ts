@@ -1,8 +1,8 @@
-import { DreamApplication } from '@rvoh/dream'
+import { DreamApp } from '@rvoh/dream'
 import { provideDreamViteMatchers, truncate } from '@rvoh/dream-spec-helpers'
 import { PsychicServer } from '@rvoh/psychic'
 import { providePuppeteerViteMatchers } from '../../../src/index.js'
-import initializePsychicApplication from '../../../test-app/src/cli/helpers/initializePsychicApplication.js'
+import initializePsychicApp from '../../../test-app/src/cli/helpers/initializePsychicApp.js'
 import getPage from '../helpers/getPage.js'
 
 provideDreamViteMatchers()
@@ -27,7 +27,7 @@ let server: PsychicServer
 
 beforeAll(async () => {
   try {
-    await initializePsychicApplication()
+    await initializePsychicApp()
   } catch (err) {
     console.error(err)
     throw err
@@ -44,7 +44,7 @@ beforeAll(async () => {
 })
 
 beforeEach(async () => {
-  await truncate(DreamApplication)
+  await truncate(DreamApp)
 
   await visit('/')
   await expect(page).toMatchTextContent('My div')

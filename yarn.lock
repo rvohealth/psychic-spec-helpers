@@ -784,7 +784,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rvoh/dream-spec-helpers@npm:^0.2.0":
+"@rvoh/dream-spec-helpers@npm:^0.2.4":
   version: 0.2.4
   resolution: "@rvoh/dream-spec-helpers@npm:0.2.4"
   dependencies:
@@ -797,9 +797,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rvoh/dream@npm:^0.35.0":
-  version: 0.35.5
-  resolution: "@rvoh/dream@npm:0.35.5"
+"@rvoh/dream@npm:^0.39.0":
+  version: 0.39.0
+  resolution: "@rvoh/dream@npm:0.39.0"
   dependencies:
     colorette: "npm:^2.0.20"
     commander: "npm:^12.1.0"
@@ -814,7 +814,7 @@ __metadata:
     kysely: ^0.27.4
     kysely-codegen: ~0.17.0
     pg: "*"
-  checksum: 10c0/bc784686c944bb9cddd2c183fb04eee7e5f9051e8a92b7c2fffb588fc17e8bcaf73b37fb7f1e0e26dbe5f83c975b6abb8cd108f4118f8cfdc980406376303bfb
+  checksum: 10c0/086ef2c323b97370d5852b25e1555aa812862cfefd1190a70fa50cf54417409f9f730959275b316ce82b643fa16d08d69ad560329a4f12c53495d1468125da3e
   languageName: node
   linkType: hard
 
@@ -823,9 +823,9 @@ __metadata:
   resolution: "@rvoh/psychic-spec-helpers@workspace:."
   dependencies:
     "@eslint/js": "npm:=9.0.0"
-    "@rvoh/dream": "npm:^0.35.0"
-    "@rvoh/dream-spec-helpers": "npm:^0.2.0"
-    "@rvoh/psychic": "npm:^0.28.3"
+    "@rvoh/dream": "npm:^0.39.0"
+    "@rvoh/dream-spec-helpers": "npm:^0.2.4"
+    "@rvoh/psychic": "npm:^0.30.0"
     "@types/cookiejar": "npm:^2"
     "@types/express": "npm:^4"
     "@types/node": "npm:^22.5.1"
@@ -855,9 +855,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rvoh/psychic@npm:^0.28.3":
-  version: 0.28.6
-  resolution: "@rvoh/psychic@npm:0.28.6"
+"@rvoh/psychic@npm:^0.30.0":
+  version: 0.30.0
+  resolution: "@rvoh/psychic@npm:0.30.0"
   dependencies:
     "@types/cookie-parser": "npm:^1.4.8"
     "@types/cors": "npm:^2.8.17"
@@ -874,7 +874,7 @@ __metadata:
     "@types/express": "*"
     commander: "*"
     express: "*"
-  checksum: 10c0/a9a962f83b45e22301f01cc1ca7184c5c7b6a1e900e82bca319a9297fde75affaa14402bbaee964503d2b849c09b310e62f43c53b3ca2ced244a7b72fe8c5742
+  checksum: 10c0/d026a0b4eccb4e81849a162ee3bc10f15e92ee7fad4b43a36eeffcea22deb3acf0a1ea35c157224a0966c2fdac883e58833831b7f513e476b08777fef3aa898f
   languageName: node
   linkType: hard
 
