@@ -25,8 +25,10 @@ import clickButton from './matcher-globals/clickButton.js'
 import clickLink from './matcher-globals/clickLink.js'
 import clickSelector from './matcher-globals/clickSelector.js'
 import fillIn from './matcher-globals/fillIn.js'
+import select from './matcher-globals/select.js'
 import uncheck from './matcher-globals/uncheck.js'
 import visit from './visit.js'
+import toSelect from '../matchers/toSelect.js'
 
 export default function providePuppeteerViteMatchers() {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
@@ -57,6 +59,15 @@ export default function providePuppeteerViteMatchers() {
 
     async toClick(page: Page, text: string, opts?: WaitForSelectorOptions) {
       return await toClick(page, text, opts)
+    },
+
+    async toSelect(
+      page: Page,
+      cssSelector: string,
+      optionText: string,
+      opts?: WaitForSelectorOptions
+    ) {
+      return await toSelect(page, cssSelector, optionText, opts)
     },
 
     async toClickLink(page: Page, text: string, opts?: WaitForSelectorOptions) {
@@ -128,6 +139,8 @@ export default function providePuppeteerViteMatchers() {
   ;(global as any).clickSelector = clickSelector
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   ;(global as any).fillIn = fillIn
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+  ;(global as any).select = select
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   ;(global as any).uncheck = uncheck
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any

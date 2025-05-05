@@ -32,6 +32,7 @@ declare global {
   const clickLink: (typeof import('./feature/helpers/matcher-globals/clickLink.js'))['default']
   const clickSelector: (typeof import('./feature/helpers/matcher-globals/clickSelector.js'))['default']
   const fillIn: (typeof import('./feature/helpers/matcher-globals/fillIn.js'))['default']
+  const select: (typeof import('./feature/helpers/matcher-globals/select.js'))['default']
   const uncheck: (typeof import('./feature/helpers/matcher-globals/uncheck.js'))['default']
 }
 
@@ -65,6 +66,11 @@ interface PuppeteerAssertions {
   toCheck(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   // eslint-disable-next-line
   toClick(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  toSelect(
+    cssSelector: string,
+    optionText: string,
+    opts?: WaitForSelectorOptions
+  ): Promise<CustomMatcherResult>
   // eslint-disable-next-line
   toClickLink(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   // eslint-disable-next-line
