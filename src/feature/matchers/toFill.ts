@@ -1,4 +1,5 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
+import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 import metaOrControlKey from '../helpers/metaOrControlKey.js'
 
 export default async function toFill(
@@ -8,7 +9,7 @@ export default async function toFill(
   opts?: ToFillMatcherOpts
 ) {
   try {
-    await page.waitForSelector(cssSelector, opts)
+    await page.waitForSelector(cssSelector, applyDefaultWaitForOpts(opts))
 
     // unless the user opts out, clear the input
     // before typing into it, since most of the

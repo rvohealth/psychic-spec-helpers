@@ -1,4 +1,5 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
+import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 
 export default async function toHaveLink(
   page: Page,
@@ -6,7 +7,7 @@ export default async function toHaveLink(
   opts?: WaitForSelectorOptions
 ) {
   try {
-    await page.waitForSelector(`a ::-p-text(${expectedText})`, opts)
+    await page.waitForSelector(`a ::-p-text(${expectedText})`, applyDefaultWaitForOpts(opts))
     return {
       pass: true,
       message: () => {

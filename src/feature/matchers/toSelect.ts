@@ -1,4 +1,5 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
+import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 
 export default async function toSelect(
   page: Page,
@@ -7,7 +8,10 @@ export default async function toSelect(
   opts?: WaitForSelectorOptions
 ) {
   try {
-    const el = await page.waitForSelector(cssSelector, { timeout: 5000, ...opts })
+    const el = await page.waitForSelector(cssSelector, {
+      timeout: 5000,
+      ...applyDefaultWaitForOpts(opts),
+    })
 
     if (!el)
       return {

@@ -1,4 +1,5 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
+import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 
 export default async function toMatchTextContent(
   page: Page,
@@ -8,7 +9,7 @@ export default async function toMatchTextContent(
   try {
     await page.waitForSelector(
       `${opts.selector || 'body'}::-p-text(${text.replace(/"/g, '\\"')})`,
-      opts
+      applyDefaultWaitForOpts(opts)
     )
     return {
       pass: true,

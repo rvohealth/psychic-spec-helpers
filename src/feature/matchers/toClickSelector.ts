@@ -1,4 +1,5 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
+import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 
 export default async function toClickSelector(
   page: Page,
@@ -6,7 +7,7 @@ export default async function toClickSelector(
   opts?: WaitForSelectorOptions
 ) {
   try {
-    const el = await page.waitForSelector(cssSelector, opts)
+    const el = await page.waitForSelector(cssSelector, applyDefaultWaitForOpts(opts))
     await el!.click()
 
     return {
