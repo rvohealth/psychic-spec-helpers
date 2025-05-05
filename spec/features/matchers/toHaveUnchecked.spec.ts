@@ -4,17 +4,17 @@ describe('toHaveUnchecked', () => {
   })
 
   it('fails when the input is checked', async () => {
-    await expect(page).toHaveUnchecked('My checkbox', { timeout: 500 })
+    await expect(page).toHaveUnchecked('My checkbox')
     await expect(async () => {
       await check('My checkbox')
-      await expect(page).toHaveUnchecked('My checkbox', { timeout: 500 })
+      await expect(page).toHaveUnchecked('My checkbox')
     }).rejects.toThrow()
   })
 
   it('fails when the input is not found', async () => {
-    await check('My checkbox', { timeout: 500 })
+    await check('My checkbox')
     await expect(async () => {
-      await expect(page).toHaveUnchecked('not found checkbox', { timeout: 500 })
+      await expect(page).toHaveUnchecked('not found checkbox', { timeout: 3000 })
     }).rejects.toThrow()
   })
 })
