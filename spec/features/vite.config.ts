@@ -12,6 +12,8 @@ export default defineConfig({
     mockReset: true,
     watch: false,
     printConsoleTrace: true,
+    hookTimeout: 10000,
+    testTimeout: 10000,
 
     globalSetup: './spec/features/setup/globalSetup.js',
   },

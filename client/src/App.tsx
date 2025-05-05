@@ -8,6 +8,11 @@ function App() {
       <div id="my-div">My div</div>
       <input id="my-input" />
 
+      <select id="select-box">
+        <option>option 1</option>
+        <option>option 2</option>
+      </select>
+
       <div>
         <label htmlFor="my-checkbox">My checkbox</label>
         <input type="checkbox" id="my-checkbox" />
