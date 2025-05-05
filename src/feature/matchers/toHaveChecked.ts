@@ -1,4 +1,5 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
+import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 
 export default async function toHaveChecked(
   page: Page,
@@ -10,7 +11,10 @@ export default async function toHaveChecked(
 
     // eslint-disable-next-line
     const forAttributeValue = await page.$eval(labelSelector, label => label.getAttribute('for'))
-    const inputElement = await page.waitForSelector(`#${forAttributeValue}`, opts)
+    const inputElement = await page.waitForSelector(
+      `#${forAttributeValue}`,
+      applyDefaultWaitForOpts(opts)
+    )
     // eslint-disable-next-line
     const isChecked = await page.evaluate(checkbox => checkbox.checked, inputElement)
 

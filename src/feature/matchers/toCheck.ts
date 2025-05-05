@@ -1,4 +1,5 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
+import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 
 export default async function toCheck(
   page: Page,
@@ -11,7 +12,10 @@ export default async function toCheck(
   }
 
   try {
-    await expect(page).toClickSelector(`label::-p-text("${expectedText}")`, opts)
+    await expect(page).toClickSelector(
+      `label::-p-text("${expectedText}")`,
+      applyDefaultWaitForOpts(opts)
+    )
     return {
       pass: true,
       message: () => {

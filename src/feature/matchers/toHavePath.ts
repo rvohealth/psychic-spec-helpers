@@ -1,5 +1,6 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
 import requirePuppeteerPage from '../internal/requirePuppeteerPage.js'
+import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 
 export default async function toHavePath(
   page: Page,
@@ -19,7 +20,7 @@ export default async function toHavePath(
         // eslint-disable-next-line
         return trimPath(new URL(window.location.href).pathname) === trimPath(path)
       },
-      opts,
+      applyDefaultWaitForOpts(opts),
       expectedPath
     )
     return {

@@ -1,4 +1,5 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
+import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 
 export default async function toClickLink(
   page: Page,
@@ -6,7 +7,10 @@ export default async function toClickLink(
   opts?: WaitForSelectorOptions
 ) {
   try {
-    const el = await page.waitForSelector(`a ::-p-text(${expectedText})`, opts)
+    const el = await page.waitForSelector(
+      `a ::-p-text(${expectedText})`,
+      applyDefaultWaitForOpts(opts)
+    )
     await el!.click()
 
     return {

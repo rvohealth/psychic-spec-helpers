@@ -1,4 +1,5 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
+import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 
 export default async function toHaveSelector(
   page: Page,
@@ -6,7 +7,7 @@ export default async function toHaveSelector(
   opts?: WaitForSelectorOptions
 ) {
   try {
-    await page.waitForSelector(selector, opts)
+    await page.waitForSelector(selector, applyDefaultWaitForOpts(opts))
     return {
       pass: true,
       message: () => {
