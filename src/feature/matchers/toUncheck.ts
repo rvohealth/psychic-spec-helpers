@@ -1,5 +1,8 @@
-import { Page, WaitForSelectorOptions } from 'puppeteer'
+import { ElementHandle, Page, WaitForSelectorOptions } from 'puppeteer'
 import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
+import emptyForAttribute from '../error-messages/emptyForAttribute.js'
+import missingInputToMatchForAttribute from '../error-messages/missingInputToMatchForAttribute.js'
+import captureAttributeFromClosestElementWithType from '../internal/captureAttributeFromClosestElementWithType.js'
 
 export default async function toUncheck(
   page: Page,
@@ -8,13 +11,32 @@ export default async function toUncheck(
 ) {
   try {
     const labelSelector = `label::-p-text("${expectedText}")`
-
-    // eslint-disable-next-line
-    const forAttributeValue = await page.$eval(labelSelector, label => label.getAttribute('for'))
-    const inputElement = await page.waitForSelector(
-      `#${forAttributeValue}`,
-      applyDefaultWaitForOpts(opts)
+    const forAttributeValue = await captureAttributeFromClosestElementWithType(
+      labelSelector,
+      'label',
+      'for'
     )
+    if (!forAttributeValue) {
+      return {
+        pass: false,
+        message: () => emptyForAttribute(),
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let inputElement: ElementHandle<any> | null = null
+    try {
+      inputElement = await page.waitForSelector(
+        `#${forAttributeValue}`,
+        applyDefaultWaitForOpts(opts)
+      )
+    } catch {
+      return {
+        pass: false,
+        message: () => missingInputToMatchForAttribute(forAttributeValue),
+      }
+    }
+
     // eslint-disable-next-line
     const isChecked = await page.evaluate(checkbox => checkbox.checked, inputElement)
     if (!isChecked)
