@@ -23,7 +23,7 @@ export default async function toNotMatchTextContent(
       successText: () => {
         throw new Error('Cannot negate toNotMatchTextContent, use toMatchTextContent instead')
       },
-      failureText: r => `Expected ${r} to match text ${expected}`,
+      failureText: r => `Expected ${r} to not match text ${expected}, but it did`,
       timeout: opts.timeout,
     }
   )
