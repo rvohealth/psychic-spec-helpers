@@ -13,4 +13,18 @@ describe('check', () => {
       await check('not found checkbox', { timeout: 500 })
     }).rejects.toThrow()
   })
+
+  it('fails when the label points to an invalid input', async () => {
+    await check('My checkbox', { timeout: 500 })
+    await expect(async () => {
+      await check('My invalid label pointer checkbox', { timeout: 500 })
+    }).rejects.toThrow()
+  })
+
+  it('fails when the label points to an invalid input', async () => {
+    await check('My checkbox', { timeout: 500 })
+    await expect(async () => {
+      await check('My missing htmlFor checkbox', { timeout: 500 })
+    }).rejects.toThrow()
+  })
 })
