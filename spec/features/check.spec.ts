@@ -21,7 +21,7 @@ describe('check', () => {
     }).rejects.toThrow()
   })
 
-  it('fails when the label points to an invalid input', async () => {
+  it('fails when the label points to a label with a missing htmlFor statement', async () => {
     await check('My checkbox', { timeout: 500 })
     await expect(async () => {
       await check('My missing htmlFor checkbox', { timeout: 500 })
