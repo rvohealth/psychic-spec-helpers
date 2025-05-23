@@ -8,7 +8,8 @@ asyncapi/v1/asyncapi.yml
 test-app/src/client/src/api/openapi.ts
 test-app/src/types/*
 test-app/src/conf/routeTypes.ts
-openapi*
+openapi.json
 
+test-app/client/src/api/openapi.ts
 client/tsconfig.json
 client/eslint.config.js

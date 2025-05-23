@@ -1,5 +1,6 @@
 import { Response } from 'supertest'
-import supersession, { HttpMethod } from './supersession.js'
+import { SpecRequestOptsAll, SpecRequestOptsGet, SpecRequestOptsPost } from './SpecRequest.js'
+import supersession from './supersession.js'
 
 // like SpecRequest, but meant to be bound to an instance
 // of supersession, enabling chained requests to collect cookies
@@ -76,28 +77,4 @@ export class SpecSession {
       throw err
     }
   }
-}
-
-export interface SpecRequestOptsAll extends SpecRequestOpts {
-  query?: object
-  data?: object
-}
-
-export interface SpecRequestOptsGet extends SpecRequestOpts {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  query?: any
-}
-
-export interface SpecRequestOptsPost extends SpecRequestOpts {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data?: any
-}
-
-export interface SpecRequestOpts {
-  headers?: Record<string, string>
-  allowMocks?: boolean
-}
-
-export interface SpecRequestSessionOpts extends SpecRequestOptsAll {
-  httpMethod?: HttpMethod
 }
