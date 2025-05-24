@@ -6,6 +6,8 @@ import { ToFillMatcherOpts } from './feature/matchers/toFill.js'
 // unit spec helpers
 export { default as specRequest } from './unit/SpecRequest.js'
 export { default as createPsychicServer } from './unit/createPsychicServer.js'
+export { OpenapiSpecRequest } from './unit/OpenapiSpecRequest.js'
+export { OpenapiSpecSession } from './unit/OpenapiSpecSession.js'
 export { SpecRequest } from './unit/SpecRequest.js'
 export { SpecSession } from './unit/SpecSession.js'
 

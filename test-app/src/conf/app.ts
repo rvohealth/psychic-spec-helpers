@@ -31,6 +31,10 @@ export default async (psy: PsychicApp) => {
     controllerSpecs: 'test-app/spec/unit/controllers',
   })
 
+  psy.set('openapi', {
+    syncTypes: true,
+  })
+
   // set options to pass to coors when middleware is booted
   psy.set('cors', {
     credentials: true,

@@ -1,5 +1,7 @@
 import { PsychicRouter } from '@rvoh/psychic'
 import SpecRequestController from '../app/controllers/SpecRequestController.js'
+import UserController from '../app/controllers/UserController.js'
+import UsersController from '../app/controllers/UsersController.js'
 
 export default (r: PsychicRouter) => {
   r.get('/spec-request/get-test', SpecRequestController, 'testGet')
@@ -11,4 +13,12 @@ export default (r: PsychicRouter) => {
   // session
   r.get('spec-session/auth-test', SpecRequestController, 'authTest')
   r.post('spec-session/start-session', SpecRequestController, 'sessionStart')
+
+  // openapi
+  r.resources('users', r => {
+    r.put('update-put', UsersController, 'updatePut')
+  })
+  r.resource('user', r => {
+    r.put('update-put', UserController, 'updatePut')
+  })
 }
