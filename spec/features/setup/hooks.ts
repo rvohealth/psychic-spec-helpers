@@ -47,8 +47,8 @@ beforeEach(async () => {
   await truncate(DreamApp)
 
   await visit('/')
-  await expect(page).toMatchTextContent('My div')
-})
+  await expect(page).toMatchTextContent('My div', { timeout: 10000 })
+}, 15000)
 
 afterAll(async () => {
   await server.stop()

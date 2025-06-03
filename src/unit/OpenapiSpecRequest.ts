@@ -1,18 +1,16 @@
+import { IdType } from '@rvoh/dream'
 import supertest, { Response } from 'supertest'
 import { createPsychicServer } from '../index.js'
 import fillOpenapiParams from './helpers/fillOpenapiParams.js'
 import {
-  ExcludeNever,
   ExtractOpenapiParams,
   First,
-  GetOpenapiUrl,
   GetResolvedOpenapiUrl,
   RoutesWithHttpMethod,
 } from './helpers/openapiTypeHelpers.js'
 import { OpenapiSpecSession } from './OpenapiSpecSession.js'
-import supersession, { HttpMethod } from './supersession.js'
-import { IdType } from '@rvoh/dream'
 import { SpecRequestOpts, SpecRequestOptsAll } from './SpecRequest.js'
+import supersession, { HttpMethod } from './supersession.js'
 
 export class OpenapiSpecRequest<OpenapiPaths = undefined> {
   // eslint-disable-next-line
@@ -20,11 +18,13 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
   // eslint-disable-next-line
   private server: any
 
-  //
-  //
-  //
-  // begin: GET
-  // has Params
+  // eslint-disable-next-line
+  public async init(PsychicServer: any) {
+    // eslint-disable-next-line
+    this.PsychicServer = PsychicServer
+    this.server ||= await createPsychicServer(PsychicServer)
+  }
+
   public async get<
     const Uri extends RoutesWithHttpMethod<
       OpenapiPaths,
@@ -102,115 +102,9 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
      * @param opts.headers - headers you would like to send with your request.
      *                       (Optional)
      */
-    opts: Params['length'] extends 0
-      ? never
+    opts?: Params['length'] extends 0
+      ? OpenapiSpecRequestOptsGet<QueryMap>
       : OpenapiSpecRequestOptsGet<QueryMap> & { [K in Params[number]]: string | IdType }
-  ): Promise<OpenapiSpecResponse<JsonContent>>
-  // doesn't have Params
-  public async get<
-    const Uri extends RoutesWithHttpMethod<
-      OpenapiPaths,
-      'get' & keyof OpenapiPaths[keyof OpenapiPaths]
-    > &
-      string,
-    const ResponseCode extends Params['length'] extends 0
-      ? keyof ExcludeNever<ResponseMap> & number
-      : never,
-    HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
-    ResponseMap extends HttpMethodMap['get' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['get' & keyof HttpMethodMap]],
-    ParametersMap extends HttpMethodMap['get' & keyof HttpMethodMap]['parameters' &
-      keyof HttpMethodMap['get' & keyof HttpMethodMap]],
-    QueryMap extends ParametersMap['query' & keyof ParametersMap],
-    Params extends string[] & ExtractOpenapiParams<Uri>,
-    Content extends ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent extends Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-  >(
-    /**
-     * The uri on your background you are trying to hit.
-     * This should be a path, like '/users'.
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.get('/user', 200)
-     * ```
-     */
-    uri: Uri,
-
-    /**
-     * The response status you are expecting to receive
-     * when making this request. It will need to match
-     * one of the accepted response statuses for the
-     * provided uri in your openapi types
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.get('/user', 200)
-     * ```
-     */
-    expectedStatus: ResponseCode,
-
-    /**
-     * Query params, headers, and other options to send with
-     * your request.
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.get(
-     *   '/user',
-     *   200,
-     *   {
-     *     query: {
-     *       ...query params here
-     *     }
-     *   }
-     * )
-     * ```
-     *
-     * @param opts.query - query params you want to send up. Must match the
-     *                    query params in the openapi document for this uri.
-     *                    (Optional)
-     *
-     * @param opts.headers - headers you would like to send with your request.
-     *                       (Optional)
-     */
-    opts?: OpenapiSpecRequestOptsGet<QueryMap>
-  ): Promise<OpenapiSpecResponse<JsonContent>>
-  // final
-  public async get<
-    const Uri extends RoutesWithHttpMethod<
-      OpenapiPaths,
-      'get' & keyof OpenapiPaths[keyof OpenapiPaths]
-    > &
-      string,
-    const ResponseCode extends keyof ExcludeNever<ResponseMap> & number,
-    HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
-    ResponseMap extends HttpMethodMap['get' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['get' & keyof HttpMethodMap]],
-    Content extends ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent extends Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-  >(
-    uri: Uri,
-    expectedStatus: ResponseCode,
-    opts: unknown
   ): Promise<OpenapiSpecResponse<JsonContent>> {
     return (await this.makeRequest(
       'get',
@@ -220,20 +114,13 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
     )) as OpenapiSpecResponse<JsonContent>
   }
 
-  //
-  //
-  //
-  // begin: POST
-  // has Params
   public async post<
     const Uri extends RoutesWithHttpMethod<
       OpenapiPaths,
       'post' & keyof OpenapiPaths[keyof OpenapiPaths]
     > &
       string,
-    const ResponseCode extends Params['length'] extends 0
-      ? never
-      : keyof ExcludeNever<ResponseMap> & number,
+    const ResponseCode extends keyof ResponseMap & number,
     HttpMethodMap extends OpenapiPaths[ResolvedUri & keyof OpenapiPaths],
     ResolvedUri extends First<GetResolvedOpenapiUrl<OpenapiPaths, Uri> & keyof OpenapiPaths>,
     Params extends string[] & ExtractOpenapiParams<Uri>,
@@ -313,139 +200,20 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
      * @param opts.headers - headers you would like to send with your request.
      *                       (Optional)
      */
-    opts: OpenapiSpecRequestOptsPost<RequestBodyJsonContent> & { [K in Params[number]]: string }
-  ): Promise<OpenapiSpecResponse<JsonContent>>
-  // DOESNT have Params
-  public async post<
-    const Uri extends RoutesWithHttpMethod<
-      OpenapiPaths,
-      'post' & keyof OpenapiPaths[keyof OpenapiPaths]
-    > &
-      string,
-    const ResponseCode extends Params['length'] extends 0
-      ? keyof ExcludeNever<ResponseMap> & number
-      : never,
-    HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
-    Params extends string[] & ExtractOpenapiParams<Uri>,
-    ResponseMap extends HttpMethodMap['post' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['post' & keyof HttpMethodMap]],
-    Content extends ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent extends Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-    RequestBodyMap extends HttpMethodMap['post' & keyof HttpMethodMap]['requestBody' &
-      keyof HttpMethodMap['post' & keyof HttpMethodMap]],
-    RequestBodyContent extends RequestBodyMap extends undefined
-      ? undefined
-      : RequestBodyMap['content' & keyof RequestBodyMap],
-    RequestBodyJsonContent extends RequestBodyContent extends undefined
-      ? undefined
-      : RequestBodyContent['application/json' & keyof RequestBodyContent],
-  >(
-    /**
-     * The uri on your background you are trying to hit.
-     * This should be a path, like '/users'.
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.post('/user', 200)
-     * ```
-     */
-    uri: Uri,
-
-    /**
-     * The response status you are expecting to receive
-     * when making this request. It will need to match
-     * one of the accepted response statuses for the
-     * provided uri in your openapi types
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.post('/user', 200)
-     * ```
-     */
-    expectedStatus: ResponseCode,
-
-    /**
-     * Data, headers, and other options to send with
-     * your request.
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.post(
-     *   '/user',
-     *   200,
-     *   {
-     *     data: {
-     *       ...request body here
-     *     },
-     *     headers: {
-     *       ...headers here
-     *     },
-     *   }
-     * )
-     * ```
-     *
-     * @param opts.data - request body data you want to send up. Must match the
-     *                    requestBody shape in the openapi document for this uri.
-     *                    (Optional)
-     *
-     * @param opts.headers - headers you would like to send with your request.
-     *                       (Optional)
-     */
-    opts?: Params['length'] extends 0 ? OpenapiSpecRequestOptsPost<RequestBodyJsonContent> : never
-  ): Promise<OpenapiSpecResponse<JsonContent>>
-  // final
-  public async post<
-    const Uri extends RoutesWithHttpMethod<
-      OpenapiPaths,
-      'post' & keyof OpenapiPaths[keyof OpenapiPaths]
-    > &
-      string,
-    const ResponseCode extends keyof ExcludeNever<ResponseMap> & number,
-    HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
-    ResponseMap = HttpMethodMap['post' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['post' & keyof HttpMethodMap]],
-    Content = ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent = Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-  >(
-    uri: Uri,
-    expectedStatus: ResponseCode,
-    opts: unknown = {}
+    opts?: Params['length'] extends 0
+      ? OpenapiSpecRequestOptsPost<RequestBodyJsonContent>
+      : OpenapiSpecRequestOptsPost<RequestBodyJsonContent> & { [K in Params[number]]: string }
   ): Promise<OpenapiSpecResponse<JsonContent>> {
     return await this.makeRequest('post', uri, expectedStatus, opts as SpecRequestOptsAll)
   }
 
-  //
-  //
-  //
-  // begin: PUT
-  // has Params
   public async put<
     const Uri extends RoutesWithHttpMethod<
       OpenapiPaths,
       'put' & keyof OpenapiPaths[keyof OpenapiPaths]
     > &
       string,
-    const ResponseCode extends Params['length'] extends 0
-      ? never
-      : keyof ExcludeNever<ResponseMap> & number,
+    const ResponseCode extends keyof ResponseMap & number,
     HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
     Params extends string[] & ExtractOpenapiParams<Uri>,
     ResponseMap extends HttpMethodMap['put' & keyof HttpMethodMap]['responses' &
@@ -525,127 +293,11 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
      * @param opts.headers - headers you would like to send with your request.
      *                       (Optional)
      */
-    opts: Params['length'] extends 0
-      ? never
+    opts?: Params['length'] extends 0
+      ? OpenapiSpecRequestOptsPost<RequestBodyJsonContent>
       : OpenapiSpecRequestOptsPost<RequestBodyJsonContent> & {
           [K in Params[number]]: string | IdType
         }
-  ): Promise<OpenapiSpecResponse<JsonContent>>
-  // DOESNT have params
-  public async put<
-    const Uri extends RoutesWithHttpMethod<
-      OpenapiPaths,
-      'put' & keyof OpenapiPaths[keyof OpenapiPaths]
-    > &
-      string,
-    const ResponseCode extends Params['length'] extends 0
-      ? keyof ExcludeNever<ResponseMap> & number
-      : never,
-    HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
-    Params extends string[] & ExtractOpenapiParams<Uri>,
-    ResponseMap extends HttpMethodMap['put' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['put' & keyof HttpMethodMap]],
-    Content extends ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent extends Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-    RequestBodyMap extends HttpMethodMap['put' & keyof HttpMethodMap]['requestBody' &
-      keyof HttpMethodMap['put' & keyof HttpMethodMap]],
-    RequestBodyContent extends RequestBodyMap extends undefined
-      ? undefined
-      : RequestBodyMap['content' & keyof RequestBodyMap],
-    RequestBodyJsonContent extends RequestBodyContent extends undefined
-      ? undefined
-      : RequestBodyContent['application/json' & keyof RequestBodyContent],
-  >(
-    /**
-     * The uri on your background you are trying to hit.
-     * This should be a path, like '/users'.
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.put('/user', 200, { data: { name: 'new name' })
-     * ```
-     */
-    uri: Uri,
-
-    /**
-     * The response status you are expecting to receive
-     * when making this request. It will need to match
-     * one of the accepted response statuses for the
-     * provided uri in your openapi types
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.put('/user', 200, { data: { name: 'new name' })
-     * ```
-     */
-    expectedStatus: ResponseCode,
-
-    /**
-     * An object containing the path fields required to
-     * fill your uri in, as well as any additional PUT
-     * arguments, like `data`, for example.
-     *
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.put(
-     *   '/user',
-     *   200,
-     *   {
-     *     data: {
-     *       ...request body here
-     *     },
-     *     headers: {
-     *       ...headers here
-     *     },
-     *   }
-     * )
-     * ```
-     *
-     * @param opts.data - request body data you want to send up. Must match the
-     *                    requestBody shape in the openapi document for this uri.
-     *                    (Optional)
-     *
-     * @param opts.headers - headers you would like to send with your request.
-     *                       (Optional)
-     */
-    opts?: Params['length'] extends 0 ? OpenapiSpecRequestOptsPost<RequestBodyJsonContent> : never
-  ): Promise<OpenapiSpecResponse<JsonContent>>
-  // final
-  public async put<
-    const Uri extends RoutesWithHttpMethod<
-      OpenapiPaths,
-      'put' & keyof OpenapiPaths[keyof OpenapiPaths]
-    > &
-      string,
-    const ResponseCode extends keyof ExcludeNever<ResponseMap> & number,
-    HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
-    ResponseMap = HttpMethodMap['put' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['put' & keyof HttpMethodMap]],
-    Content = ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent = Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-  >(
-    uri: Uri,
-    expectedStatus: ResponseCode,
-    opts: unknown = {}
   ): Promise<OpenapiSpecResponse<JsonContent>> {
     return await this.makeRequest(
       'put',
@@ -655,20 +307,13 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
     )
   }
 
-  //
-  //
-  //
-  // begin: PATCH
-  // has Params
   public async patch<
     const Uri extends RoutesWithHttpMethod<
       OpenapiPaths,
       'patch' & keyof OpenapiPaths[keyof OpenapiPaths]
     > &
       string,
-    const ResponseCode extends Params['length'] extends 0
-      ? never
-      : keyof ExcludeNever<ResponseMap> & number,
+    const ResponseCode extends keyof ResponseMap & number,
     HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
     Params extends string[] & ExtractOpenapiParams<Uri>,
     ResponseMap extends HttpMethodMap['patch' & keyof HttpMethodMap]['responses' &
@@ -747,153 +392,27 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
      * @param opts.headers - headers you would like to send with your request.
      *                       (Optional)
      */
-    opts: Params['length'] extends 0
-      ? never
+    opts?: Params['length'] extends 0
+      ? OpenapiSpecRequestOptsPost<RequestBodyJsonContent>
       : OpenapiSpecRequestOptsPost<RequestBodyJsonContent> & {
           [K in Params[number]]: string | IdType
         }
-  ): Promise<OpenapiSpecResponse<JsonContent>>
-  // DOESNT have params
-  public async patch<
-    const Uri extends RoutesWithHttpMethod<
-      OpenapiPaths,
-      'patch' & keyof OpenapiPaths[keyof OpenapiPaths]
-    > &
-      string,
-    const ResponseCode extends Params['length'] extends 0
-      ? keyof ExcludeNever<ResponseMap> & number
-      : never,
-    HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
-    Params extends string[] & ExtractOpenapiParams<Uri>,
-    ResponseMap extends HttpMethodMap['patch' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['patch' & keyof HttpMethodMap]],
-    Content extends ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent extends Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-    RequestBodyMap extends HttpMethodMap['patch' & keyof HttpMethodMap]['requestBody' &
-      keyof HttpMethodMap['patch' & keyof HttpMethodMap]],
-    RequestBodyContent extends RequestBodyMap extends undefined
-      ? undefined
-      : RequestBodyMap['content' & keyof RequestBodyMap],
-    RequestBodyJsonContent extends RequestBodyContent extends undefined
-      ? undefined
-      : RequestBodyContent['application/json' & keyof RequestBodyContent],
-  >(
-    /**
-     * The uri on your background you are trying to hit.
-     * This should be a path, like '/user'.
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.patch('/user', 200, { data: { name: 'new name' }})
-     * ```
-     */
-    uri: Uri,
-
-    /**
-     * The response status you are expecting to receive
-     * when making this request. It will need to match
-     * one of the accepted response statuses for the
-     * provided uri in your openapi types
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.patch('/user', 200, { data: { name: 'new name' }})
-     * ```
-     */
-    expectedStatus: ResponseCode,
-
-    /**
-     * Data, headers, and other options to send with
-     * your request.
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.patch(
-     *   '/user',
-     *   200,
-     *   {
-     *     data: {
-     *       ...request body here
-     *     },
-     *     headers: {
-     *       ...headers here
-     *     },
-     *   }
-     * )
-     * ```
-     *
-     * @param opts.data - request body data you want to send up. Must match the
-     *                    requestBody shape in the openapi document for this uri.
-     *                    (Optional)
-     *
-     * @param opts.headers - headers you would like to send with your request.
-     *                       (Optional)
-     */
-    opts?: Params['length'] extends 0 ? OpenapiSpecRequestOptsPost<RequestBodyJsonContent> : never
-  ): Promise<OpenapiSpecResponse<JsonContent>>
-  // final
-  public async patch<
-    const Uri extends GetOpenapiUrl<OpenapiPaths>,
-    const ResponseCode extends keyof ResponseMap & number,
-    HttpMethodMap extends OpenapiPaths[ResolvedUri & keyof OpenapiPaths],
-    ResolvedUri extends GetResolvedOpenapiUrl<OpenapiPaths, Uri> & keyof OpenapiPaths,
-    ResponseMap extends HttpMethodMap['patch' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['patch' & keyof HttpMethodMap]],
-    Content extends ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent extends Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-    RequestBodyMap extends HttpMethodMap['patch' & keyof HttpMethodMap]['requestBody' &
-      keyof HttpMethodMap['patch' & keyof HttpMethodMap]],
-    RequestBodyContent extends RequestBodyMap extends undefined
-      ? undefined
-      : RequestBodyMap['content' & keyof RequestBodyMap],
-    RequestBodyJsonContent extends RequestBodyContent extends undefined
-      ? undefined
-      : RequestBodyContent['application/json' & keyof RequestBodyContent],
-  >(
-    uri: Uri,
-    expectedStatus: ResponseCode,
-    opts: OpenapiSpecRequestOptsPost<RequestBodyJsonContent> = {}
   ): Promise<OpenapiSpecResponse<JsonContent>> {
     return await this.makeRequest(
       'patch',
-      fillOpenapiParams(uri, opts),
+      fillOpenapiParams(uri, opts!),
       expectedStatus,
       opts as SpecRequestOptsAll
     )
   }
 
-  //
-  //
-  //
-  // begin: delete
-  // has Params
   public async delete<
     const Uri extends RoutesWithHttpMethod<
       OpenapiPaths,
       'delete' & keyof OpenapiPaths[keyof OpenapiPaths]
     > &
       string,
-    const ResponseCode extends Params['length'] extends 0
-      ? never
-      : keyof ExcludeNever<ResponseMap> & number,
+    const ResponseCode extends keyof ResponseMap & number,
     HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
     Params extends string[] & ExtractOpenapiParams<Uri>,
     ResponseMap extends HttpMethodMap['delete' & keyof HttpMethodMap]['responses' &
@@ -972,151 +491,20 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
      * @param opts.headers - headers you would like to send with your request.
      *                       (Optional)
      */
-    opts: Params['length'] extends 0
-      ? never
+    opts?: Params['length'] extends 0
+      ? OpenapiSpecRequestOptsPost<RequestBodyJsonContent>
       : OpenapiSpecRequestOptsPost<RequestBodyJsonContent> & {
           [K in Params[number]]: string | IdType
         }
-  ): Promise<OpenapiSpecResponse<JsonContent>>
-  // DOESNT have params
-  public async delete<
-    const Uri extends RoutesWithHttpMethod<
-      OpenapiPaths,
-      'delete' & keyof OpenapiPaths[keyof OpenapiPaths]
-    > &
-      string,
-    const ResponseCode extends Params['length'] extends 0
-      ? keyof ExcludeNever<ResponseMap> & number
-      : never,
-    HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
-    Params extends string[] & ExtractOpenapiParams<Uri>,
-    ResponseMap extends HttpMethodMap['delete' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['delete' & keyof HttpMethodMap]],
-    Content extends ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent extends Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-    RequestBodyMap extends HttpMethodMap['delete' & keyof HttpMethodMap]['requestBody' &
-      keyof HttpMethodMap['delete' & keyof HttpMethodMap]],
-    RequestBodyContent extends RequestBodyMap extends undefined
-      ? undefined
-      : RequestBodyMap['content' & keyof RequestBodyMap],
-    RequestBodyJsonContent extends RequestBodyContent extends undefined
-      ? undefined
-      : RequestBodyContent['application/json' & keyof RequestBodyContent],
-  >(
-    /**
-     * The uri on your background you are trying to hit.
-     * This should be a path, like '/users'.
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.delete('/user', 200)
-     * ```
-     */
-    uri: Uri,
-
-    /**
-     * The response status you are expecting to receive
-     * when making this request. It will need to match
-     * one of the accepted response statuses for the
-     * provided uri in your openapi types
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.delete('/user', 200)
-     * ```
-     */
-    expectedStatus: ResponseCode,
-
-    /**
-     * Data, headers, and other options to send with
-     * your request.
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.delete(
-     *   '/user',
-     *   200,
-     *   {
-     *     data: {
-     *       ...request body here
-     *     },
-     *     headers: {
-     *       ...headers here
-     *     },
-     *   }
-     * )
-     * ```
-     *
-     * @param opts.data - request body data you want to send up. Must match the
-     *                    requestBody shape in the openapi document for this uri.
-     *                    (Optional)
-     *
-     * @param opts.headers - headers you would like to send with your request.
-     *                       (Optional)
-     */
-    opts?: Params['length'] extends 0 ? OpenapiSpecRequestOptsPost<RequestBodyJsonContent> : never
-  ): Promise<OpenapiSpecResponse<JsonContent>>
-  // final
-  public async delete<
-    const Uri extends GetOpenapiUrl<OpenapiPaths>,
-    const ResponseCode extends keyof ResponseMap & number,
-    HttpMethodMap extends OpenapiPaths[ResolvedUri & keyof OpenapiPaths],
-    ResolvedUri extends GetResolvedOpenapiUrl<OpenapiPaths, Uri> & keyof OpenapiPaths,
-    ResponseMap = HttpMethodMap['delete' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['delete' & keyof HttpMethodMap]],
-    Content = ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent = Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-    RequestBodyMap = HttpMethodMap['delete' & keyof HttpMethodMap]['requestBody' &
-      keyof HttpMethodMap['delete' & keyof HttpMethodMap]],
-    RequestBodyContent = RequestBodyMap extends undefined
-      ? undefined
-      : RequestBodyMap['content' & keyof RequestBodyMap],
-    RequestBodyJsonContent = RequestBodyContent extends undefined
-      ? undefined
-      : RequestBodyContent['application/json' & keyof RequestBodyContent],
-  >(
-    uri: Uri,
-    expectedStatus: ResponseCode,
-    opts: OpenapiSpecRequestOptsPost<RequestBodyJsonContent> = {}
   ): Promise<OpenapiSpecResponse<JsonContent>> {
     return await this.makeRequest(
       'delete',
-      fillOpenapiParams(uri, opts),
+      fillOpenapiParams(uri, opts || {}),
       expectedStatus,
       opts as SpecRequestOptsAll
     )
   }
 
-  // eslint-disable-next-line
-  public async init(PsychicServer: any) {
-    // eslint-disable-next-line
-    this.PsychicServer = PsychicServer
-    this.server ||= await createPsychicServer(PsychicServer)
-  }
-
-  //
-  //
-  //
-  // begin: SESSION
-  // has Params
   public async session<
     const ProvidedHttpMethod extends HttpMethod,
     const Uri extends RoutesWithHttpMethod<
@@ -1124,9 +512,7 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
       ProvidedHttpMethod & keyof OpenapiPaths[keyof OpenapiPaths]
     > &
       string,
-    const ResponseCode extends Params['length'] extends 0
-      ? never
-      : keyof ExcludeNever<ResponseMap> & number,
+    const ResponseCode extends keyof ResponseMap & number,
     HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
     Params extends string[] & ExtractOpenapiParams<Uri>,
     ResponseMap extends HttpMethodMap[ProvidedHttpMethod & keyof HttpMethodMap]['responses' &
@@ -1209,133 +595,14 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
      * @param opts.headers - headers you would like to send with your request.
      *                       (Optional)
      */
-    opts: (ProvidedHttpMethod extends 'get'
+    opts?: (ProvidedHttpMethod extends 'get'
       ? OpenapiSpecRequestOptsGet<QueryMap>
       : OpenapiSpecRequestOptsPost<RequestBodyJsonContent>) & {
       [K in Params[number]]: string | IdType
     }
-  ): Promise<OpenapiSpecSession<OpenapiPaths>>
-  // DOESNT have params
-  public async session<
-    const ProvidedHttpMethod extends HttpMethod,
-    const Uri extends RoutesWithHttpMethod<
-      OpenapiPaths,
-      ProvidedHttpMethod & keyof OpenapiPaths[keyof OpenapiPaths]
-    > &
-      string,
-    const ResponseCode extends Params['length'] extends 0
-      ? keyof ExcludeNever<ResponseMap> & number
-      : never,
-    HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
-    Params extends string[] & ExtractOpenapiParams<Uri>,
-    ResponseMap extends HttpMethodMap[ProvidedHttpMethod & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap[ProvidedHttpMethod & keyof HttpMethodMap]],
-    ParametersMap extends HttpMethodMap[ProvidedHttpMethod & keyof HttpMethodMap]['parameters' &
-      keyof HttpMethodMap[ProvidedHttpMethod & keyof HttpMethodMap]],
-    QueryMap extends ParametersMap['query' & keyof ParametersMap],
-    RequestBodyMap extends HttpMethodMap[ProvidedHttpMethod & keyof HttpMethodMap]['requestBody' &
-      keyof HttpMethodMap[ProvidedHttpMethod & keyof HttpMethodMap]],
-    RequestBodyContent extends RequestBodyMap extends undefined
-      ? undefined
-      : RequestBodyMap['content' & keyof RequestBodyMap],
-    RequestBodyJsonContent extends RequestBodyContent extends undefined
-      ? undefined
-      : RequestBodyContent['application/json' & keyof RequestBodyContent],
-  >(
-    httpMethod: ProvidedHttpMethod,
-    /**
-     * The uri on your background you are trying to hit.
-     * This should be a path, like '/users'.
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const session = await request.session('post', '/login', 200)
-     * ```
-     */
-    uri: Uri,
-
-    /**
-     * The response status you are expecting to receive
-     * when making this request. It will need to match
-     * one of the accepted response statuses for the
-     * provided uri in your openapi types
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const session = await request.session('post', '/login', 200)
-     * ```
-     */
-    expectedStatus: ResponseCode,
-
-    /**
-     * An object containing the path fields required to
-     * fill your uri in, as well as any additional
-     * arguments, for the chosen HTTP verb, like `data`,
-     * for example.
-     *
-     * ```ts
-     * const request = new OpenapiSpecRequest<openapiPaths>()
-     * const res = await request.session(
-     *   'post',
-     *   '/login',
-     *   200,
-     *   {
-     *     token: '123',
-     *
-     *     // if non-get
-     *     data: {
-     *       email: 'abc',
-     *       password: 'def',
-     *     },
-     *     // if get
-     *     query: {
-     *       ...request body here
-     *     },
-     *     headers: {
-     *       ...headers here
-     *     },
-     *   }
-     * )
-     * ```
-     *
-     * @param opts.data - request body data you want to send up. Must match the
-     *                    requestBody shape in the openapi document for this uri.
-     *                    (Optional)
-     *
-     * @param opts.query - query params you want to send up. Must match the
-     *                     query parameters in the openapi document for this uri.
-     *                     (Optional)
-     *
-     * @param opts.headers - headers you would like to send with your request.
-     *                       (Optional)
-     */
-    opts?: Params['length'] extends 0
-      ? ProvidedHttpMethod extends 'get'
-        ? OpenapiSpecRequestOptsGet<QueryMap>
-        : OpenapiSpecRequestOptsPost<RequestBodyJsonContent>
-      : never
-  ): Promise<OpenapiSpecSession<OpenapiPaths>>
-  // final
-  public async session<
-    const ProvidedHttpMethod extends HttpMethod,
-    const Uri extends RoutesWithHttpMethod<
-      OpenapiPaths,
-      ProvidedHttpMethod & keyof OpenapiPaths[keyof OpenapiPaths]
-    > &
-      string,
-    const ResponseCode extends keyof ResponseMap & number,
-    HttpMethodMap extends OpenapiPaths[ResolvedUri & keyof OpenapiPaths],
-    ResolvedUri extends GetResolvedOpenapiUrl<OpenapiPaths, Uri> & keyof OpenapiPaths,
-    ResponseMap = HttpMethodMap[ProvidedHttpMethod & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap[ProvidedHttpMethod & keyof HttpMethodMap]],
-  >(
-    httpMethod: ProvidedHttpMethod,
-    uri: Uri,
-    expectedStatus: ResponseCode,
-    opts: unknown = {}
   ): Promise<OpenapiSpecSession<OpenapiPaths>> {
-    const postOpts = opts as OpenapiSpecRequestOptsPost
-    const getOpts = opts as OpenapiSpecRequestOptsGet
+    const postOpts = (opts || {}) as OpenapiSpecRequestOptsPost
+    const getOpts = (opts || {}) as OpenapiSpecRequestOptsGet
 
     uri = fillOpenapiParams(uri, (opts || {}) as object) as Uri
 
