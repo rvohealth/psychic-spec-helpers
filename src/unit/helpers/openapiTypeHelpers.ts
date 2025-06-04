@@ -76,4 +76,88 @@ export type RoutesWithHttpMethod<
   },
 > = R[keyof R]
 
+export type RequestQueryParameters<
+  OpenapiPaths,
+  HttpMethod,
+  Uri,
+  // ResponseCode,
+  HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths] = OpenapiPaths[Uri &
+    keyof OpenapiPaths],
+  ParametersMap extends HttpMethodMap[HttpMethod & keyof HttpMethodMap]['parameters' &
+    keyof HttpMethodMap[HttpMethod & keyof HttpMethodMap]] = HttpMethodMap[HttpMethod &
+    keyof HttpMethodMap]['parameters' & keyof HttpMethodMap[HttpMethod & keyof HttpMethodMap]],
+  QueryMap extends ParametersMap['query' & keyof ParametersMap] = ParametersMap['query' &
+    keyof ParametersMap],
+> = QueryMap
+
+export type ResponseBody<
+  OpenapiPaths,
+  HttpMethod,
+  Uri,
+  ResponseCode,
+  HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths] = OpenapiPaths[Uri &
+    keyof OpenapiPaths],
+  ResponseMap extends HttpMethodMap[HttpMethod & keyof HttpMethodMap]['responses' &
+    keyof HttpMethodMap[HttpMethod & keyof HttpMethodMap]] = HttpMethodMap[HttpMethod &
+    keyof HttpMethodMap]['responses' & keyof HttpMethodMap[HttpMethod & keyof HttpMethodMap]],
+  Content extends ResponseMap extends undefined
+    ? undefined
+    : ResponseCode extends undefined
+      ? undefined
+      : ResponseCode extends number
+        ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
+            keyof ResponseMap[ResponseCode & keyof ResponseMap]]
+        : undefined = ResponseMap extends undefined
+    ? undefined
+    : ResponseCode extends undefined
+      ? undefined
+      : ResponseCode extends number
+        ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
+            keyof ResponseMap[ResponseCode & keyof ResponseMap]]
+        : undefined,
+  JsonContent extends Content extends undefined
+    ? undefined
+    : Content['application/json' & keyof Content] = Content extends undefined
+    ? undefined
+    : Content['application/json' & keyof Content],
+> = JsonContent
+
+export type RequestBody<
+  OpenapiPaths,
+  HttpMethod,
+  Uri,
+  HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths] = OpenapiPaths[Uri &
+    keyof OpenapiPaths],
+  UriPayload extends HttpMethodMap[HttpMethod & keyof HttpMethodMap] = HttpMethodMap[HttpMethod &
+    keyof HttpMethodMap],
+  RequestBodyMap extends UriPayload['requestBody' & keyof UriPayload] extends never
+    ? undefined
+    : UriPayload['requestBody' & keyof UriPayload] = UriPayload['requestBody' &
+    keyof UriPayload] extends never
+    ? undefined
+    : UriPayload['requestBody' & keyof UriPayload],
+  RequestBodyContent extends RequestBodyMap extends undefined
+    ? undefined
+    : RequestBodyMap['content' & keyof RequestBodyMap] = RequestBodyMap extends undefined
+    ? undefined
+    : RequestBodyMap['content' & keyof RequestBodyMap],
+  RequestBodyJsonContent extends RequestBodyContent extends undefined
+    ? undefined
+    : RequestBodyContent['application/json' &
+        keyof RequestBodyContent] = RequestBodyContent extends undefined
+    ? undefined
+    : RequestBodyContent['application/json' & keyof RequestBodyContent],
+> = RequestBodyJsonContent
+
+export type ResponseCodeForUri<
+  OpenapiPaths,
+  Uri,
+  HttpMethod,
+  HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths] = OpenapiPaths[Uri &
+    keyof OpenapiPaths],
+  ResponseMap extends HttpMethodMap[HttpMethod & keyof HttpMethodMap]['responses' &
+    keyof HttpMethodMap[HttpMethod & keyof HttpMethodMap]] = HttpMethodMap[HttpMethod &
+    keyof HttpMethodMap]['responses' & keyof HttpMethodMap[HttpMethod & keyof HttpMethodMap]],
+> = keyof ResponseMap & number
+
 type RequestURISegment = string extends `${string}/${string}` ? never : string
