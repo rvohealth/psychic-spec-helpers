@@ -1,10 +1,11 @@
 import { IdType } from '@rvoh/dream'
 import fillOpenapiParams from './helpers/fillOpenapiParams.js'
 import {
-  ExcludeNever,
   ExtractOpenapiParams,
-  First,
-  GetResolvedOpenapiUrl,
+  RequestBody,
+  RequestQueryParameters,
+  ResponseBody,
+  ResponseCodeForUri,
   RoutesWithHttpMethod,
 } from './helpers/openapiTypeHelpers.js'
 import {
@@ -26,25 +27,10 @@ export class OpenapiSpecSession<OpenapiPaths> {
       'get' & keyof OpenapiPaths[keyof OpenapiPaths]
     > &
       string,
-    const ResponseCode extends keyof ResponseMap & number,
-    HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
-    ResponseMap extends HttpMethodMap['get' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['get' & keyof HttpMethodMap]],
-    ParametersMap extends HttpMethodMap['get' & keyof HttpMethodMap]['parameters' &
-      keyof HttpMethodMap['get' & keyof HttpMethodMap]],
-    QueryMap extends ParametersMap['query' & keyof ParametersMap],
+    const ResponseCode extends ResponseCodeForUri<OpenapiPaths, Uri, 'get'>,
     Params extends string[] & ExtractOpenapiParams<Uri>,
-    Content extends ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent extends Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
+    Query extends OpenapiSpecRequestOptsGet<RequestQueryParameters<OpenapiPaths, 'get', Uri>>,
+    JsonContent extends ResponseBody<OpenapiPaths, 'get', Uri, ResponseCode>,
   >(
     /**
      * The uri on your background you are trying to hit.
@@ -100,9 +86,7 @@ export class OpenapiSpecSession<OpenapiPaths> {
      * @param opts.headers - headers you would like to send with your request.
      *                       (Optional)
      */
-    opts?: Params['length'] extends 0
-      ? OpenapiSpecRequestOptsGet<QueryMap>
-      : OpenapiSpecRequestOptsGet<QueryMap> & { [K in Params[number]]: string | IdType }
+    opts?: Params['length'] extends 0 ? Query : Query & { [K in Params[number]]: string | IdType }
   ): Promise<OpenapiSpecResponse<JsonContent>> {
     return (await this.makeRequest(
       'get',
@@ -123,31 +107,10 @@ export class OpenapiSpecSession<OpenapiPaths> {
       'post' & keyof OpenapiPaths[keyof OpenapiPaths]
     > &
       string,
-    const ResponseCode extends keyof ResponseMap & number,
-    HttpMethodMap extends OpenapiPaths[ResolvedUri & keyof OpenapiPaths],
-    ResolvedUri extends First<GetResolvedOpenapiUrl<OpenapiPaths, Uri> & keyof OpenapiPaths>,
+    const ResponseCode extends ResponseCodeForUri<OpenapiPaths, Uri, 'post'>,
     Params extends string[] & ExtractOpenapiParams<Uri>,
-    ResponseMap extends HttpMethodMap['post' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['post' & keyof HttpMethodMap]],
-    Content extends ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent extends Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-    RequestBodyMap extends HttpMethodMap['post' & keyof HttpMethodMap]['requestBody' &
-      keyof HttpMethodMap['post' & keyof HttpMethodMap]],
-    RequestBodyContent extends RequestBodyMap extends undefined
-      ? undefined
-      : RequestBodyMap['content' & keyof RequestBodyMap],
-    RequestBodyJsonContent extends RequestBodyContent extends undefined
-      ? undefined
-      : RequestBodyContent['application/json' & keyof RequestBodyContent],
+    RequestBodyJsonContent extends RequestBody<OpenapiPaths, 'post', Uri>,
+    JsonContent extends ResponseBody<OpenapiPaths, 'post', Uri, ResponseCode>,
   >(
     /**
      * The uri on your background you are trying to hit.
@@ -219,30 +182,10 @@ export class OpenapiSpecSession<OpenapiPaths> {
       'put' & keyof OpenapiPaths[keyof OpenapiPaths]
     > &
       string,
-    const ResponseCode extends keyof ResponseMap & number,
-    HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
+    const ResponseCode extends ResponseCodeForUri<OpenapiPaths, Uri, 'put'>,
     Params extends string[] & ExtractOpenapiParams<Uri>,
-    ResponseMap extends HttpMethodMap['put' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['put' & keyof HttpMethodMap]],
-    Content extends ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent extends Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-    RequestBodyMap extends HttpMethodMap['put' & keyof HttpMethodMap]['requestBody' &
-      keyof HttpMethodMap['put' & keyof HttpMethodMap]],
-    RequestBodyContent extends RequestBodyMap extends undefined
-      ? undefined
-      : RequestBodyMap['content' & keyof RequestBodyMap],
-    RequestBodyJsonContent extends RequestBodyContent extends undefined
-      ? undefined
-      : RequestBodyContent['application/json' & keyof RequestBodyContent],
+    JsonContent extends ResponseBody<OpenapiPaths, 'put', Uri, ResponseCode>,
+    RequestBodyJsonContent extends RequestBody<OpenapiPaths, 'put', Uri>,
   >(
     /**
      * The uri on your background you are trying to hit.
@@ -322,30 +265,10 @@ export class OpenapiSpecSession<OpenapiPaths> {
       'patch' & keyof OpenapiPaths[keyof OpenapiPaths]
     > &
       string,
-    const ResponseCode extends keyof ResponseMap & number,
-    HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
+    const ResponseCode extends ResponseCodeForUri<OpenapiPaths, Uri, 'patch'>,
     Params extends string[] & ExtractOpenapiParams<Uri>,
-    ResponseMap extends HttpMethodMap['patch' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['patch' & keyof HttpMethodMap]],
-    Content extends ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent extends Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-    RequestBodyMap extends HttpMethodMap['patch' & keyof HttpMethodMap]['requestBody' &
-      keyof HttpMethodMap['patch' & keyof HttpMethodMap]],
-    RequestBodyContent extends RequestBodyMap extends undefined
-      ? undefined
-      : RequestBodyMap['content' & keyof RequestBodyMap],
-    RequestBodyJsonContent extends RequestBodyContent extends undefined
-      ? undefined
-      : RequestBodyContent['application/json' & keyof RequestBodyContent],
+    JsonContent extends ResponseBody<OpenapiPaths, 'patch', Uri, ResponseCode>,
+    RequestBodyJsonContent extends RequestBody<OpenapiPaths, 'patch', Uri>,
   >(
     /**
      * The uri on your background you are trying to hit.
@@ -424,32 +347,10 @@ export class OpenapiSpecSession<OpenapiPaths> {
       'delete' & keyof OpenapiPaths[keyof OpenapiPaths]
     > &
       string,
-    const ResponseCode extends Params['length'] extends 0
-      ? never
-      : keyof ExcludeNever<ResponseMap> & number,
-    HttpMethodMap extends OpenapiPaths[Uri & keyof OpenapiPaths],
+    const ResponseCode extends ResponseCodeForUri<OpenapiPaths, Uri, 'delete'>,
     Params extends string[] & ExtractOpenapiParams<Uri>,
-    ResponseMap extends HttpMethodMap['delete' & keyof HttpMethodMap]['responses' &
-      keyof HttpMethodMap['delete' & keyof HttpMethodMap]],
-    Content extends ResponseMap extends undefined
-      ? undefined
-      : ResponseCode extends undefined
-        ? undefined
-        : ResponseCode extends number
-          ? ResponseMap[ResponseCode & keyof ResponseMap]['content' &
-              keyof ResponseMap[ResponseCode & keyof ResponseMap]]
-          : undefined,
-    JsonContent extends Content extends undefined
-      ? undefined
-      : Content['application/json' & keyof Content],
-    RequestBodyMap extends HttpMethodMap['delete' & keyof HttpMethodMap]['requestBody' &
-      keyof HttpMethodMap['delete' & keyof HttpMethodMap]],
-    RequestBodyContent extends RequestBodyMap extends undefined
-      ? undefined
-      : RequestBodyMap['content' & keyof RequestBodyMap],
-    RequestBodyJsonContent extends RequestBodyContent extends undefined
-      ? undefined
-      : RequestBodyContent['application/json' & keyof RequestBodyContent],
+    JsonContent extends ResponseBody<OpenapiPaths, 'delete', Uri, ResponseCode>,
+    RequestBodyJsonContent extends RequestBody<OpenapiPaths, 'delete', Uri>,
   >(
     /**
      * The uri on your background you are trying to hit.
