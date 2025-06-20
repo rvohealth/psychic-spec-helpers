@@ -13,3 +13,5 @@ openapi.json
 test-app/client/src/api/openapi.ts
 client/tsconfig.json
 client/eslint.config.js
+
+*.openapi.json
