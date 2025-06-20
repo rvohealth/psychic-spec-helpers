@@ -1,3 +1,4 @@
+import { OpenAPI } from '@rvoh/psychic'
 import ApplicationController from './ApplicationController.js'
 
 export default class SpecRequestController extends ApplicationController {
@@ -31,12 +32,22 @@ export default class SpecRequestController extends ApplicationController {
     this.testPost()
   }
 
+  @OpenAPI({ status: 204 })
   public authTest() {
     const token = this.getCookie('authToken')
     if (token === 'authenticated') this.noContent()
     this.unauthorized()
   }
 
+  @OpenAPI({
+    status: 204,
+    requestBody: {
+      type: 'object',
+      properties: {
+        password: 'string',
+      },
+    },
+  })
   public sessionStart() {
     if (this.params.password === 'goodpass') {
       this.setCookie('authToken', 'authenticated')

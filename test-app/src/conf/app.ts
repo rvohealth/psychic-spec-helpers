@@ -35,6 +35,16 @@ export default async (psy: PsychicApp) => {
     syncTypes: true,
   })
 
+  psy.set('openapi', 'validation', {
+    outputFilename: 'validation.openapi.json',
+    syncTypes: true,
+  })
+
+  psy.set('openapi', 'admin', {
+    outputFilename: 'admin.openapi.json',
+    syncTypes: true,
+  })
+
   // set options to pass to coors when middleware is booted
   psy.set('cors', {
     credentials: true,

@@ -9,6 +9,12 @@ export class SpecRequest {
   // eslint-disable-next-line
   private server: any
 
+  private _defaultHeaders: Record<string, string>
+  public setDefaultHeaders(headers: Record<string, string>) {
+    this._defaultHeaders = headers
+    return this
+  }
+
   public async get(
     uri: string,
     expectedStatus: number,
@@ -77,11 +83,11 @@ export class SpecRequest {
           req
             .expect(expectedStatus)
             .query(opts.query || {})
-            .set(opts.headers || {})
+            .set({ ...this._defaultHeaders, ...opts.headers })
             .end((err: Error) => {
               if (err) return reject(err)
 
-              return accept(new SpecSession(session))
+              return accept(new SpecSession(session).setDefaultHeaders(this._defaultHeaders))
             })
         })
         .catch(err => {
@@ -116,7 +122,7 @@ export class SpecRequest {
     // eslint-disable-next-line
     const req = supertest.agent(this.server.expressApp)
     let request = req[method](`/${uri.replace(/^\//, '')}`)
-    if (opts.headers) request = request.set(opts.headers)
+    request = request.set({ ...this._defaultHeaders, ...opts.headers })
     if (opts.query) request = request.query(opts.query)
     if (method !== 'get') request = request.send(opts.data)
 
