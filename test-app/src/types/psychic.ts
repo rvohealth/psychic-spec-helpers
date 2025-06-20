@@ -1,6 +1,8 @@
 const psychicTypes = {
   "openapiNames": [
-    "default"
+    "default",
+    "validation",
+    "admin"
   ]
 } as const
 

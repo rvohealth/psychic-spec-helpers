@@ -21,6 +21,12 @@ import supersession from './supersession.js'
 export class OpenapiSpecSession<OpenapiPaths> {
   constructor(private _session: ReturnType<typeof supersession>) {}
 
+  private _defaultHeaders: Record<string, string>
+  public setDefaultHeaders(headers: Record<string, string>) {
+    this._defaultHeaders = headers
+    return this
+  }
+
   public async get<
     const Uri extends RoutesWithHttpMethod<
       OpenapiPaths,
@@ -435,7 +441,7 @@ export class OpenapiSpecSession<OpenapiPaths> {
 
     const req = this._session
     let request = req[method](`/${uri.replace(/^\//, '')}`)
-    if (opts.headers) request = request.set(opts.headers)
+    request = request.set({ ...this._defaultHeaders, ...opts.headers })
     if (opts.query) request = request.query(opts.query)
     if (method !== 'get') request = request.send(opts.data)
 

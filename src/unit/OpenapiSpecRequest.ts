@@ -20,6 +20,12 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
   // eslint-disable-next-line
   private server: any
 
+  private _defaultHeaders: Record<string, string>
+  public setDefaultHeaders(headers: Record<string, string>) {
+    this._defaultHeaders = headers
+    return this
+  }
+
   // eslint-disable-next-line
   public async init(PsychicServer: any) {
     // eslint-disable-next-line
@@ -514,11 +520,15 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
           req
             .expect(expectedStatus)
             .query(getOpts.query || {})
-            .set(postOpts.headers || {})
+            .set({ ...this._defaultHeaders, ...postOpts.headers })
             .end((err: Error) => {
               if (err) return reject(err)
 
-              return accept(new OpenapiSpecSession<OpenapiPaths>(session))
+              return accept(
+                new OpenapiSpecSession<OpenapiPaths>(session).setDefaultHeaders(
+                  this._defaultHeaders
+                )
+              )
             })
         })
         .catch(err => {
@@ -553,7 +563,7 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
     // eslint-disable-next-line
     const req = supertest.agent(this.server.expressApp)
     let request = req[method](`/${uri.replace(/^\//, '')}`)
-    if (opts.headers) request = request.set(opts.headers)
+    request = request.set({ ...this._defaultHeaders, ...opts.headers })
     if (opts.query) request = request.query(opts.query)
     if (method !== 'get') request = request.send(opts.data)
 

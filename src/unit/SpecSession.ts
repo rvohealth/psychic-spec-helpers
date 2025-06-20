@@ -5,7 +5,14 @@ import supersession from './supersession.js'
 // like SpecRequest, but meant to be bound to an instance
 // of supersession, enabling chained requests to collect cookies
 export class SpecSession {
+  private _defaultHeaders: Record<string, string>
+
   constructor(private _session: ReturnType<typeof supersession>) {}
+
+  public setDefaultHeaders(headers: Record<string, string>) {
+    this._defaultHeaders = headers
+    return this
+  }
 
   public async get(
     uri: string,
@@ -59,7 +66,7 @@ export class SpecSession {
 
     const req = this._session
     let request = req[method](`/${uri.replace(/^\//, '')}`)
-    if (opts.headers) request = request.set(opts.headers)
+    request = request.set({ ...this._defaultHeaders, ...opts.headers })
     if (opts.query) request = request.query(opts.query)
     if (method !== 'get') request = request.send(opts.data)
 
