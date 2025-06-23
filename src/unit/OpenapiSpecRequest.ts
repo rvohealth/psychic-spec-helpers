@@ -172,9 +172,16 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
      */
     opts?: Params['length'] extends 0
       ? OpenapiSpecRequestOptsPost<RequestBodyJsonContent>
-      : OpenapiSpecRequestOptsPost<RequestBodyJsonContent> & { [K in Params[number]]: string }
+      : OpenapiSpecRequestOptsPost<RequestBodyJsonContent> & {
+          [K in Params[number]]: string | IdType
+        }
   ): Promise<OpenapiSpecResponse<JsonContent>> {
-    return await this.makeRequest('post', uri, expectedStatus, opts as SpecRequestOptsAll)
+    return await this.makeRequest(
+      'post',
+      fillOpenapiParams(uri, opts || {}),
+      expectedStatus,
+      opts as SpecRequestOptsAll
+    )
   }
 
   public async put<
