@@ -18,6 +18,7 @@ export default (r: PsychicRouter) => {
   // openapi
   r.resources('users', r => {
     r.put('update-put', UsersController, 'updatePut')
+    r.resources('posts')
   })
   r.resource('user', r => {
     r.put('update-put', UserController, 'updatePut')
