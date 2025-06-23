@@ -59,8 +59,13 @@ export function stopDevServer(key: string) {
 
   if (proc?.pid) {
     if (process.env.DEBUG === '1') console.log('Stopping server...')
-    // serverProcess.kill('SIGINT')
-    process.kill(-proc.pid, 'SIGKILL')
+    try {
+      // proc.kill('SIGINT')
+      process.kill(-proc.pid, 'SIGKILL')
+    } catch {
+      // no-op
+    }
+
     delete devServerProcesses[key]
 
     if (process.env.DEBUG === '1') console.log('server stopped')
