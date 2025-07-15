@@ -2,7 +2,6 @@ import { PsychicServer } from '@rvoh/psychic'
 import { OpenapiSpecRequest } from '../../../src/unit/OpenapiSpecRequest.js'
 import User from '../../../test-app/src/app/models/User.js'
 import { openapiPaths } from '../../../test-app/src/types/openapi.js'
-import { IdType } from '@rvoh/dream'
 
 const request = new OpenapiSpecRequest<openapiPaths>()
 
@@ -39,8 +38,8 @@ describe('OpenapiSpecRequest#patch', () => {
 
   context('with nested resources', () => {
     it('correctly absorbs uri params from provided options', async () => {
-      const userId: IdType = 123
-      const id: IdType = 123
+      const userId: string = '123'
+      const id: string = '123'
       await request.patch('/users/{userId}/posts/{id}', 204, {
         userId,
         id,

@@ -812,18 +812,18 @@
       "User": {
         "type": "object",
         "required": [
-          "id",
-          "email"
+          "email",
+          "id"
         ],
         "properties": {
-          "id": {
-            "type": "string"
-          },
           "email": {
             "type": [
               "string",
               "null"
             ]
+          },
+          "id": {
+            "type": "string"
           }
         }
       },

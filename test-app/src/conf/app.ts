@@ -36,12 +36,12 @@ export default async (psy: PsychicApp) => {
   })
 
   psy.set('openapi', 'validation', {
-    outputFilename: 'validation.openapi.json',
+    outputFilepath: 'validation.openapi.json',
     syncTypes: true,
   })
 
   psy.set('openapi', 'admin', {
-    outputFilename: 'admin.openapi.json',
+    outputFilepath: 'admin.openapi.json',
     syncTypes: true,
   })
 

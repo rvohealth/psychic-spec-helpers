@@ -1,4 +1,3 @@
-import { IdType } from '@rvoh/dream'
 import supertest, { Response } from 'supertest'
 import { createPsychicServer } from '../index.js'
 import fillOpenapiParams from './helpers/fillOpenapiParams.js'
@@ -95,7 +94,7 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
      * @param opts.headers - headers you would like to send with your request.
      *                       (Optional)
      */
-    opts?: Params['length'] extends 0 ? Query : Query & { [K in Params[number]]: string | IdType }
+    opts?: Params['length'] extends 0 ? Query : Query & { [K in Params[number]]: string | number }
   ): Promise<OpenapiSpecResponse<JsonContent>> {
     return (await this.makeRequest(
       'get',
@@ -173,7 +172,7 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
     opts?: Params['length'] extends 0
       ? OpenapiSpecRequestOptsPost<RequestBodyJsonContent>
       : OpenapiSpecRequestOptsPost<RequestBodyJsonContent> & {
-          [K in Params[number]]: string | IdType
+          [K in Params[number]]: string | number
         }
   ): Promise<OpenapiSpecResponse<JsonContent>> {
     return await this.makeRequest(
@@ -253,7 +252,7 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
     opts?: Params['length'] extends 0
       ? OpenapiSpecRequestOptsPost<RequestBodyJsonContent>
       : OpenapiSpecRequestOptsPost<RequestBodyJsonContent> & {
-          [K in Params[number]]: string | IdType
+          [K in Params[number]]: string | number
         }
   ): Promise<OpenapiSpecResponse<JsonContent>> {
     return await this.makeRequest(
@@ -332,7 +331,7 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
     opts?: Params['length'] extends 0
       ? OpenapiSpecRequestOptsPost<RequestBodyJsonContent>
       : OpenapiSpecRequestOptsPost<RequestBodyJsonContent> & {
-          [K in Params[number]]: string | IdType
+          [K in Params[number]]: string | number
         }
   ): Promise<OpenapiSpecResponse<JsonContent>> {
     return await this.makeRequest(
@@ -411,7 +410,7 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
     opts?: Params['length'] extends 0
       ? OpenapiSpecRequestOptsPost<RequestBodyJsonContent>
       : OpenapiSpecRequestOptsPost<RequestBodyJsonContent> & {
-          [K in Params[number]]: string | IdType
+          [K in Params[number]]: string | number
         }
   ): Promise<OpenapiSpecResponse<JsonContent>> {
     return await this.makeRequest(
@@ -503,7 +502,7 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
     opts?: (ProvidedHttpMethod extends 'get'
       ? OpenapiSpecRequestOptsGet<Query>
       : OpenapiSpecRequestOptsPost<JsonContent>) & {
-      [K in Params[number]]: string | IdType
+      [K in Params[number]]: string | number
     }
   ): Promise<OpenapiSpecSession<OpenapiPaths>> {
     const postOpts = (opts || {}) as OpenapiSpecRequestOptsPost
