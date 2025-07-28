@@ -6,6 +6,7 @@ import { ops } from '@rvoh/dream'
 export default class UsersController extends ApplicationController {
   @OpenAPI(User, {
     status: 201,
+    requestBody: { for: User, including: ['id'] },
   })
   public async create() {
     await User.create(this.paramsFor(User))

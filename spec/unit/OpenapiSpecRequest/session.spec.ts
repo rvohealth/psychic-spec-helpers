@@ -1,6 +1,6 @@
 import { PsychicServer } from '@rvoh/psychic'
 import { OpenapiSpecRequest } from '../../../src/index.js'
-import { openapiPaths } from '../../../test-app/src/types/openapi.js'
+import { paths as openapiPaths } from '../../../test-app/src/types/openapi/openapi.js'
 
 const request = new OpenapiSpecRequest<openapiPaths>()
 

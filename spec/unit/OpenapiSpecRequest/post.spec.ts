@@ -1,7 +1,7 @@
 import { PsychicServer } from '@rvoh/psychic'
 import { OpenapiSpecRequest } from '../../../src/unit/OpenapiSpecRequest.js'
 import User from '../../../test-app/src/app/models/User.js'
-import { openapiPaths } from '../../../test-app/src/types/openapi.js'
+import { paths as openapiPaths } from '../../../test-app/src/types/openapi/openapi.js'
 
 const request = new OpenapiSpecRequest<openapiPaths>()
 
@@ -30,6 +30,35 @@ describe('OpenapiSpecRequest#post', () => {
         headers: {
           hello: 'world',
         },
+      })
+    })
+  })
+
+  context('with requestBody', () => {
+    context('type tests', () => {
+      it.skip('allows strings for id types', async () => {
+        await request.post('/users', 201, {
+          data: {
+            id: '123',
+          },
+        })
+      })
+
+      it.skip('allows numbers for id types', async () => {
+        await request.post('/users', 201, {
+          data: {
+            id: 123,
+          },
+        })
+      })
+
+      it.skip('allows primary key values for id types', async () => {
+        const user = User.new()
+        await request.post('/users', 201, {
+          data: {
+            id: user.id,
+          },
+        })
       })
     })
   })

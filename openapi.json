@@ -363,6 +363,10 @@
                       "string",
                       "null"
                     ]
+                  },
+                  "id": {
+                    "type": "string",
+                    "format": "bigint"
                   }
                 }
               }
