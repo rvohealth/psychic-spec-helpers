@@ -3,6 +3,9 @@ import { CustomMatcherResult } from './feature/helpers/providePuppeteerViteMatch
 import { Page, WaitForSelectorOptions } from 'puppeteer'
 import { ToFillMatcherOpts } from './feature/matchers/toFill.js'
 
+// type helpers
+export { DreamRequestAttributes as SendableAttributes } from './unit/helpers/typeHelpers.js'
+
 // unit spec helpers
 export { default as specRequest } from './unit/SpecRequest.js'
 export { default as createPsychicServer } from './unit/createPsychicServer.js'

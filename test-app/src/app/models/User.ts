@@ -1,6 +1,4 @@
 import { DreamColumn, DreamSerializers } from '@rvoh/dream'
-import * as fs from 'node:fs/promises'
-import * as path from 'node:path'
 import ApplicationModel from './ApplicationModel.js'
 
 export default class User extends ApplicationModel {
