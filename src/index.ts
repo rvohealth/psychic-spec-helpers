@@ -4,7 +4,7 @@ import { Page, WaitForSelectorOptions } from 'puppeteer'
 import { ToFillMatcherOpts } from './feature/matchers/toFill.js'
 
 // type helpers
-export { DreamRequestAttributes as SendableAttributes } from './unit/helpers/typeHelpers.js'
+export { DreamRequestAttributes } from './unit/helpers/typeHelpers.js'
 
 // unit spec helpers
 export { default as specRequest } from './unit/SpecRequest.js'
