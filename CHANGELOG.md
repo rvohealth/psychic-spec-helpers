@@ -1,3 +1,7 @@
+## 1.1.4
+
+export RequestBody and RequestQuery, ResponseBody and ResponseCodeForUri types, so that they can be used within psychic application unit tests to be used as type guards
+
 ## 1.1.1
 
 - bump supertest to close [dependabot issue](https://github.com/rvohealth/psychic-spec-helpers/security/dependabot/20)
