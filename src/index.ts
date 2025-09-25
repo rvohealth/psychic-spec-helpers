@@ -2,6 +2,12 @@ import { ExpectToEvaluateOpts } from './feature/internal/evaluateWithRetryAndTim
 import { CustomMatcherResult } from './feature/helpers/providePuppeteerViteMatchers.js'
 import { Page, WaitForSelectorOptions } from 'puppeteer'
 import { ToFillMatcherOpts } from './feature/matchers/toFill.js'
+export {
+  RequestBody,
+  RequestQueryParameters as RequestQuery,
+  ResponseBody,
+  ResponseCodeForUri,
+} from './unit/helpers/openapiTypeHelpers.js'
 
 // type helpers
 export { DreamRequestAttributes } from './unit/helpers/typeHelpers.js'
