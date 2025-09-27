@@ -3,10 +3,10 @@ import { CustomMatcherResult } from './feature/helpers/providePuppeteerViteMatch
 import { Page, WaitForSelectorOptions } from 'puppeteer'
 import { ToFillMatcherOpts } from './feature/matchers/toFill.js'
 export {
-  RequestBody,
-  RequestQueryParameters as RequestQuery,
-  ResponseBody,
-  ResponseCodeForUri,
+  RequestBody as OpenapiRequestBody,
+  RequestQueryParameters as OpenapiRequestQuery,
+  ResponseBody as OpenapiResponseBody,
+  ResponseCodeForUri as OpenapiResponseCodeForUri,
 } from './unit/helpers/openapiTypeHelpers.js'
 
 // type helpers

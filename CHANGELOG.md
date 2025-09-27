@@ -1,3 +1,7 @@
+## 1.1.5
+
+Add "Openapi" prefix to all newly-exported type helpers, so that comparitive helpers can be defined within a user's application to take over the more succinct namespaces
+
 ## 1.1.4
 
 export RequestBody and RequestQuery, ResponseBody and ResponseCodeForUri types, so that they can be used within psychic application unit tests to be used as type guards
