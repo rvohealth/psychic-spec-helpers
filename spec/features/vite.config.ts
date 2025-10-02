@@ -14,6 +14,7 @@ export default defineConfig({
     printConsoleTrace: true,
     hookTimeout: 10000,
     testTimeout: 10000,
+    isolate: false, // Enable shared state for browser sharing
 
     globalSetup: './spec/features/setup/globalSetup.js',
   },

@@ -26,24 +26,28 @@ providePuppeteerViteMatchers()
 let server: PsychicServer
 
 beforeAll(async () => {
-  try {
-    await initializePsychicApp()
-  } catch (err) {
-    console.error(err)
-    throw err
-  }
+  await initializePsychicApp()
 
   server = new PsychicServer()
   await server.start(parseInt(process.env.DEV_SERVER_PORT || '7778'))
 
+  // Initialize with first page from shared browser
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-  if (!(global as any).page) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-    ;(global as any).page = await getPage()
-  }
+  ;(global as any).page = await getPage()
 })
 
 beforeEach(async () => {
+  // Automatically ensure we have a valid page reference before every test
+  // This handles cases where the page might have been closed or become stale
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+  const currentPage = (global as any).page
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+  if (!currentPage || currentPage.isClosed()) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+    ;(global as any).page = await getPage()
+  }
+
   await truncate(DreamApp)
 
   await visit('/')

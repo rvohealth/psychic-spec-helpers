@@ -22,7 +22,7 @@ export { SpecSession } from './unit/SpecSession.js'
 
 // feature spec helpers
 export { default as providePuppeteerViteMatchers } from './feature/helpers/providePuppeteerViteMatchers.js'
-export { default as launchBrowser } from './feature/helpers/launchBrowser.js'
+export { default as launchBrowser, closeBrowser } from './feature/helpers/launchBrowser.js'
 export { default as launchPage } from './feature/helpers/launchPage.js'
 export {
   default as launchDevServer,
