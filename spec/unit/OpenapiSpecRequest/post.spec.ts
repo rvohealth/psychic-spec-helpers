@@ -62,4 +62,16 @@ describe('OpenapiSpecRequest#post', () => {
       })
     })
   })
+
+  context('with nested resources', () => {
+    it('correctly absorbs uri params from provided options', async () => {
+      const userId: string = '123'
+      await request.post('/users/{userId}/posts', 201, {
+        userId,
+        headers: {
+          hello: 'world',
+        },
+      })
+    })
+  })
 })

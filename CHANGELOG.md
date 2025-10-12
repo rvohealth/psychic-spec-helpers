@@ -1,3 +1,7 @@
+## 1.1.6
+
+Fix controller spec request auto-filling of nested route params
+
 ## 1.1.5
 
 Add "Openapi" prefix to all newly-exported type helpers, so that comparitive helpers can be defined within a user's application to take over the more succinct namespaces

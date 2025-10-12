@@ -58,9 +58,79 @@ us humans, he says:
 */
 
 import { type CalendarDate, type DateTime } from '@rvoh/dream'
-
+import {
+  BalloonColorsEnum,
+  BalloonColorsEnumValues
+} from './db.js'
 
 export const schema = {
+  balloons: {
+    serializerKeys: ['default', 'summary'],
+    scopes: {
+      default: [],
+      named: [],
+    },
+    nonJsonColumnNames: ['color', 'createdAt', 'id', 'updatedAt', 'userId'],
+    columns: {
+      color: {
+        coercedType: {} as BalloonColorsEnum,
+        enumType: {} as BalloonColorsEnum,
+        enumArrayType: [] as BalloonColorsEnum[],
+        enumValues: BalloonColorsEnumValues,
+        dbType: 'balloon_colors_enum',
+        allowNull: false,
+        isArray: false,
+      },
+      createdAt: {
+        coercedType: {} as DateTime,
+        enumType: null,
+        enumArrayType: null,
+        enumValues: null,
+        dbType: 'timestamp without time zone',
+        allowNull: false,
+        isArray: false,
+      },
+      id: {
+        coercedType: {} as string,
+        enumType: null,
+        enumArrayType: null,
+        enumValues: null,
+        dbType: 'bigint',
+        allowNull: false,
+        isArray: false,
+      },
+      updatedAt: {
+        coercedType: {} as DateTime,
+        enumType: null,
+        enumArrayType: null,
+        enumValues: null,
+        dbType: 'timestamp without time zone',
+        allowNull: false,
+        isArray: false,
+      },
+      userId: {
+        coercedType: {} as string,
+        enumType: null,
+        enumArrayType: null,
+        enumValues: null,
+        dbType: 'bigint',
+        allowNull: false,
+        isArray: false,
+      },
+    },
+    virtualColumns: [],
+    associations: {
+      user: {
+        type: 'BelongsTo',
+        foreignKey: 'userId',
+        foreignKeyTypeColumn: null,
+        tables: ['users'],
+        optional: false,
+        requiredAndClauses: null,
+        passthroughAndClauses: null,
+      },
+    },
+  },
   users: {
     serializerKeys: ['default', 'summary'],
     scopes: {
@@ -108,7 +178,15 @@ export const schema = {
     },
     virtualColumns: [],
     associations: {
-      
+      balloons: {
+        type: 'HasMany',
+        foreignKey: 'userId',
+        foreignKeyTypeColumn: null,
+        tables: ['balloons'],
+        optional: null,
+        requiredAndClauses: null,
+        passthroughAndClauses: null,
+      },
     },
   },
 } as const
@@ -118,6 +196,7 @@ export const connectionTypeConfig = {
   allDefaultScopeNames: [],
   globalNames: {
     models: {
+      'Balloon': 'balloons',
       'User': 'users'
     },
   },

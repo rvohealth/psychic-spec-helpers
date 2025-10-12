@@ -1,8 +1,9 @@
 import { PsychicRouter } from '@rvoh/psychic'
+import HeadersController from '../app/controllers/HeadersController.js'
 import SpecRequestController from '../app/controllers/SpecRequestController.js'
 import UserController from '../app/controllers/UserController.js'
+import UsersBalloonsController from '../app/controllers/Users/BalloonsController.js'
 import UsersController from '../app/controllers/UsersController.js'
-import HeadersController from '../app/controllers/HeadersController.js'
 
 export default (r: PsychicRouter) => {
   r.get('/spec-request/get-test', SpecRequestController, 'testGet')
@@ -19,6 +20,9 @@ export default (r: PsychicRouter) => {
   r.resources('users', r => {
     r.put('update-put', UsersController, 'updatePut')
     r.resources('posts')
+    r.resources('balloons', r => {
+      r.put('update-put', UsersBalloonsController, 'updatePut')
+    })
   })
   r.resource('user', r => {
     r.put('update-put', UserController, 'updatePut')

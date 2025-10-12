@@ -64,12 +64,28 @@ import { type CalendarDate, type DateTime } from '@rvoh/dream'
 
 import type { ColumnType } from "kysely";
 
+export type BalloonColorsEnum = "blue" | "green" | "red";
+export const BalloonColorsEnumValues = [
+  "blue",
+  "green",
+  "red"
+] as const
+
+
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
 export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
 export type Timestamp = ColumnType<DateTime | CalendarDate>
+
+export interface Balloons {
+  color: BalloonColorsEnum;
+  createdAt: Timestamp;
+  id: Generated<Int8>;
+  updatedAt: Timestamp;
+  userId: Int8;
+}
 
 export interface Users {
   createdAt: Timestamp;
@@ -79,10 +95,12 @@ export interface Users {
 }
 
 export interface DB {
+  balloons: Balloons;
   users: Users;
 }
 
 
 export class DBClass {
+  balloons: Balloons
   users: Users
 }

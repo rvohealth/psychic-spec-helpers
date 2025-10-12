@@ -1,5 +1,6 @@
 import { PsychicServer } from '@rvoh/psychic'
 import { OpenapiSpecRequest } from '../../../src/unit/OpenapiSpecRequest.js'
+import Balloon from '../../../test-app/src/app/models/Balloon.js'
 import User from '../../../test-app/src/app/models/User.js'
 import { paths as openapiPaths } from '../../../test-app/src/types/openapi/openapi.js'
 
@@ -18,5 +19,19 @@ describe('OpenapiSpecSession#delete', () => {
       id: user.id,
     })
     expect(await User.count()).toEqual(0)
+  })
+
+  context('nested resource', () => {
+    it('correctly interprets the nested resource id', async () => {
+      const user = await User.create({ email: 'abc@def' })
+      const balloon = await Balloon.create({ user, color: 'red' })
+      const session = await request.session('get', '/users', 200)
+      await session.delete('/users/{userId}/balloons/{id}', 204, {
+        userId: user.id,
+        id: balloon.id,
+      })
+
+      expect(await Balloon.count()).toEqual(0)
+    })
   })
 })

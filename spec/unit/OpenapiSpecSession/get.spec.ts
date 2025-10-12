@@ -1,5 +1,6 @@
 import { PsychicServer } from '@rvoh/psychic'
 import { OpenapiSpecRequest } from '../../../src/unit/OpenapiSpecRequest.js'
+import Balloon from '../../../test-app/src/app/models/Balloon.js'
 import User from '../../../test-app/src/app/models/User.js'
 import { paths as openapiPaths } from '../../../test-app/src/types/openapi/openapi.js'
 
@@ -25,6 +26,20 @@ describe('OpenapiSpecSession#get', () => {
       const res = await session.get('/users', 200, { query: { search: 'abc' } })
 
       expect(res.body).toEqual([{ id: user.id, email: 'abc@def' }])
+    })
+  })
+
+  context('nested resource', () => {
+    it('correctly interprets the nested resource id', async () => {
+      const user = await User.create({ email: 'abc@def' })
+      const balloon = await Balloon.create({ user, color: 'red' })
+      const session = await request.session('get', '/users', 200)
+      const { body } = await session.get('/users/{userId}/balloons/{id}', 200, {
+        userId: user.id,
+        id: balloon.id,
+      })
+      expect(body.id).toEqual(balloon.id)
+      expect(body.color).toEqual('red')
     })
   })
 })
