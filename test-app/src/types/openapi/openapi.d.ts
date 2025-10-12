@@ -330,7 +330,7 @@ export interface paths {
                     "application/json": {
                         email?: string | null;
                         /** Format: bigint */
-                        id?: string | number;
+                        id?: string | number | bigint;
                     };
                 };
             };
@@ -662,12 +662,28 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        OpenapiValidationErrors: {
+            /** @enum {string} */
+            type: "openapi";
+            /** @enum {string} */
+            target: "requestBody" | "query" | "headers" | "responseBody";
+            errors: {
+                instancePath: string;
+                schemaPath: string;
+                keyword: string;
+                message: string;
+                params: Record<string, never>;
+            }[];
+        };
         User: {
             email: string | null;
-            id: string;
+            /** Format: bigint */
+            id: string | number | bigint;
         };
         ValidationErrors: {
-            errors?: {
+            /** @enum {string} */
+            type: "validation";
+            errors: {
                 [key: string]: string[];
             };
         };
@@ -685,9 +701,7 @@ export interface components {
             headers: {
                 [name: string]: unknown;
             };
-            content: {
-                "application/json": components["schemas"]["ValidationErrors"];
-            };
+            content?: never;
         };
         /** @description The request was not successful because it lacks valid authentication credentials for the requested resource */
         Unauthorized: {

@@ -2,8 +2,23 @@ export type paths = Record<string, never>;
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        OpenapiValidationErrors: {
+            /** @enum {string} */
+            type: "openapi";
+            /** @enum {string} */
+            target: "requestBody" | "query" | "headers" | "responseBody";
+            errors: {
+                instancePath: string;
+                schemaPath: string;
+                keyword: string;
+                message: string;
+                params: Record<string, never>;
+            }[];
+        };
         ValidationErrors: {
-            errors?: {
+            /** @enum {string} */
+            type: "validation";
+            errors: {
                 [key: string]: string[];
             };
         };
@@ -21,9 +36,7 @@ export interface components {
             headers: {
                 [name: string]: unknown;
             };
-            content: {
-                "application/json": components["schemas"]["ValidationErrors"];
-            };
+            content?: never;
         };
         /** @description The request was not successful because it lacks valid authentication credentials for the requested resource */
         Unauthorized: {
