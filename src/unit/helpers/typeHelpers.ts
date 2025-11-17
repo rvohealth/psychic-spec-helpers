@@ -1,4 +1,5 @@
-import { CalendarDate, DateTime, Dream, DreamAttributes } from '@rvoh/dream'
+import { CalendarDate, DateTime, Dream } from '@rvoh/dream'
+import { DreamAttributes } from '@rvoh/dream/types'
 
 export type StringToInt<T extends string> = T extends `${infer N extends number}` ? N : never
 

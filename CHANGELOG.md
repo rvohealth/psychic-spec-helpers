@@ -1,3 +1,7 @@
+## 2.0.0
+
+- bump to 2 to match Dream versioning
+
 ## 1.1.6
 
 Fix controller spec request auto-filling of nested route params
