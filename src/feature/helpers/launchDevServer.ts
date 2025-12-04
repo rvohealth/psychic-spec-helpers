@@ -8,7 +8,7 @@ export default async function launchDevServer(
   key: string,
   {
     port = 3000,
-    cmd = 'yarn client',
+    cmd = 'pnpm client',
     timeout = 5000,
   }: { port?: number; cmd?: string; timeout?: number } = {}
 ) {

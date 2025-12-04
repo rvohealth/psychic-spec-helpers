@@ -24,18 +24,17 @@
     "dist/**/*"
   ],
   "scripts": {
-    "client": "VITE_PSYCHIC_ENV=development yarn --cwd=./client dev",
-    "client:fspec": "BROWSER=none VITE_PSYCHIC_ENV=test yarn --cwd=./client dev --port 3000",
+    "client": "cd client && VITE_PSYCHIC_ENV=development pnpm dev",
+    "client:fspec": "cd client && BROWSER=none VITE_PSYCHIC_ENV=test pnpm dev --port 3000",
     "psy": "NODE_ENV=${NODE_ENV:-test} tsx test-app/src/cli/index.ts",
     "uspec": "vitest --config ./spec/unit/vite.config.ts",
     "fspec": "vitest --config ./spec/features/vite.config.ts",
     "build": "echo \"building psychic-spec-helpers...\" && rm -rf dist && npx tsc -p ./tsconfig.json",
     "build:test-app": "rm -rf dist && echo \"building test app to esm...\" && npx tsc -p ./tsconfig.esm.build.test-app.json && echo \"building test app to cjs...\" && npx tsc -p ./tsconfig.cjs.build.test-app.json",
-    "lint": "yarn run eslint --no-warn-ignored \"src/**/*.ts\" \"spec/**/*.ts\" && yarn run prettier . --check",
-    "format": "yarn run prettier . --write",
-    "prepack": "yarn build"
+    "lint": "pnpm eslint --no-warn-ignored \"src/**/*.ts\" \"spec/**/*.ts\" && pnpm prettier . --check",
+    "format": "pnpm prettier . --write",
+    "prepack": "pnpm build"
   },
-  "packageManager": "yarn@4.4.1",
   "peerDependencies": {
     "@rvoh/dream": "*",
     "@rvoh/psychic": "*",
@@ -55,8 +54,10 @@
     "@types/node": "^22.5.1",
     "@types/pg": "^8",
     "@types/supertest": "^6.0.3",
+    "@typescript-eslint/parser": "^8.48.1",
     "eslint": "^9.39.1",
     "express": "^4.21.2",
+    "globals": "^16.5.0",
     "kysely": "^0.28.5",
     "kysely-codegen": "~0.17.0",
     "luxon-jest-matchers": "^0.1.14",
@@ -68,10 +69,14 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.20.6",
     "typescript": "^5.5.4",
-    "typescript-eslint": "^8.30.1",
+    "typescript-eslint": "^8.48.1",
     "vitest": "^4.0.10"
   },
   "dependencies": {
-    "cookiejar": "^2.1.4"
-  }
+    "commander": "^14.0.2",
+    "cookiejar": "^2.1.4",
+    "dotenv": "^17.2.3",
+    "pluralize-esm": "^9.0.5"
+  },
+  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a"
 }
