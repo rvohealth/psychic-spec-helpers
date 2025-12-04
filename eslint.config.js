@@ -6,10 +6,12 @@ import typescriptParser from '@typescript-eslint/parser'
 
 const config = typescriptEslint.config(
   eslint.configs.recommended,
-  ...typescriptEslint.configs.recommendedTypeChecked,
+  typescriptEslint.configs.recommendedTypeChecked,
+
   {
     ignores: ['src/types/dream.ts', 'src/types/db.ts', 'src/types/psychic.ts'],
   },
+
   {
     files: ['**/*.ts'],
     languageOptions: {

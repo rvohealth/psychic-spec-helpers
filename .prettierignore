@@ -2,8 +2,7 @@
 asyncapi/v1/asyncapi.yml
 .github/
 
-.yarn/
-.yarnrc.yml
+pnpm-lock.yaml
 
 test-app/src/client/src/api/openapi.ts
 test-app/src/types/*

@@ -7,7 +7,7 @@ This repo provides spec helpers to be used in conjunction with the [psychic web 
 1. Add this repo as a dev dependency in your psychic project (this is done by default for psychic apps, but worth mentioning in case it has been removed from your repo).
 
 ```bash
-yarn add --dev @rvoh/psychic-spec-helpers
+pnpm add --dev @rvoh/psychic-spec-helpers
 ```
 
 2. import psychic spec helpers in your jest setup. This is automatically set up when provisioning a new psychic app, so you should only need to do this with an a-typical setup.
