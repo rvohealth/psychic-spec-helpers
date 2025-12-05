@@ -9,7 +9,7 @@ const config = typescriptEslint.config(
   typescriptEslint.configs.recommendedTypeChecked,
 
   {
-    ignores: ['src/types/dream.ts', 'src/types/db.ts', 'src/types/psychic.ts'],
+    ignores: ['test-app/src/types/**/*'],
   },
 
   {
