@@ -1,15 +1,14 @@
-import { LaunchOptions, Page } from 'puppeteer'
-import { launchPage } from '../../../src/index.js'
-
-let page: Page
+import { LaunchOptions } from 'puppeteer'
+import { launchBrowser } from '../../../src/index.js'
 
 export default async function getPage(opts?: LaunchOptions) {
-  if (!page) {
-    page = await launchPage({ headless: process.env.HEADLESS !== '0', timeout: 20000, ...opts })
+  const browser = await launchBrowser({
+    headless: process.env.HEADLESS !== '0',
+    timeout: 20000,
+    ...opts,
+  })
 
-    // set the browser dimensions prior to running specs
-    await page.setViewport({ width: 1200, height: 800 })
-  }
-
+  const page = await browser.newPage()
+  await page.setViewport({ width: 1200, height: 800 })
   return page
 }
