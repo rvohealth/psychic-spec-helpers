@@ -22,15 +22,16 @@ class Supersession {
     private options: AgentOptions = {}
   ) {
     // eslint-disable-next-line
-    if (!server.expressApp) {
-      throw new Error('Supersession requires an `app`')
+    if (!server.koaApp) {
+      throw new Error('Supersession requires a Koa `app`')
     }
 
     // eslint-disable-next-line
-    this.agent = request.agent(server.expressApp, options)
+    const callback = server.koaApp.callback()
+    this.agent = request.agent(callback, options)
 
     // eslint-disable-next-line
-    const app = http.createServer(server.expressApp)
+    const app = http.createServer(callback)
     // eslint-disable-next-line
     const url = (request as any).Test.prototype.serverAddress(app, '/')
 

@@ -567,7 +567,7 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
     }
 
     // eslint-disable-next-line
-    const req = supertest.agent(this.server.expressApp)
+    const req = supertest.agent(this.server.koaApp.callback())
     let request = req[method](`/${uri.replace(/^\//, '')}`)
     request = request.set({ ...this._defaultHeaders, ...opts.headers })
     if (opts.query) request = request.query(opts.query)
