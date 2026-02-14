@@ -6,8 +6,8 @@ export default class SpecRequestController extends ApplicationController {
     if (this.params.throw400) this.badRequest()
 
     this.ok({
-      query: this.req.query,
-      headers: this.req.headers,
+      query: this.ctx.query,
+      headers: this.headers,
     })
   }
 
@@ -15,8 +15,8 @@ export default class SpecRequestController extends ApplicationController {
     if (this.params.throw400) this.badRequest()
 
     this.ok({
-      body: this.req.body,
-      headers: this.req.headers,
+      body: this.ctx.request.body,
+      headers: this.headers,
     })
   }
 

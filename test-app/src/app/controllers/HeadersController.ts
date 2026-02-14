@@ -6,6 +6,6 @@ export default class HeadersController extends ApplicationController {
     status: 200,
   })
   public testHeaders() {
-    this.ok(this.req.headers)
+    this.ok(this.ctx.headers)
   }
 }

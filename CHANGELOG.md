@@ -1,3 +1,7 @@
+## 3.0.0
+
+- bumps to psychic@v3, which has switched from express to koa. This does not functionally introduce breaking changes to psychic-spec-helpers, but it will only be compatible with psychic@v3, and fixes breaking changes under the hood from shifting to koa.
+
 ## 2.0.0
 
 - bump to 2 to match Dream versioning
