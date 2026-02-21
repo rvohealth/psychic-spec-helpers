@@ -1,6 +1,6 @@
-import { ExpectToEvaluateOpts } from './feature/internal/evaluateWithRetryAndTimeout.js'
-import { CustomMatcherResult } from './feature/helpers/providePuppeteerViteMatchers.js'
 import { Page, WaitForSelectorOptions } from 'puppeteer'
+import { CustomMatcherResult } from './feature/helpers/providePuppeteerViteMatchers.js'
+import { ExpectToEvaluateOpts } from './feature/internal/evaluateWithRetryAndTimeout.js'
 import { ToFillMatcherOpts } from './feature/matchers/toFill.js'
 export {
   RequestBody as OpenapiRequestBody,
@@ -13,26 +13,24 @@ export {
 export { DreamRequestAttributes } from './unit/helpers/typeHelpers.js'
 
 // unit spec helpers
-export { default as specRequest } from './unit/SpecRequest.js'
 export { default as createPsychicServer } from './unit/createPsychicServer.js'
 export { OpenapiSpecRequest } from './unit/OpenapiSpecRequest.js'
 export { OpenapiSpecSession } from './unit/OpenapiSpecSession.js'
-export { SpecRequest } from './unit/SpecRequest.js'
+export { default as specRequest, SpecRequest } from './unit/SpecRequest.js'
 export { SpecSession } from './unit/SpecSession.js'
 
 // feature spec helpers
-export { default as providePuppeteerViteMatchers } from './feature/helpers/providePuppeteerViteMatchers.js'
 export { default as launchBrowser } from './feature/helpers/launchBrowser.js'
-export { default as launchPage } from './feature/helpers/launchPage.js'
 export {
   default as launchDevServer,
-  stopDevServers,
   stopDevServer,
+  stopDevServers,
 } from './feature/helpers/launchDevServer.js'
+export { default as launchPage } from './feature/helpers/launchPage.js'
+export { default as providePuppeteerViteMatchers } from './feature/helpers/providePuppeteerViteMatchers.js'
 export { default as visit } from './feature/helpers/visit.js'
 
 declare global {
-  // @ts-expect-error context redefined
   const context: (typeof import('vitest'))['describe']
 
   const page: InstanceType<typeof Page>
