@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@rvoh/psychic-spec-helpers",
-  "version": "3.0.0",
+  "version": "3.0.0-alpha.1",
   "description": "psychic framework spec helpers",
   "author": "RVO Health",
   "repository": {
@@ -35,6 +35,13 @@
     "format": "pnpm prettier . --write",
     "prepack": "pnpm build"
   },
+  "pnpm": {
+    "overrides": {
+      "minimatch@3.1.2": "3.1.3",
+      "minimatch@5.1.6": "5.1.7",
+      "minimatch@9.0.5": "9.0.6"
+    }
+  },
   "peerDependencies": {
     "@rvoh/dream": "*",
     "@rvoh/psychic": "^3.0.0",
@@ -47,10 +54,11 @@
   "devDependencies": {
     "@eslint/js": "=9.0.0",
     "@koa/cors": "^5.0.0",
+    "@koa/etag": "^5.0.2",
     "@koa/router": "^15.3.0",
     "@rvoh/dream": "^2.0.0",
     "@rvoh/dream-spec-helpers": "^2.0.0",
-    "@rvoh/psychic": "^3.0.0",
+    "@rvoh/psychic": "^3.0.0-alpha.4",
     "@types/cookiejar": "^2",
     "@types/node": "^22.5.1",
     "@types/pg": "^8",
@@ -60,7 +68,6 @@
     "globals": "^16.5.0",
     "koa-bodyparser": "^4.4.1",
     "koa-conditional-get": "^3.0.0",
-    "koa-etag": "^5.0.0",
     "kysely": "^0.28.5",
     "kysely-codegen": "~0.19.0",
     "luxon-jest-matchers": "^0.1.14",
