@@ -1,7 +1,4 @@
 {
   "extends": "./tsconfig.esm.build.json",
-  "include": ["src/**/*"],
-  "compilerOptions": {
-    "types": ["vitest/globals"]
-  }
+  "include": ["src/**/*", "test-app/**/*", "spec/**/*"]
 }
