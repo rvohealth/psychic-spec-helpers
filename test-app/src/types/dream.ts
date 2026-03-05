@@ -1,4 +1,3 @@
-
 /*
 
                                     ,▄█▄                 
@@ -57,11 +56,13 @@ us humans, he says:
 
 */
 
-import { type CalendarDate, type DateTime } from '@rvoh/dream'
 import {
-  BalloonColorsEnum,
-  BalloonColorsEnumValues
-} from './db.js'
+  type CalendarDate,
+  type DateTime,
+  type ClockTime,
+  type ClockTimeTz,
+} from '@rvoh/dream'
+import { type BalloonColorsEnum, BalloonColorsEnumValues } from './db.js'
 
 export const schema = {
   balloons: {
@@ -196,8 +197,8 @@ export const connectionTypeConfig = {
   allDefaultScopeNames: [],
   globalNames: {
     models: {
-      'Balloon': 'balloons',
-      'User': 'users'
+      Balloon: 'balloons',
+      User: 'users',
     },
   },
 } as const

@@ -1,6 +1,7 @@
 import { CookieAccessInfo as CookieAccess } from 'cookiejar'
 import http from 'http'
 import request from 'supertest'
+import { App } from 'supertest/types.js'
 import URL, { UrlWithStringQuery } from 'url'
 
 // NOTE: this is not original code.
@@ -28,7 +29,7 @@ class Supersession {
 
     // eslint-disable-next-line
     const callback = server.koaApp.callback()
-    this.agent = request.agent(callback, options)
+    this.agent = request.agent(callback as App, options)
 
     // eslint-disable-next-line
     const app = http.createServer(callback)

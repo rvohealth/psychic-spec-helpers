@@ -39,14 +39,14 @@ importers:
         specifier: ^15.3.0
         version: 15.3.0(koa@3.1.1)
       '@rvoh/dream':
-        specifier: ^2.0.0
-        version: 2.0.0(@rvoh/dream-spec-helpers@2.0.0(@types/node@22.5.1)(@types/pg@8.11.13)(pg@8.14.1))(@types/node@22.5.1)(@types/pg@8.11.13)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)
+        specifier: ^2.1.1
+        version: 2.3.2(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)
       '@rvoh/dream-spec-helpers':
         specifier: ^2.0.0
         version: 2.0.0(@types/node@22.5.1)(@types/pg@8.11.13)(pg@8.14.1)
       '@rvoh/psychic':
         specifier: ^3.0.0-alpha.4
-        version: 3.0.0-alpha.4(@koa/cors@5.0.0)(@koa/router@15.3.0(koa@3.1.1))(@rvoh/dream@2.0.0(@rvoh/dream-spec-helpers@2.0.0(@types/node@22.5.1)(@types/pg@8.11.13)(pg@8.14.1))(@types/node@22.5.1)(@types/pg@8.11.13)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1))(@types/koa@2.15.0)(@types/koa__router@12.0.5)(commander@14.0.2)(koa-bodyparser@4.4.1)(koa-conditional-get@3.0.0)(koa@3.1.1)(openapi-typescript@7.10.1(typescript@5.5.4))
+        version: 3.0.0-alpha.4(@koa/cors@5.0.0)(@koa/router@15.3.0(koa@3.1.1))(@rvoh/dream@2.3.2(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4))(@types/koa@2.15.0)(@types/koa__router@12.0.5)(commander@14.0.2)(koa-bodyparser@4.4.1)(koa-conditional-get@3.0.0)(koa@3.1.1)(openapi-typescript@7.10.1(typescript@5.5.4))
       '@types/cookiejar':
         specifier: ^2
         version: 2.1.5
@@ -510,15 +510,18 @@ packages:
       '@types/pg': '*'
       pg: '*'
 
-  '@rvoh/dream@2.0.0':
-    resolution: {integrity: sha512-V/oOwJRLgDscsCdupTnrec/gOyYtsyQ8rJC+LUA6FQuWWobJDg0OQJwFUk2JVUoz19NH4wtuctAmcRgZsQWr1A==}
+  '@rvoh/dream@2.3.2':
+    resolution: {integrity: sha512-LrXdcRJB68DimBP0Cq0S2Ng4farvJaqLGBq98g3gUY7hZlMFt/QvqPFhvCHwiZCoJAuIpmrkhbPZoT+/lt8UEA==}
     peerDependencies:
-      '@rvoh/dream-spec-helpers': '*'
       '@types/node': '*'
       '@types/pg': '*'
+      commander: ^12
+      dotenv: '*'
       kysely: ^0.28.5
       kysely-codegen: ~0.19.0
       pg: '*'
+      pluralize-esm: '*'
+      typescript: ^5
 
   '@rvoh/psychic@3.0.0-alpha.4':
     resolution: {integrity: sha512-9S6uE0l5Nee77/p94WFKVlnxAOacBRKhD94aU+JiwxoDzLQQ1qD/ADEs8z5dt71e0OY7DalyAK/eMQux9tltJw==}
@@ -920,10 +923,6 @@ packages:
   combined-stream@1.0.8:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
     engines: {node: '>= 0.8'}
-
-  commander@12.1.0:
-    resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
-    engines: {node: '>=18'}
 
   commander@14.0.2:
     resolution: {integrity: sha512-TywoWNNRbhoD0BXs1P3ZEScW8W5iKrnbithIl0YH+uCmBd0QpPOA8yc82DS3BIE5Ma6FnBVUsJ7wVUDz4dvOWQ==}
@@ -1523,8 +1522,8 @@ packages:
   luxon-jest-matchers@0.1.14:
     resolution: {integrity: sha512-qk7PzwitzB3MHLBta79OloGGwZ+aU9q4aCXZ/Mrij98+HQxF18fOIkEHoggrfDdUIC3PhNaOrbDRvC+veBgruw==}
 
-  luxon@3.6.1:
-    resolution: {integrity: sha512-tJLxrKJhO2ukZ5z0gyjY1zPh3Rh88Ej9P7jNrZiHMUXHae1yvI2imgOZtL1TO8TW6biMMKfTtAOoEJANgtWBMQ==}
+  luxon@3.7.2:
+    resolution: {integrity: sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==}
     engines: {node: '>=12'}
 
   magic-string@0.30.21:
@@ -2566,27 +2565,27 @@ snapshots:
       '@types/pg': 8.11.13
       pg: 8.14.1
 
-  '@rvoh/dream@2.0.0(@rvoh/dream-spec-helpers@2.0.0(@types/node@22.5.1)(@types/pg@8.11.13)(pg@8.14.1))(@types/node@22.5.1)(@types/pg@8.11.13)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)':
+  '@rvoh/dream@2.3.2(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)':
     dependencies:
-      '@rvoh/dream-spec-helpers': 2.0.0(@types/node@22.5.1)(@types/pg@8.11.13)(pg@8.14.1)
       '@types/node': 22.5.1
       '@types/pg': 8.11.13
       colorette: 2.0.20
-      commander: 12.1.0
-      dotenv: 16.5.0
+      commander: 14.0.2
+      dotenv: 17.2.3
       kysely: 0.28.8
       kysely-codegen: 0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4)
-      luxon: 3.6.1
+      luxon: 3.7.2
       pg: 8.14.1
       pluralize-esm: 9.0.5
+      typescript: 5.5.4
       yoctocolors: 2.1.1
 
-  '@rvoh/psychic@3.0.0-alpha.4(@koa/cors@5.0.0)(@koa/router@15.3.0(koa@3.1.1))(@rvoh/dream@2.0.0(@rvoh/dream-spec-helpers@2.0.0(@types/node@22.5.1)(@types/pg@8.11.13)(pg@8.14.1))(@types/node@22.5.1)(@types/pg@8.11.13)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1))(@types/koa@2.15.0)(@types/koa__router@12.0.5)(commander@14.0.2)(koa-bodyparser@4.4.1)(koa-conditional-get@3.0.0)(koa@3.1.1)(openapi-typescript@7.10.1(typescript@5.5.4))':
+  '@rvoh/psychic@3.0.0-alpha.4(@koa/cors@5.0.0)(@koa/router@15.3.0(koa@3.1.1))(@rvoh/dream@2.3.2(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4))(@types/koa@2.15.0)(@types/koa__router@12.0.5)(commander@14.0.2)(koa-bodyparser@4.4.1)(koa-conditional-get@3.0.0)(koa@3.1.1)(openapi-typescript@7.10.1(typescript@5.5.4))':
     dependencies:
       '@koa/cors': 5.0.0
       '@koa/etag': 5.0.2(koa@3.1.1)
       '@koa/router': 15.3.0(koa@3.1.1)
-      '@rvoh/dream': 2.0.0(@rvoh/dream-spec-helpers@2.0.0(@types/node@22.5.1)(@types/pg@8.11.13)(pg@8.14.1))(@types/node@22.5.1)(@types/pg@8.11.13)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)
+      '@rvoh/dream': 2.3.2(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)
       '@types/koa': 2.15.0
       '@types/koa__router': 12.0.5
       ajv: 8.17.1
@@ -3047,8 +3046,6 @@ snapshots:
   combined-stream@1.0.8:
     dependencies:
       delayed-stream: 1.0.0
-
-  commander@12.1.0: {}
 
   commander@14.0.2: {}
 
@@ -3644,7 +3641,7 @@ snapshots:
 
   luxon-jest-matchers@0.1.14: {}
 
-  luxon@3.6.1: {}
+  luxon@3.7.2: {}
 
   magic-string@0.30.21:
     dependencies:
