@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@rvoh/psychic-spec-helpers",
-  "version": "3.0.0-alpha.1",
+  "version": "3.0.0-alpha.3",
   "description": "psychic framework spec helpers",
   "author": "RVO Health",
   "repository": {
@@ -44,7 +44,6 @@
   },
   "peerDependencies": {
     "@rvoh/dream": "*",
-    "@rvoh/psychic": "^3.0.0",
     "@types/node": "*",
     "@types/supertest": "*",
     "puppeteer": "*",
