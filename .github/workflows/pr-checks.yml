@@ -55,12 +55,12 @@ jobs:
       DB_PORT: 5432
       TZ: UTC
       GITHUB_OAUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      APP_ENCRYPTION_KEY: '1qyA/spAzDNjjHrBWbs3pLBP44sWcTiYUPb8VehsUUw='
-      LEGACY_APP_ENCRYPTION_KEY: '1qyA/spAzDNjjHrBWbs3pLBP44sWcTiYUPb8VehsUUw='
+      APP_ENCRYPTION_KEY: ${{ secrets.APP_ENCRYPTION_KEY }}
+      LEGACY_APP_ENCRYPTION_KEY: ${{ secrets.LEGACY_APP_ENCRYPTION_KEY }}
       PSYCHIC_CORE_DEVELOPMENT: 1
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '24'
 
@@ -111,7 +111,7 @@ jobs:
       PSYCHIC_CORE_DEVELOPMENT: 1
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '24'
 
@@ -150,7 +150,7 @@ jobs:
       GITHUB_OAUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '24'
 
@@ -168,7 +168,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '24'
 
