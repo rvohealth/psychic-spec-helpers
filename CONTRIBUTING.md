@@ -1,6 +1,13 @@
 ## How to contribute to Psychic spec helpers
 
-#### **Did you find a bug?**
+### Running specs
+
+- cp .test.example.com to .test.example. and update DB_USER with your local PostreSQL username
+- pnpm psy db:reset
+- cd into client and run `pnpm i`
+- from the project root, run `pnpm uspec` and `pnpm fspec`
+
+### **Did you find a bug?**
 
 - **Do not open up a GitHub issue if the bug is a security vulnerability
   in Dream ORM**, and instead to refer to our [security policy](https://github.com/rvohealth/psychic-spec-helpers/SECURITY.md).
