@@ -35,13 +35,13 @@ importers:
         version: 15.3.0(koa@3.1.2)
       '@rvoh/dream':
         specifier: ^2.5.7
-        version: 2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.13)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.13)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)
+        version: 2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.14)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.14)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)
       '@rvoh/dream-spec-helpers':
         specifier: ^2.0.0
         version: 2.0.0(@types/node@22.5.1)(@types/pg@8.11.13)(pg@8.14.1)
       '@rvoh/psychic':
         specifier: ^3.0.5
-        version: 3.0.5(@koa/cors@5.0.0)(@koa/etag@5.0.2(koa@3.1.2))(@koa/router@15.3.0(koa@3.1.2))(@rvoh/dream@2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.13)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.13)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4))(@types/koa-bodyparser@4.3.13)(@types/koa-conditional-get@2.0.4)(@types/koa-etag@3.0.4)(@types/koa@2.15.0)(@types/koa__cors@5.0.1)(@types/koa__router@12.0.5)(koa-bodyparser@4.4.1)(koa-conditional-get@3.0.0)(koa@3.1.2)(openapi-typescript@7.10.1(typescript@5.5.4))
+        version: 3.0.5(@koa/cors@5.0.0)(@koa/etag@5.0.2(koa@3.1.2))(@koa/router@15.3.0(koa@3.1.2))(@rvoh/dream@2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.14)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.14)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4))(@types/koa-bodyparser@4.3.13)(@types/koa-conditional-get@2.0.4)(@types/koa-etag@3.0.4)(@types/koa@2.15.0)(@types/koa__cors@5.0.1)(@types/koa__router@12.0.5)(koa-bodyparser@4.4.1)(koa-conditional-get@3.0.0)(koa@3.1.2)(openapi-typescript@7.10.1(typescript@5.5.4))
       '@types/cookiejar':
         specifier: ^2
         version: 2.1.5
@@ -70,11 +70,11 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       kysely:
-        specifier: ^0.28.13
-        version: 0.28.13
+        specifier: ^0.28.14
+        version: 0.28.14
       kysely-codegen:
         specifier: ~0.19.0
-        version: 0.19.0(kysely@0.28.13)(pg@8.14.1)(typescript@5.5.4)
+        version: 0.19.0(kysely@0.28.14)(pg@8.14.1)(typescript@5.5.4)
       luxon-jest-matchers:
         specifier: ^0.1.14
         version: 0.1.14
@@ -1728,8 +1728,8 @@ packages:
       tedious:
         optional: true
 
-  kysely@0.28.13:
-    resolution: {integrity: sha512-jCkYDvlfzOyHaVsrvR4vnNZxG30oNv2jbbFBjTQAUG8n0h07HW0sZJHk4KAQIRyu9ay+Rg+L8qGa3lwt8Gve9w==}
+  kysely@0.28.14:
+    resolution: {integrity: sha512-SU3lgh0rPvq7upc6vvdVrCsSMUG1h3ChvHVOY7wJ2fw4C9QEB7X3d5eyYEyULUX7UQtxZJtZXGuT6U2US72UYA==}
     engines: {node: '>=20.0.0'}
 
   levn@0.4.1:
@@ -2898,27 +2898,27 @@ snapshots:
       '@types/pg': 8.11.13
       pg: 8.14.1
 
-  '@rvoh/dream@2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.13)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.13)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)':
+  '@rvoh/dream@2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.14)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.14)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)':
     dependencies:
       '@types/node': 22.5.1
       '@types/pg': 8.11.13
       colorette: 2.0.20
       commander: 14.0.2
       dotenv: 17.2.3
-      kysely: 0.28.13
-      kysely-codegen: 0.19.0(kysely@0.28.13)(pg@8.14.1)(typescript@5.5.4)
+      kysely: 0.28.14
+      kysely-codegen: 0.19.0(kysely@0.28.14)(pg@8.14.1)(typescript@5.5.4)
       luxon: 3.7.2
       pg: 8.14.1
       pluralize-esm: 9.0.5
       typescript: 5.5.4
       yoctocolors: 2.1.2
 
-  '@rvoh/psychic@3.0.5(@koa/cors@5.0.0)(@koa/etag@5.0.2(koa@3.1.2))(@koa/router@15.3.0(koa@3.1.2))(@rvoh/dream@2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.13)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.13)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4))(@types/koa-bodyparser@4.3.13)(@types/koa-conditional-get@2.0.4)(@types/koa-etag@3.0.4)(@types/koa@2.15.0)(@types/koa__cors@5.0.1)(@types/koa__router@12.0.5)(koa-bodyparser@4.4.1)(koa-conditional-get@3.0.0)(koa@3.1.2)(openapi-typescript@7.10.1(typescript@5.5.4))':
+  '@rvoh/psychic@3.0.5(@koa/cors@5.0.0)(@koa/etag@5.0.2(koa@3.1.2))(@koa/router@15.3.0(koa@3.1.2))(@rvoh/dream@2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.14)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.14)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4))(@types/koa-bodyparser@4.3.13)(@types/koa-conditional-get@2.0.4)(@types/koa-etag@3.0.4)(@types/koa@2.15.0)(@types/koa__cors@5.0.1)(@types/koa__router@12.0.5)(koa-bodyparser@4.4.1)(koa-conditional-get@3.0.0)(koa@3.1.2)(openapi-typescript@7.10.1(typescript@5.5.4))':
     dependencies:
       '@koa/cors': 5.0.0
       '@koa/etag': 5.0.2(koa@3.1.2)
       '@koa/router': 15.3.0(koa@3.1.2)
-      '@rvoh/dream': 2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.13)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.13)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)
+      '@rvoh/dream': 2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.14)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.14)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)
       '@types/koa': 2.15.0
       '@types/koa-bodyparser': 4.3.13
       '@types/koa-conditional-get': 2.0.4
@@ -4010,14 +4010,14 @@ snapshots:
       type-is: 2.0.1
       vary: 1.1.2
 
-  kysely-codegen@0.19.0(kysely@0.28.13)(pg@8.14.1)(typescript@5.5.4):
+  kysely-codegen@0.19.0(kysely@0.28.14)(pg@8.14.1)(typescript@5.5.4):
     dependencies:
       chalk: 4.1.2
       cosmiconfig: 9.0.0(typescript@5.5.4)
       dotenv: 17.2.3
       dotenv-expand: 12.0.3
       git-diff: 2.0.6
-      kysely: 0.28.13
+      kysely: 0.28.14
       micromatch: 4.0.8
       minimist: 1.2.8
       pluralize: 8.0.0
@@ -4027,7 +4027,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  kysely@0.28.13: {}
+  kysely@0.28.14: {}
 
   levn@0.4.1:
     dependencies:
