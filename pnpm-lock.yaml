@@ -39,14 +39,14 @@ importers:
         specifier: ^15.3.0
         version: 15.3.0(koa@3.1.1)
       '@rvoh/dream':
-        specifier: ^2.1.1
-        version: 2.3.2(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)
+        specifier: ^2.5.7
+        version: 2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)
       '@rvoh/dream-spec-helpers':
         specifier: ^2.0.0
         version: 2.0.0(@types/node@22.5.1)(@types/pg@8.11.13)(pg@8.14.1)
       '@rvoh/psychic':
-        specifier: ^3.0.0-alpha.4
-        version: 3.0.0-alpha.4(@koa/cors@5.0.0)(@koa/router@15.3.0(koa@3.1.1))(@rvoh/dream@2.3.2(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4))(@types/koa@2.15.0)(@types/koa__router@12.0.5)(commander@14.0.2)(koa-bodyparser@4.4.1)(koa-conditional-get@3.0.0)(koa@3.1.1)(openapi-typescript@7.10.1(typescript@5.5.4))
+        specifier: ^3.0.5
+        version: 3.0.5(@koa/cors@5.0.0)(@koa/etag@5.0.2(koa@3.1.1))(@koa/router@15.3.0(koa@3.1.1))(@rvoh/dream@2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4))(@types/koa-bodyparser@4.3.13)(@types/koa-conditional-get@2.0.4)(@types/koa-etag@3.0.4)(@types/koa@2.15.0)(@types/koa__cors@5.0.1)(@types/koa__router@12.0.5)(koa-bodyparser@4.4.1)(koa-conditional-get@3.0.0)(koa@3.1.1)(openapi-typescript@7.10.1(typescript@5.5.4))
       '@types/cookiejar':
         specifier: ^2
         version: 2.1.5
@@ -510,29 +510,33 @@ packages:
       '@types/pg': '*'
       pg: '*'
 
-  '@rvoh/dream@2.3.2':
-    resolution: {integrity: sha512-LrXdcRJB68DimBP0Cq0S2Ng4farvJaqLGBq98g3gUY7hZlMFt/QvqPFhvCHwiZCoJAuIpmrkhbPZoT+/lt8UEA==}
+  '@rvoh/dream@2.5.7':
+    resolution: {integrity: sha512-zWI0UwdhXZa+fRAYI34wgJ+GubTind1dbgdW/u1AMKZW2JRz3fUE/d/pifYFXPCOHQ8SQLh+7vKD6wGGs5+NcA==}
     peerDependencies:
       '@types/node': '*'
       '@types/pg': '*'
-      commander: ^12
+      commander: ^14.0.3
       dotenv: '*'
-      kysely: ^0.28.5
+      kysely: ^0.28.14
       kysely-codegen: ~0.19.0
       pg: '*'
-      pluralize-esm: '*'
-      typescript: ^5
+      pluralize-esm: ^9.0.5
+      typescript: ^5.9.3
 
-  '@rvoh/psychic@3.0.0-alpha.4':
-    resolution: {integrity: sha512-9S6uE0l5Nee77/p94WFKVlnxAOacBRKhD94aU+JiwxoDzLQQ1qD/ADEs8z5dt71e0OY7DalyAK/eMQux9tltJw==}
+  '@rvoh/psychic@3.0.5':
+    resolution: {integrity: sha512-zx4ZpSz0PHayeAxgnwdpBGkD5Cm0yywBAN+S24vZ61Wj4vUnO5m5TdsxacTMATTE/x+ZpiWp4C0tjd4P7QIklw==}
     peerDependencies:
       '@koa/cors': ^5.0.0
+      '@koa/etag': ^5.0.2
       '@koa/router': ^15.3.0
-      '@rvoh/dream': ^2.3.1
-      '@types/koa': ^2.15.0
+      '@rvoh/dream': ^2.4.0
+      '@types/koa': ^3.0.1
+      '@types/koa-bodyparser': ^4.3.12
+      '@types/koa-conditional-get': ^2.0.3
+      '@types/koa-etag': ^3.0.3
+      '@types/koa__cors': ^5.0.0
       '@types/koa__router': ^12.0.5
-      commander: ^12.1.0
-      koa: ^2.15.3
+      koa: ^3.1.2
       koa-bodyparser: ^4.4.1
       koa-conditional-get: ^3.0.0
       openapi-typescript: ^7.8.0
@@ -603,11 +607,23 @@ packages:
   '@types/keygrip@1.0.6':
     resolution: {integrity: sha512-lZuNAY9xeJt7Bx4t4dx0rYCDqGPW8RXhQZK1td7d4H6E9zYbLoOtjBvfwdTKpsyxQI/2jv+armjX/RW+ZNpXOQ==}
 
+  '@types/koa-bodyparser@4.3.13':
+    resolution: {integrity: sha512-yW9afsDnV1ymnhMBfAlzsKZ45sYnvIlTRS+eF5MUZOQ8ePIIj3ajwi+9b4a0vdyYvh6uJKYibU8R1zrUIpCmCA==}
+
   '@types/koa-compose@3.2.9':
     resolution: {integrity: sha512-BroAZ9FTvPiCy0Pi8tjD1OfJ7bgU1gQf0eR6e1Vm+JJATy9eKOG3hQMFtMciMawiSOVnLMdmUOC46s7HBhSTsA==}
 
+  '@types/koa-conditional-get@2.0.4':
+    resolution: {integrity: sha512-0Ta+1w9IkME+OH8cRoLiOZhdMqme5tPSxl15qeJ2icjj+l6tU0siLO/fCrZS4bSdVjKRWowBb8v0eVh3vaSEdg==}
+
+  '@types/koa-etag@3.0.4':
+    resolution: {integrity: sha512-uPcg5P2KfZ2lN6R2776UA0702lYPyrvcAk21H8TZxMRo9WGzQJNHohzyTvSjJ+ZyzB5gC5f/pc/ZPUk/o85e1w==}
+
   '@types/koa@2.15.0':
     resolution: {integrity: sha512-7QFsywoE5URbuVnG3loe03QXuGajrnotr3gQkXcEBShORai23MePfFYdhz90FEtBBpkyIYQbVD+evKtloCgX3g==}
+
+  '@types/koa__cors@5.0.1':
+    resolution: {integrity: sha512-xZckuh3B6ycSBAIYnBImG1VDHyBNZsltGAuGb4THuZllccdLgD5DUs4RA7TAUjB58THg00SSZ1e//duQef7WRw==}
 
   '@types/koa__router@12.0.5':
     resolution: {integrity: sha512-1HeLxuDn4n5it1yZYCSyOYXo++73zT0ffoviXnPxbwbxLbvDFEvWD9ZzpRiIpK4oKR0pi+K+Mk/ZjyROjW3HSw==}
@@ -615,8 +631,8 @@ packages:
   '@types/methods@1.1.4':
     resolution: {integrity: sha512-ymXWVrDiCxTBE3+RIrrP533E70eA+9qu7zdWoHuOmGujkYtzf4HQF96b8nwHLqhuf4ykX61IGRIB38CC6/sImQ==}
 
-  '@types/node@22.19.13':
-    resolution: {integrity: sha512-akNQMv0wW5uyRpD2v2IEyRSZiR+BeGuoB6L310EgGObO44HSMNT8z1xzio28V8qOrgYaopIDNA18YgdXd+qTiw==}
+  '@types/node@22.19.15':
+    resolution: {integrity: sha512-F0R/h2+dsy5wJAUe3tAU6oqa2qbWY5TpNfL/RGmo1y38hiyO1w3x2jPtt76wmuaJI4DQnOBu21cNXQ2STIUUWg==}
 
   '@types/node@22.5.1':
     resolution: {integrity: sha512-KkHsxej0j9IW1KKOOAA/XBA0z08UFSrRQHErzEfA3Vgq57eXIMYboIlHJuYIfd+lwCQjtKqUu3UnmKbtUc9yRw==}
@@ -624,8 +640,8 @@ packages:
   '@types/pg@8.11.13':
     resolution: {integrity: sha512-6kXByGkvRvwXLuyaWzsebs2du6+XuAB2CuMsuzP7uaihQahshVgSmB22Pmh0vQMkQ1h5+PZU0d+Di1o+WpVWJg==}
 
-  '@types/qs@6.14.0':
-    resolution: {integrity: sha512-eOunJqu0K1923aExK6y8p6fsihYEn/BYuQ4g0CxAAgFc4b/ZLN4CrsRZ55srTdqoiLzU2B2evC+apEIxprEzkQ==}
+  '@types/qs@6.15.0':
+    resolution: {integrity: sha512-JawvT8iBVWpzTrz3EGw9BTQFg3BQNmwERdKE22vlTxawwtbyUSlMppvZYKLZzB5zgACXdXxbD3m1bXaMqP/9ow==}
 
   '@types/range-parser@1.2.7':
     resolution: {integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==}
@@ -766,8 +782,8 @@ packages:
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
 
-  ajv@8.17.1:
-    resolution: {integrity: sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g==}
+  ajv@8.18.0:
+    resolution: {integrity: sha512-PlXPeEWMXMZ7sPYOHqmDyCJzcfNrUr3fGNKtezX14ykXOEIvyK81d+qydx89KY5O71FKMPaQ2vBfBFI5NHR63A==}
 
   ansi-colors@4.1.3:
     resolution: {integrity: sha512-/6w/C21Pm1A7aZitlI5Ni/2J6FFQN8i1Cvz3kHABAAbw93v/NlvKdVOqz7CCWz/3iv/JplRSEEZ83XION15ovw==}
@@ -2256,8 +2272,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  yoctocolors@2.1.1:
-    resolution: {integrity: sha512-GQHQqAopRhwU8Kt1DDM8NjibDXHC8eoh1erhGAJPEyveY9qqVeXvVikNKrDz69sHowPMorbPUrH/mx8c50eiBQ==}
+  yoctocolors@2.1.2:
+    resolution: {integrity: sha512-CzhO+pFNo8ajLM2d2IW/R93ipy99LWjtwblvC1RsoSUMZgyLbYFr221TnSNT7GjGdYui6P459mw9JH/g/zW2ug==}
     engines: {node: '>=18'}
 
   zod@3.24.2:
@@ -2565,7 +2581,7 @@ snapshots:
       '@types/pg': 8.11.13
       pg: 8.14.1
 
-  '@rvoh/dream@2.3.2(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)':
+  '@rvoh/dream@2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)':
     dependencies:
       '@types/node': 22.5.1
       '@types/pg': 8.11.13
@@ -2578,27 +2594,28 @@ snapshots:
       pg: 8.14.1
       pluralize-esm: 9.0.5
       typescript: 5.5.4
-      yoctocolors: 2.1.1
+      yoctocolors: 2.1.2
 
-  '@rvoh/psychic@3.0.0-alpha.4(@koa/cors@5.0.0)(@koa/router@15.3.0(koa@3.1.1))(@rvoh/dream@2.3.2(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4))(@types/koa@2.15.0)(@types/koa__router@12.0.5)(commander@14.0.2)(koa-bodyparser@4.4.1)(koa-conditional-get@3.0.0)(koa@3.1.1)(openapi-typescript@7.10.1(typescript@5.5.4))':
+  '@rvoh/psychic@3.0.5(@koa/cors@5.0.0)(@koa/etag@5.0.2(koa@3.1.1))(@koa/router@15.3.0(koa@3.1.1))(@rvoh/dream@2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4))(@types/koa-bodyparser@4.3.13)(@types/koa-conditional-get@2.0.4)(@types/koa-etag@3.0.4)(@types/koa@2.15.0)(@types/koa__cors@5.0.1)(@types/koa__router@12.0.5)(koa-bodyparser@4.4.1)(koa-conditional-get@3.0.0)(koa@3.1.1)(openapi-typescript@7.10.1(typescript@5.5.4))':
     dependencies:
       '@koa/cors': 5.0.0
       '@koa/etag': 5.0.2(koa@3.1.1)
       '@koa/router': 15.3.0(koa@3.1.1)
-      '@rvoh/dream': 2.3.2(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)
+      '@rvoh/dream': 2.5.7(@types/node@22.5.1)(@types/pg@8.11.13)(commander@14.0.2)(dotenv@17.2.3)(kysely-codegen@0.19.0(kysely@0.28.8)(pg@8.14.1)(typescript@5.5.4))(kysely@0.28.8)(pg@8.14.1)(pluralize-esm@9.0.5)(typescript@5.5.4)
       '@types/koa': 2.15.0
+      '@types/koa-bodyparser': 4.3.13
+      '@types/koa-conditional-get': 2.0.4
+      '@types/koa-etag': 3.0.4
+      '@types/koa__cors': 5.0.1
       '@types/koa__router': 12.0.5
-      ajv: 8.17.1
-      ajv-formats: 3.0.1(ajv@8.17.1)
-      commander: 14.0.2
-      dotenv: 16.5.0
+      ajv: 8.18.0
+      ajv-formats: 3.0.1(ajv@8.18.0)
       fast-json-stringify: 6.3.0
       koa: 3.1.1
       koa-bodyparser: 4.4.1
       koa-conditional-get: 3.0.0
       openapi-typescript: 7.10.1(typescript@5.5.4)
-      pluralize-esm: 9.0.5
-      yoctocolors: 2.1.1
+      yoctocolors: 2.1.2
 
   '@standard-schema/spec@1.0.0': {}
 
@@ -2614,12 +2631,12 @@ snapshots:
 
   '@types/accepts@1.3.7':
     dependencies:
-      '@types/node': 22.19.13
+      '@types/node': 22.19.15
 
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 22.19.13
+      '@types/node': 22.19.15
 
   '@types/chai@5.2.2':
     dependencies:
@@ -2627,7 +2644,7 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.19.13
+      '@types/node': 22.19.15
 
   '@types/content-disposition@0.5.9': {}
 
@@ -2638,7 +2655,7 @@ snapshots:
       '@types/connect': 3.4.38
       '@types/express': 5.0.6
       '@types/keygrip': 1.0.6
-      '@types/node': 22.19.13
+      '@types/node': 22.19.15
 
   '@types/deep-eql@4.0.2': {}
 
@@ -2650,8 +2667,8 @@ snapshots:
 
   '@types/express-serve-static-core@5.1.1':
     dependencies:
-      '@types/node': 22.19.13
-      '@types/qs': 6.14.0
+      '@types/node': 22.19.15
+      '@types/qs': 6.15.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
 
@@ -2669,8 +2686,21 @@ snapshots:
 
   '@types/keygrip@1.0.6': {}
 
+  '@types/koa-bodyparser@4.3.13':
+    dependencies:
+      '@types/koa': 2.15.0
+
   '@types/koa-compose@3.2.9':
     dependencies:
+      '@types/koa': 2.15.0
+
+  '@types/koa-conditional-get@2.0.4':
+    dependencies:
+      '@types/koa': 2.15.0
+
+  '@types/koa-etag@3.0.4':
+    dependencies:
+      '@types/etag': 1.8.4
       '@types/koa': 2.15.0
 
   '@types/koa@2.15.0':
@@ -2682,7 +2712,11 @@ snapshots:
       '@types/http-errors': 2.0.5
       '@types/keygrip': 1.0.6
       '@types/koa-compose': 3.2.9
-      '@types/node': 22.19.13
+      '@types/node': 22.19.15
+
+  '@types/koa__cors@5.0.1':
+    dependencies:
+      '@types/koa': 2.15.0
 
   '@types/koa__router@12.0.5':
     dependencies:
@@ -2690,7 +2724,7 @@ snapshots:
 
   '@types/methods@1.1.4': {}
 
-  '@types/node@22.19.13':
+  '@types/node@22.19.15':
     dependencies:
       undici-types: 6.21.0
 
@@ -2704,18 +2738,18 @@ snapshots:
       pg-protocol: 1.8.0
       pg-types: 4.0.2
 
-  '@types/qs@6.14.0': {}
+  '@types/qs@6.15.0': {}
 
   '@types/range-parser@1.2.7': {}
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 22.19.13
+      '@types/node': 22.19.15
 
   '@types/serve-static@2.2.0':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 22.19.13
+      '@types/node': 22.19.15
 
   '@types/superagent@8.1.9':
     dependencies:
@@ -2882,9 +2916,9 @@ snapshots:
 
   agent-base@7.1.3: {}
 
-  ajv-formats@3.0.1(ajv@8.17.1):
+  ajv-formats@3.0.1(ajv@8.18.0):
     optionalDependencies:
-      ajv: 8.17.1
+      ajv: 8.18.0
 
   ajv@6.12.6:
     dependencies:
@@ -2893,7 +2927,7 @@ snapshots:
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
 
-  ajv@8.17.1:
+  ajv@8.18.0:
     dependencies:
       fast-deep-equal: 3.1.3
       fast-uri: 3.1.0
@@ -3312,8 +3346,8 @@ snapshots:
   fast-json-stringify@6.3.0:
     dependencies:
       '@fastify/merge-json-schemas': 0.2.1
-      ajv: 8.17.1
-      ajv-formats: 3.0.1(ajv@8.17.1)
+      ajv: 8.18.0
+      ajv-formats: 3.0.1(ajv@8.18.0)
       fast-uri: 3.1.0
       json-schema-ref-resolver: 3.0.0
       rfdc: 1.4.1
@@ -4353,7 +4387,7 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  yoctocolors@2.1.1: {}
+  yoctocolors@2.1.2: {}
 
   zod@3.24.2: {}
 
