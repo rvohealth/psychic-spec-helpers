@@ -19,6 +19,17 @@ export { OpenapiSpecSession } from './unit/OpenapiSpecSession.js'
 export { default as specRequest, SpecRequest } from './unit/SpecRequest.js'
 export { SpecSession } from './unit/SpecSession.js'
 
+// security audit helpers (stubs; implemented progressively by audit phases)
+export {
+  expectBlocksOpenRedirect,
+  expectNoMassAssignment,
+  forgeCookie,
+  mkPolyglotSvg,
+  mkProtoPollutionPayload,
+  type MassAssignmentAssertion,
+  type OpenRedirectAssertion,
+} from './security/index.js'
+
 // feature spec helpers
 export { default as launchBrowser } from './feature/helpers/launchBrowser.js'
 export {
