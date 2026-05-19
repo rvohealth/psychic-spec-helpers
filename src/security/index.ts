@@ -18,7 +18,7 @@
 function notImplemented(name: string): never {
   throw new Error(
     `${name} is a security-audit helper stub; implementation lands in a later audit phase. ` +
-      `See ~/work/dream_and_psychic/SECURITY_AUDIT_TRACKER.md.`,
+      `See ~/work/dream_and_psychic/SECURITY_AUDIT_TRACKER.md.`
   )
 }
 
@@ -29,7 +29,10 @@ export interface OpenRedirectAssertion {
   maliciousTarget: string
 }
 
-export async function expectBlocksOpenRedirect(_opts: OpenRedirectAssertion): Promise<void> {
+// Not `async`: the body only throws (stub). The `Promise<void>` return type
+// preserves the eventual async contract for callers; re-add `async` when
+// the implementation lands.
+export function expectBlocksOpenRedirect(_opts: OpenRedirectAssertion): Promise<void> {
   notImplemented('expectBlocksOpenRedirect')
 }
 
@@ -44,7 +47,8 @@ export interface MassAssignmentAssertion {
   readBack: () => Promise<Record<string, unknown>>
 }
 
-export async function expectNoMassAssignment(_opts: MassAssignmentAssertion): Promise<void> {
+// Not `async`: stub body only throws; see expectBlocksOpenRedirect above.
+export function expectNoMassAssignment(_opts: MassAssignmentAssertion): Promise<void> {
   notImplemented('expectNoMassAssignment')
 }
 

@@ -18,6 +18,18 @@ const config = typescriptEslint.config(
       parser: typescriptParser,
       parserOptions: { project: './tsconfig.json' },
     },
+    rules: {
+      // Honor the underscore-prefix convention the codebase already uses for
+      // intentionally-unused args/vars/caught errors (e.g. stub `_opts`).
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
   }
 )
 export default config
