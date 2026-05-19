@@ -28,6 +28,7 @@ export {
 } from './feature/helpers/launchDevServer.js'
 export { default as launchPage } from './feature/helpers/launchPage.js'
 export { default as providePuppeteerViteMatchers } from './feature/helpers/providePuppeteerViteMatchers.js'
+export { default as resetBrowserState } from './feature/helpers/resetBrowserState.js'
 export { default as visit } from './feature/helpers/visit.js'
 
 declare global {

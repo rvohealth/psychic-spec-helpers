@@ -1,3 +1,7 @@
+## 3.1.0
+
+- add `resetBrowserState()` — per-spec browser cleanup for suites that share one browser across spec files. Call it in `afterEach`: it clears `localStorage`/`sessionStorage`, clears cookies (JS-visible sweep on the current origin plus a browser-context pass for HttpOnly), and navigates to `about:blank`. Two wins: (1) real cross-spec isolation (the shared-browser setup otherwise leaks storage/cookies between specs), and (2) the `about:blank` navigation cancels in-flight requests, releasing server-side resources (e.g. a pooled DB client) so server teardown isn't blocked. Best-effort and a no-op when there is no open page, so it can never fail an unrelated spec's teardown. The shared browser is left open and reusable.
+
 ## 3.0.1
 
 - patch vulnerable packages
