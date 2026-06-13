@@ -1,3 +1,7 @@
+## 3.1.1
+
+- `createPsychicServer` now boots the spec server once per worker instead of re-booting a new `PsychicServer` on every spec. The previous cache was dead code (`const _server = undefined`, never reassigned), so the `if (_server) return _server` guard never fired and each spec ran a fresh `PsychicServer.boot()` — re-running application initialization and churning database/websocket connections, which made suites slow and flaky under load (ephemeral-port/connection exhaustion surfacing as intermittent `400/404/405/500` responses on unrelated specs, and websocket-layer interference on HTTP requests). The booted server is now cached on `globalThis` so it survives the per-file module-registry reset that isolating runners (e.g. Vitest with the default `isolate: true`) perform between spec files.
+
 ## 3.1.0
 
 - add `resetBrowserState()` — per-spec browser cleanup for suites that share one browser across spec files. Call it in `afterEach`: it clears `localStorage`/`sessionStorage`, clears cookies (JS-visible sweep on the current origin plus a browser-context pass for HttpOnly), and navigates to `about:blank`. Two wins: (1) real cross-spec isolation (the shared-browser setup otherwise leaks storage/cookies between specs), and (2) the `about:blank` navigation cancels in-flight requests, releasing server-side resources (e.g. a pooled DB client) so server teardown isn't blocked. Best-effort and a no-op when there is no open page, so it can never fail an unrelated spec's teardown. The shared browser is left open and reusable.
