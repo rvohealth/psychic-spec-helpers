@@ -4,6 +4,9 @@
   "version": "3.2.1",
   "description": "psychic framework spec helpers",
   "author": "RVO Health",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rvohealth/psychic-spec-helpers.git"
