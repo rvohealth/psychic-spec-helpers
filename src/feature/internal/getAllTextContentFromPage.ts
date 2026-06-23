@@ -20,6 +20,16 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
         const tagName = String(element.tagName || '').toLowerCase()
         if (['script', 'style', 'noscript'].includes(tagName)) return
 
+        // Form-control values (input/textarea) are not part of innerText or
+        // textContent, but the previous ::-p-text()-based matcher matched them
+        // and callers assert on entered values, so include them explicitly.
+        if (tagName === 'input' || tagName === 'textarea') {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+          const value = element.value?.trim()
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          if (value) textContentArray.push(value)
+        }
+
         let elementText: string | undefined
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (typeof element.innerText === 'string') {

@@ -23,4 +23,22 @@ describe('toMatchTextContent', () => {
       await expect(page).toMatchTextContent(/not found div/i, { timeout: 500 })
     }).rejects.toThrow()
   })
+
+  context('form-control values', () => {
+    it('matches an exact string within an input value', async () => {
+      await expect(page).toMatchTextContent('Periwinkle Tanglewood')
+    })
+
+    it('matches a case-insensitive regex within an input value', async () => {
+      await expect(page).toMatchTextContent(/periwinkle tanglewood/i)
+    })
+
+    it('matches an exact string within a textarea value', async () => {
+      await expect(page).toMatchTextContent('Juniper Ashgrove')
+    })
+
+    it('matches a case-insensitive regex within a textarea value', async () => {
+      await expect(page).toMatchTextContent(/juniper ashgrove/i)
+    })
+  })
 })

@@ -7,6 +7,8 @@ function App() {
       <a>My link</a>
       <div id="my-div">My div</div>
       <input id="my-input" />
+      <input id="my-text-input" defaultValue="Periwinkle Tanglewood" />
+      <textarea id="my-textarea" defaultValue="Juniper Ashgrove" />
 
       <select id="select-box">
         <option>option 1</option>

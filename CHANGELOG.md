@@ -1,3 +1,7 @@
+## 3.2.1
+
+- `toMatchTextContent` / `toNotMatchTextContent` again match the **values** entered into form controls (`input` / `textarea`). The 3.2.0 rewrite that added `RegExp` support switched the underlying text query from Puppeteer's `::-p-text()` (which matched form-control values) to manual `innerText` extraction (which does not), silently dropping value matching and breaking specs that assert on a populated field. `getAllTextContentFromPage` now also collects `input` / `textarea` `.value`, restoring the previous behavior for both string and regex expectations.
+
 ## 3.2.0
 
 - `toMatchTextContent` and `toNotMatchTextContent` now accept `RegExp` expectations, enabling direct case-insensitive text assertions such as `await expect(page).toMatchTextContent(/hello/i)`. The matcher typings now reflect the supported input shape (`string | RegExp`) instead of accepting `any`, and `toNotMatchTextContent` now forwards selector/timeout options through the Vitest matcher registration.
