@@ -1,3 +1,7 @@
+## 3.2.0
+
+- `toMatchTextContent` and `toNotMatchTextContent` now accept `RegExp` expectations, enabling direct case-insensitive text assertions such as `await expect(page).toMatchTextContent(/hello/i)`. The matcher typings now reflect the supported input shape (`string | RegExp`) instead of accepting `any`, and `toNotMatchTextContent` now forwards selector/timeout options through the Vitest matcher registration.
+
 ## 3.1.1
 
 - `createPsychicServer` now boots the spec server once per worker instead of re-booting a new `PsychicServer` on every spec. The previous cache was dead code (`const _server = undefined`, never reassigned), so the `if (_server) return _server` guard never fired and each spec ran a fresh `PsychicServer.boot()` — re-running application initialization and churning database/websocket connections, which made suites slow and flaky under load (ephemeral-port/connection exhaustion surfacing as intermittent `400/404/405/500` responses on unrelated specs, and websocket-layer interference on HTTP requests). The booted server is now cached on `globalThis` so it survives the per-file module-registry reset that isolating runners (e.g. Vitest with the default `isolate: true`) perform between spec files.

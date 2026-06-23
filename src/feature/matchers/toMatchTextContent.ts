@@ -1,31 +1,41 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
-import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
+import evaluateWithRetryAndTimeout from '../internal/evaluateWithRetryAndTimeout.js'
+import getAllTextContentFromPage from '../internal/getAllTextContentFromPage.js'
+import requirePuppeteerPage from '../internal/requirePuppeteerPage.js'
+
+export type TextContentMatcherExpected = string | RegExp
+export type TextContentMatcherOpts = { selector?: string } & WaitForSelectorOptions
 
 export default async function toMatchTextContent(
-  page: Page,
-  text: string,
-  opts: { selector?: string } & WaitForSelectorOptions = {}
+  argumentPassedToExpect: Page,
+  expected: TextContentMatcherExpected,
+  opts: TextContentMatcherOpts = {}
 ) {
-  try {
-    await page.waitForSelector(
-      `${opts.selector || 'body'}::-p-text(${text.replace(/"/g, '\\"')})`,
-      applyDefaultWaitForOpts(opts)
-    )
-    return {
-      pass: true,
-      message: () => {
+  return await evaluateWithRetryAndTimeout(
+    argumentPassedToExpect,
+    async () => {
+      requirePuppeteerPage(argumentPassedToExpect)
+
+      const actual = await getAllTextContentFromPage(argumentPassedToExpect, opts.selector)
+      if (expected instanceof RegExp) expected.lastIndex = 0
+
+      return {
+        pass: typeof expected === 'string' ? actual.includes(expected) : expected.test(actual),
+        actual,
+      }
+    },
+    {
+      successText: () => {
         throw new Error('Cannot negate toMatchTextContent, use toNotMatchTextContent instead')
       },
-    }
-  } catch {
-    return {
-      pass: false,
-      message: () => `
+      failureText: actual => `
 expected ${opts.selector || 'body'} with text:
-        ${text}
+        ${expected.toString()}
 
-but no text was found within that selector
+but no matching text was found within that selector:
+        ${actual}
       `,
+      timeout: opts.timeout,
     }
-  }
+  )
 }

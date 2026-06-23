@@ -2,6 +2,10 @@ import { Page, WaitForSelectorOptions } from 'puppeteer'
 import { CustomMatcherResult } from './feature/helpers/providePuppeteerViteMatchers.js'
 import { ExpectToEvaluateOpts } from './feature/internal/evaluateWithRetryAndTimeout.js'
 import { ToFillMatcherOpts } from './feature/matchers/toFill.js'
+import type {
+  TextContentMatcherExpected,
+  TextContentMatcherOpts,
+} from './feature/matchers/toMatchTextContent.js'
 export {
   RequestBody as OpenapiRequestBody,
   RequestQueryParameters as OpenapiRequestQuery,
@@ -64,10 +68,14 @@ interface PuppeteerAssertions {
   toEqualCalendarDate(expected: any): CustomMatcherResult
 
   // begin: fspec matchers
-  // eslint-disable-next-line
-  toMatchTextContent(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
-  // eslint-disable-next-line
-  toNotMatchTextContent(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  toMatchTextContent(
+    expected: TextContentMatcherExpected,
+    opts?: TextContentMatcherOpts
+  ): Promise<CustomMatcherResult>
+  toNotMatchTextContent(
+    expected: TextContentMatcherExpected,
+    opts?: TextContentMatcherOpts
+  ): Promise<CustomMatcherResult>
   // eslint-disable-next-line
   toHaveSelector(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   // eslint-disable-next-line

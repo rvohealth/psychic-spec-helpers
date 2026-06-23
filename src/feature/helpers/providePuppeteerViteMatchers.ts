@@ -15,6 +15,10 @@ import toHavePath from '../matchers/toHavePath.js'
 import toHaveSelector from '../matchers/toHaveSelector.js'
 import toHaveUnchecked from '../matchers/toHaveUnchecked.js'
 import toHaveUrl from '../matchers/toHaveUrl.js'
+import type {
+  TextContentMatcherExpected,
+  TextContentMatcherOpts,
+} from '../matchers/toMatchTextContent.js'
 import toMatchTextContent from '../matchers/toMatchTextContent.js'
 import toNotHaveSelector from '../matchers/toNotHaveSelector.js'
 import toNotMatchTextContent from '../matchers/toNotMatchTextContent.js'
@@ -35,14 +39,18 @@ export default function providePuppeteerViteMatchers() {
   ;(global as any).expect.extend({
     async toMatchTextContent(
       page: Page,
-      text: string,
-      opts?: { selector?: string } & WaitForSelectorOptions
+      text: TextContentMatcherExpected,
+      opts?: TextContentMatcherOpts
     ) {
       return await toMatchTextContent(page, text, opts)
     },
 
-    async toNotMatchTextContent(page: Page, text: string) {
-      return await toNotMatchTextContent(page, text)
+    async toNotMatchTextContent(
+      page: Page,
+      text: TextContentMatcherExpected,
+      opts?: TextContentMatcherOpts
+    ) {
+      return await toNotMatchTextContent(page, text, opts)
     },
 
     async toHaveSelector(page: Page, cssSelector: string, opts?: WaitForSelectorOptions) {
