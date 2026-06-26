@@ -1,3 +1,7 @@
+## 3.3.0
+
+- switch to Github action publishing to npmjs.com
+
 ## 3.2.1
 
 - `toMatchTextContent` / `toNotMatchTextContent` again match the **values** entered into form controls (`input` / `textarea`). The 3.2.0 rewrite that added `RegExp` support switched the underlying text query from Puppeteer's `::-p-text()` (which matched form-control values) to manual `innerText` extraction (which does not), silently dropping value matching and breaking specs that assert on a populated field. `getAllTextContentFromPage` now also collects `input` / `textarea` `.value`, restoring the previous behavior for both string and regex expectations.
