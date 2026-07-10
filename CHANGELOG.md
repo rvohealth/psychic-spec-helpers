@@ -1,3 +1,13 @@
+## 3.3.0
+
+- `launchDevServer` fixes:
+  - `waitForPort`'s polarity was inverted — it resolved as soon as the port was _free_, i.e. before the dev server had bound it, so it never actually waited; feature suites only passed when the server won the race against the first navigation. It now waits until something is listening on the port. Because the timeout is now real, the default `timeout` rises from `5000` to `30000` to accommodate genuine dev-server cold starts (pass `timeout` explicitly if you want the old bound).
+  - spawn failures (e.g. command not found) previously emitted `'error'` with no listener (both listeners were attached only after awaiting the port) and crashed the vitest worker with an uncaughtException; one of the two duplicate listeners also re-threw inside the handler. `launchDevServer` now rejects with a comprehensible error when the command cannot be spawned, when the process exits before ever listening, and when the port is not bound within the timeout.
+  - a dev server that dies mid-suite was logged only under `DEBUG=1`, surfacing as opaque navigation timeouts; it is now logged unconditionally and evicted from the process cache, so `stopDevServers` teardown no longer throws on the dead entry and a later `launchDevServer` with the same key can relaunch.
+- typing: the custom puppeteer matchers are now declared on vitest's `Matchers` interface (the vitest ≥ 3.2 augmentation point) instead of `Assertion`/`ExpectStatic`, which vitest 4 no longer merges — restoring `expect(page).toMatchTextContent(...)`-style typing under vitest 4.
+- typing: the package no longer declares the global `context`; `@rvoh/dream-spec-helpers` (present in every psychic app) already declares the identical global, and the duplicate declaration is a TS2451 redeclare error in any program that type-checks both declarations together.
+- internal: repair the long-broken `pnpm build:test-app` (never run in CI): remove the bogus `typeRoots` override that blocked `vitest/globals` resolution, fix test-app cors `origin` to psychic v3's `string | fn` type, and drop the CJS half of the test-app build — it cannot compile (ESM-only repo importing subpath exports under `moduleResolution: "Node"`) and type-checked an artifact the ESM-only publish build never produces.
+
 ## 3.2.3
 
 - upgrade to pnpm@11.9.0; add strictDepBuilds: false and deny esbuild/puppeteer build scripts in pnpm-workspace.yaml
