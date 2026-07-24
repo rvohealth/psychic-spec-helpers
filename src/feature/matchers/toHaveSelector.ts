@@ -6,8 +6,16 @@ export default async function toHaveSelector(
   selector: string,
   opts?: WaitForSelectorOptions
 ) {
+  // Presence-only contract: this matcher asserts that the selector is
+  // attached to the DOM, regardless of visibility. Strip visible/hidden so
+  // a caller-passed { visible: true } can't narrow the check to also
+  // require visibility.
+  const waitForOpts = applyDefaultWaitForOpts(opts)
+  delete waitForOpts.visible
+  delete waitForOpts.hidden
+
   try {
-    await page.waitForSelector(selector, applyDefaultWaitForOpts(opts))
+    await page.waitForSelector(selector, waitForOpts)
     return {
       pass: true,
       message: () => {

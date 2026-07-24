@@ -6,6 +6,7 @@ node_modules
 .DS_Store
 .vim/*
 dist
+plans/
 
 spec/tmp.txt
 spec/tmp/*

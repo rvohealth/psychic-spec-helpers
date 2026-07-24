@@ -1,3 +1,7 @@
+## 3.4.0
+
+- `toHaveSelector` / `toNotHaveSelector` are now a literal, presence-only negation pair, ignoring visibility entirely. Previously `toHaveSelector` forwarded caller opts straight to `page.waitForSelector`, so a passed `{ visible: true }` made a present-but-hidden element fail; meanwhile `toNotHaveSelector` used `waitForSelector({ hidden: true })`, which only asserts invisibility, so a present-but-hidden element wrongly passed as "not there." `toHaveSelector` now strips `visible`/`hidden` from any forwarded opts before calling `waitForSelector`, and `toNotHaveSelector` now polls `page.$(selector)` until it returns `null`, asserting true DOM absence. A present-but-hidden element now passes `toHaveSelector` and fails `toNotHaveSelector`, as expected of a literal negation pair.
+
 ## 3.3.0
 
 - `launchDevServer` fixes:

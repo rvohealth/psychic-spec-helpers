@@ -9,4 +9,10 @@ describe('toNotHaveSelector', () => {
       await expect(page).toNotHaveSelector('#my-div', { timeout: 500 })
     }).rejects.toThrow()
   })
+
+  it('fails for a present-but-hidden element, since presence ignores visibility', async () => {
+    await expect(async () => {
+      await expect(page).toNotHaveSelector('#my-hidden-div', { timeout: 500 })
+    }).rejects.toThrow()
+  })
 })

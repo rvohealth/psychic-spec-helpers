@@ -6,6 +6,9 @@ function App() {
       <button id="my-button">My button</button>
       <a>My link</a>
       <div id="my-div">My div</div>
+      <div id="my-hidden-div" style={{ display: 'none' }}>
+        My hidden div
+      </div>
       <input id="my-input" />
       <input id="my-text-input" defaultValue="Periwinkle Tanglewood" />
       <textarea id="my-textarea" defaultValue="Juniper Ashgrove" />
