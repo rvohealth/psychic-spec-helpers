@@ -9,7 +9,7 @@ export default async function launchDevServer(
   {
     port = 3000,
     cmd = 'pnpm client',
-    timeout = 5000,
+    timeout = 30000,
   }: { port?: number; cmd?: string; timeout?: number } = {}
 ) {
   if (devServerProcesses[key]) return
@@ -28,10 +28,15 @@ export default async function launchDevServer(
 
   devServerProcesses[key] = proc
 
-  await waitForPort(key, port, timeout)
+  let spawnError: Error | undefined
+  let exited = false
+  let exitCode: number | null = null
 
+  // attached before any await so that an immediate spawn failure (e.g. ENOENT)
+  // cannot emit 'error' with no listener and crash the process
   proc.on('error', err => {
-    throw err
+    spawnError = err
+    console.error(`Dev server "${key}" (\`${cmd}\`) process error: ${err.message}`)
   })
 
   proc.stdout.on('data', data => {
@@ -42,13 +47,43 @@ export default async function launchDevServer(
     if (process.env.DEBUG === '1') console.error(`Server error: ${data}`)
   })
 
-  proc.on('error', err => {
-    console.error(`Server process error: ${err as unknown as string}`)
+  proc.on('close', code => {
+    exited = true
+    exitCode = code
+
+    if (devServerProcesses[key] === proc) {
+      // the process died on its own (it was not stopped via stopDevServer); evict it
+      // so it is not treated as still running, and log unconditionally so specs that
+      // subsequently fail on a dead dev server are comprehensible
+      delete devServerProcesses[key]
+      if (!spawnError)
+        console.error(`Dev server "${key}" (\`${cmd}\`) exited unexpectedly with code ${code}`)
+    } else if (process.env.DEBUG === '1') {
+      console.log(`Server process exited with code ${code}`)
+    }
   })
 
-  proc.on('close', code => {
-    if (process.env.DEBUG === '1') console.log(`Server process exited with code ${code}`)
-  })
+  try {
+    await waitForPort(key, cmd, port, timeout, () => {
+      if (spawnError)
+        return new Error(
+          `Dev server "${key}" (\`${cmd}\`) failed to start: ${spawnError.message}`,
+          {
+            cause: spawnError,
+          }
+        )
+
+      if (exited)
+        return new Error(
+          `Dev server "${key}" (\`${cmd}\`) exited with code ${exitCode} before listening on port ${port}`
+        )
+
+      return undefined
+    })
+  } catch (err) {
+    if (devServerProcesses[key] === proc) delete devServerProcesses[key]
+    throw err
+  }
 }
 
 export function stopDevServer(key: string) {
@@ -59,9 +94,11 @@ export function stopDevServer(key: string) {
 
   if (proc?.pid) {
     if (process.env.DEBUG === '1') console.log('Stopping server...')
+    // delete before killing so the 'close' listener can distinguish an intentional
+    // stop from the dev server dying on its own
+    delete devServerProcesses[key]
     // serverProcess.kill('SIGINT')
     process.kill(-proc.pid, 'SIGKILL')
-    delete devServerProcesses[key]
 
     if (process.env.DEBUG === '1') console.log('server stopped')
   }
@@ -91,26 +128,28 @@ async function isPortAvailable(port: number): Promise<boolean> {
   })
 }
 
-async function waitForPort(key: string, port: number, timeout: number = 5000) {
-  if (await isPortAvailable(port)) {
-    return true
-  }
-
+async function waitForPort(
+  key: string,
+  cmd: string,
+  port: number,
+  timeout: number,
+  abortError: () => Error | undefined
+) {
   const startTime = Date.now()
 
-  async function recursiveWaitForPort() {
-    if (await isPortAvailable(port)) {
-      return true
-    }
+  // the port being available means nothing is listening on it yet,
+  // so keep waiting until the dev server has actually bound it
+  while (await isPortAvailable(port)) {
+    const error = abortError()
+    if (error) throw error
 
     if (Date.now() > startTime + timeout) {
-      stopDevServer(key)
-      throw new Error('waited too long for port: ' + port)
+      if (devServerProcesses[key]) stopDevServer(key)
+      throw new Error(
+        `Dev server "${key}" (\`${cmd}\`) did not listen on port ${port} within ${timeout}ms`
+      )
     }
 
     await sleep(50)
-    return await recursiveWaitForPort()
   }
-
-  return await recursiveWaitForPort()
 }

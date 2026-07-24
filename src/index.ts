@@ -36,7 +36,11 @@ export { default as resetBrowserState } from './feature/helpers/resetBrowserStat
 export { default as visit } from './feature/helpers/visit.js'
 
 declare global {
-  const context: (typeof import('vitest'))['describe']
+  // `context` is deliberately NOT declared here: @rvoh/dream-spec-helpers (always
+  // present alongside this package in a psychic app) already declares it, and a
+  // second declaration is a TS2451 redeclare error whenever both declarations are
+  // checked in one program (e.g. this repo's own test-app build, where this file
+  // is source rather than a skipLibCheck-suppressed .d.ts).
 
   const page: InstanceType<typeof Page>
   const visit: (typeof import('./feature/helpers/visit.js'))['default']
@@ -51,10 +55,10 @@ declare global {
 }
 
 declare module 'vitest' {
+  // vitest >= 3.2 matcher augmentation point (covers expect(), expect.soft, asymmetric
+  // matchers); augmenting Assertion/ExpectStatic no longer merges under vitest 4
   // eslint-disable-next-line
-  interface ExpectStatic extends PuppeteerAssertions {}
-  // eslint-disable-next-line
-  interface Assertion extends PuppeteerAssertions {}
+  interface Matchers<T = any> extends PuppeteerAssertions {}
 }
 
 interface PuppeteerAssertions {
