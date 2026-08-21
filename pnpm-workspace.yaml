@@ -9,5 +9,3 @@ allowBuilds:
   puppeteer: false
 minimumReleaseAgeExclude:
   - eslint@10.9.0
-overrides:
-  vite: ^7.3.5
