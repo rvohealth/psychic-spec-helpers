@@ -7,3 +7,5 @@ strictDepBuilds: false
 allowBuilds:
   esbuild: false
   puppeteer: false
+minimumReleaseAgeExclude:
+  - eslint@10.9.0
