@@ -2,6 +2,8 @@
 
 This repo provides spec helpers to be used in conjunction with the [psychic web framework](https://github.com/rvohealth/psychic).
 
+Supported runtimes are Node.js 24 and later. CI uses Node.js 26 as its primary runtime and keeps Node.js 24 as a compatibility lane.
+
 ## Getting started
 
 1. Add this repo as a dev dependency in your psychic project (this is done by default for psychic apps, but worth mentioning in case it has been removed from your repo).
