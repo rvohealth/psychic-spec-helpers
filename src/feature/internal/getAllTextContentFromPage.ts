@@ -159,7 +159,9 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
           append(renderedText(child), block ? (child.tagName.toLowerCase() === 'p' ? 2 : 1) : 0)
         }
       })
-      return text.trim()
+      // Inline fragments retain boundary spaces until their ancestor is composed.
+      // The completed contribution is trimmed when added to textContentArray.
+      return text
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
