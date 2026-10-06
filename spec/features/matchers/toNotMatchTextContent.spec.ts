@@ -285,3 +285,37 @@ describe('toNotMatchTextContent Chrome option aggregation', () => {
     }
   })
 })
+
+for (const browser of ['firefox', 'chrome'] as const) {
+  describe('toNotMatchTextContent inline boundary spaces on ' + browser, () => {
+    let browserPage: Page
+
+    beforeAll(async () => {
+      browserPage = await launchPage({ browser })
+    })
+
+    afterAll(async () => {
+      await browserPage.browser().close()
+    })
+
+    it.each([
+      [
+        'normal nested-inline boundary spaces',
+        '<div id="scope">A<span> B<select style="display:none"><option>Hidden sentinel</option></select> </span>C</div>',
+        'A B C',
+      ],
+      [
+        'preformatted nested-inline boundary spaces',
+        '<div id="scope" style="white-space:pre">A<span>  B<select style="display:none"><option>Hidden sentinel</option></select>  </span>C</div>',
+        'A  B  C',
+      ],
+    ])('preserves %s', async (_name, html, text) => {
+      await browserPage.setContent(html)
+      for (const selector of [undefined, '#scope']) {
+        await expect(async () => {
+          await expect(browserPage).toNotMatchTextContent(text, { selector, timeout: 100 })
+        }).rejects.toThrow()
+      }
+    })
+  })
+}
