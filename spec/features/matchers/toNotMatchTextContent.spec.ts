@@ -319,3 +319,67 @@ for (const browser of ['firefox', 'chrome'] as const) {
     })
   })
 }
+
+for (const browser of ['firefox', 'chrome'] as const) {
+  describe('toNotMatchTextContent block-edge whitespace on ' + browser, () => {
+    let browserPage: Page
+
+    beforeAll(async () => {
+      browserPage = await launchPage({ browser })
+    })
+
+    afterAll(async () => {
+      await browserPage.browser().close()
+    })
+
+    it.each([
+      [
+        'normal block-edge whitespace hidden select',
+        '<div id="scope">A<div> B<select style="display:none"><option>Hidden sentinel</option></select> </div>C</div>',
+        'A\nB\nC',
+      ],
+      [
+        'normal block-edge whitespace visible select hidden option',
+        '<div id="scope">A<div> B<select><option style="display:none">Hidden sentinel</option></select> </div>C</div>',
+        'A\nB\nC',
+      ],
+      [
+        'normal block-edge whitespace tabs and outer padding',
+        '<div id="scope">A \t<div> \tB<select style="display:none"><option>Hidden sentinel</option></select> \t</div> \tC</div>',
+        'A\nB\nC',
+      ],
+      [
+        'pre-line block-edge whitespace',
+        '<div id="scope" style="white-space:pre-line">A<div> B<select style="display:none"><option>Hidden sentinel</option></select> </div>C</div>',
+        'A\nB\nC',
+      ],
+      [
+        'preformatted block-edge whitespace',
+        '<div id="scope">A<div style="white-space:pre">  B<select style="display:none"><option>Hidden sentinel</option></select>  </div>C</div>',
+        'A\n  B  \nC',
+      ],
+      [
+        'pre-wrap block-edge whitespace',
+        '<div id="scope">A<div style="white-space:pre-wrap">  B<select style="display:none"><option>Hidden sentinel</option></select>  </div>C</div>',
+        'A\n  B  \nC',
+      ],
+      [
+        'break-spaces block-edge whitespace',
+        '<div id="scope">A<div style="white-space:break-spaces">  B<select style="display:none"><option>Hidden sentinel</option></select>  </div>C</div>',
+        'A\n  B  \nC',
+      ],
+      [
+        'normal block-edge whitespace beside preformatted inline',
+        '<div id="scope">A<div> <span style="white-space:pre">  B  </span><select style="display:none"><option>Hidden sentinel</option></select> </div>C</div>',
+        'A\n  B  \nC',
+      ],
+    ])('preserves %s', async (_name, html, text) => {
+      await browserPage.setContent(html)
+      for (const selector of [undefined, '#scope']) {
+        await expect(async () => {
+          await expect(browserPage).toNotMatchTextContent(text, { selector, timeout: 100 })
+        }).rejects.toThrow()
+      }
+    })
+  })
+}

@@ -98,20 +98,26 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
       }
       const preservesSpaces = ['pre', 'pre-wrap', 'break-spaces'].includes(style.whiteSpace)
       const separatesItems = ['flex', 'inline-flex', 'grid', 'inline-grid'].includes(style.display)
+      const isBlock = (element: TextElement) =>
+        element.tagName.toLowerCase() === 'select' ||
+        !['inline', 'inline-block', 'inline-flex', 'inline-grid', 'contents', 'none'].includes(
+          styleFor(element).display
+        )
       let text = ''
-      const append = (fragment: string, lineBreaks = 0) => {
+      const append = (fragment: string, lineBreaks = 0, preservesFragmentSpaces = false) => {
         if (!fragment) return
         if (lineBreaks) {
           const trailingBreaks = text.match(/\n*$/)?.[0].length || 0
           text += '\n'.repeat(Math.max(0, lineBreaks - trailingBreaks))
-        } else if (!preservesSpaces && /[ \t\n]$/.test(text)) {
+        } else if (!preservesSpaces && !preservesFragmentSpaces && /[ \t\n]$/.test(text)) {
           fragment = fragment.replace(/^[ \t]+/, '')
         }
         text += fragment
         if (lineBreaks) text += '\n'.repeat(lineBreaks)
       }
 
-      Array.from(element.childNodes).forEach(node => {
+      const nodes = Array.from(element.childNodes)
+      nodes.forEach((node, index) => {
         if (node.nodeType === 3 && contributesText(element)) {
           let fragment = node.textContent || ''
           if (!preservesSpaces) {
@@ -119,6 +125,26 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
               style.whiteSpace === 'pre-line'
                 ? fragment.replace(/[ \t\f\r]+/g, ' ')
                 : fragment.replace(/[ \t\f\r\n]+/g, ' ')
+          }
+          if (!preservesSpaces) {
+            // Discard only collapsed text-node padding at rendered block edges;
+            // spaces contributed by preformatted descendants remain meaningful.
+            if ((isBlock(element) && !text) || text.endsWith('\n')) {
+              fragment = fragment.replace(/^[ \t]+/, '')
+            }
+            const next = nodes
+              .slice(index + 1)
+              .find(sibling =>
+                sibling.nodeType === 3
+                  ? contributesText(element) && /[^ \t\f\r\n]/.test(sibling.textContent || '')
+                  : sibling.nodeType === 1 && !!displayedTextContent(sibling as TextElement)
+              )
+            if (
+              (!next && isBlock(element)) ||
+              (next?.nodeType === 1 && isBlock(next as TextElement))
+            ) {
+              fragment = fragment.replace(/[ \t]+$/, '')
+            }
           }
           if (style.textTransform === 'uppercase') fragment = fragment.toLocaleUpperCase(language)
           if (style.textTransform === 'lowercase') fragment = fragment.toLocaleLowerCase(language)
@@ -149,18 +175,17 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
           append(fragment, separatesItems ? 1 : 0)
         } else if (node.nodeType === 1) {
           const child = node as TextElement
-          const display = styleFor(child).display
-          const block =
-            separatesItems ||
-            child.tagName.toLowerCase() === 'select' ||
-            !['inline', 'inline-block', 'inline-flex', 'inline-grid', 'contents', 'none'].includes(
-              display
-            )
-          append(renderedText(child), block ? (child.tagName.toLowerCase() === 'p' ? 2 : 1) : 0)
+          const childStyle = styleFor(child)
+          const block = separatesItems || isBlock(child)
+          append(
+            renderedText(child),
+            block ? (child.tagName.toLowerCase() === 'p' ? 2 : 1) : 0,
+            ['pre', 'pre-wrap', 'break-spaces'].includes(childStyle.whiteSpace)
+          )
         }
       })
       // Inline fragments retain boundary spaces until their ancestor is composed.
-      // The completed contribution is trimmed when added to textContentArray.
+      // Normal block padding is removed from its own text nodes above.
       return text
     }
 
