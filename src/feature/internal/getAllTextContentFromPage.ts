@@ -132,12 +132,14 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
             if ((isBlock(element) && !text) || text.endsWith('\n')) {
               fragment = fragment.replace(/^[ \t]+/, '')
             }
+            // Only a fragment that composition will append can define a block edge.
+            // Whitespace-only preformatted siblings still contribute their spaces.
             const next = nodes
               .slice(index + 1)
               .find(sibling =>
                 sibling.nodeType === 3
                   ? contributesText(element) && /[^ \t\f\r\n]/.test(sibling.textContent || '')
-                  : sibling.nodeType === 1 && !!displayedTextContent(sibling as TextElement)
+                  : sibling.nodeType === 1 && !!renderedText(sibling as TextElement)
               )
             if (
               (!next && isBlock(element)) ||
