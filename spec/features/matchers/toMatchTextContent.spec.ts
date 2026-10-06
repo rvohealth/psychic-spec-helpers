@@ -1,3 +1,6 @@
+import { Page } from 'puppeteer'
+import { launchPage } from '../../../src/index.js'
+
 describe('toMatchTextContent', () => {
   it('succeeds when the page matches the content', async () => {
     await expect(page).toMatchTextContent('My div')
@@ -137,6 +140,12 @@ describe('toMatchTextContent preservation', () => {
       '#scope',
     ],
     [
+      'adjacent visibility-restored spans',
+      '<div id="scope" style="visibility:hidden">Concealed sentinel<span style="visibility:visible">Re</span><span style="visibility:visible">stored sentinel</span></div>',
+      'Restored sentinel',
+      '#scope',
+    ],
+    [
       'visibility-restored descendant',
       '<div id="scope" style="visibility:hidden">Hidden parent<span style="visibility:visible">Restored sentinel</span><input style="visibility:visible" value="Restored value"></div>',
       'Restored sentinel',
@@ -187,5 +196,111 @@ describe('toMatchTextContent preservation', () => {
         timeout: 100,
       })
     }).rejects.toThrow()
+  })
+})
+
+describe('toMatchTextContent Chrome option aggregation', () => {
+  let chromePage: Page
+
+  beforeAll(async () => {
+    chromePage = await launchPage({ browser: 'chrome' })
+  })
+
+  afterAll(async () => {
+    await chromePage.browser().close()
+  })
+
+  it.each(['display:none', 'visibility:hidden'])('excludes a %s option label', async css => {
+    await chromePage.setContent(
+      `<select id="scope" size="2"><option selected>Shown sentinel</option><option style="${css}">Concealed sentinel</option></select>`
+    )
+    for (const scope of [undefined, '#scope']) {
+      await expect(async () => {
+        await expect(chromePage).toMatchTextContent('Concealed sentinel', {
+          selector: scope,
+          timeout: 100,
+        })
+      }).rejects.toThrow()
+    }
+  })
+
+  it.each([
+    [
+      'visible unselected option',
+      '<select id="scope"><option selected>Chosen sentinel</option><option>Unselected sentinel</option><option style="display:none">Concealed sentinel</option></select>',
+      'Unselected sentinel',
+      '#scope',
+    ],
+    [
+      'duplicate visible option label',
+      '<select id="scope" size="2"><option selected>Duplicate sentinel</option><option style="display:none">Duplicate sentinel</option></select>',
+      'Duplicate sentinel',
+      '#scope',
+    ],
+    [
+      'duplicate direct text before a select',
+      '<div id="scope" style="white-space:pre">Shown sentinel\nConcealed sentinel\nDirect tail<select size="2"><option>Shown sentinel</option><option style="display:none">Concealed sentinel</option></select></div>',
+      'Shown sentinel\nConcealed sentinel\nDirect tail',
+      '#scope',
+    ],
+    [
+      'duplicate direct text after a select',
+      '<div id="scope" style="white-space:pre"><select size="2"><option>Shown sentinel</option><option style="display:none">Concealed sentinel</option></select>Shown sentinel\nConcealed sentinel\nDirect tail</div>',
+      'Shown sentinel\nConcealed sentinel\nDirect tail',
+      '#scope',
+    ],
+    [
+      'transformed direct text beside a select',
+      '<div id="scope" style="text-transform:uppercase">Prefix sentinel<select size="2"><option>Shown sentinel</option><option style="display:none">Concealed sentinel</option></select>Suffix sentinel</div>',
+      'PREFIX SENTINEL',
+      '#scope',
+    ],
+    [
+      'inline transformed direct text beside a select',
+      '<div id="scope" style="text-transform:uppercase">Pre<span>fix</span> sentinel<select size="2"><option>Shown sentinel</option><option style="display:none">Concealed sentinel</option></select></div>',
+      'PREFIX SENTINEL',
+      '#scope',
+    ],
+    [
+      'capitalized split inline text beside a select',
+      '<div id="scope" style="text-transform:capitalize">sen<span>ti</span>nel<select size="2"><option>Shown sentinel</option><option style="display:none">Concealed sentinel</option></select></div>',
+      'Sentinel',
+      '#scope',
+    ],
+    [
+      'locale transformed direct text beside a select',
+      '<div id="scope" lang="tr" style="text-transform:uppercase">iyi sentinel<select size="2"><option>Shown sentinel</option><option style="display:none">Concealed sentinel</option></select></div>',
+      'İYİ SENTİNEL',
+      '#scope',
+    ],
+    [
+      'math transformed direct text beside a select',
+      '<div id="scope" style="text-transform:math-auto">x<select size="2"><option>Shown sentinel</option><option style="display:none">Concealed sentinel</option></select></div>',
+      '𝑥',
+      '#scope',
+    ],
+    [
+      'preformatted inline text beside a select',
+      '<div id="scope" style="white-space:pre">Start  <span>middle</span>  end<select size="2"><option>Shown sentinel</option><option style="display:none">Concealed sentinel</option></select></div>',
+      'Start  middle  end',
+      '#scope',
+    ],
+    [
+      'restored inline spans beside a select',
+      '<div id="scope" style="visibility:hidden"><span style="visibility:visible">Re</span><span style="visibility:visible">stored sentinel</span><select style="visibility:visible" size="2"><option>Shown sentinel</option><option style="display:none">Concealed sentinel</option></select></div>',
+      'Restored sentinel',
+      '#scope',
+    ],
+    [
+      'split markup beside a select',
+      '<div id="scope"><dl><dt>Sleeps</dt><dd>4</dd></dl><select size="2"><option>Shown sentinel</option><option style="visibility:hidden">Concealed sentinel</option></select></div>',
+      'Sleeps 4',
+      '#scope',
+    ],
+  ])('preserves %s', async (_name, html, text, selector) => {
+    await chromePage.setContent(html)
+    for (const scope of [undefined, selector]) {
+      await expect(chromePage).toMatchTextContent(text, { selector: scope, timeout: 100 })
+    }
   })
 })
