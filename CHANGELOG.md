@@ -1,3 +1,7 @@
+## Unreleased
+
+- `toMatchTextContent` / `toNotMatchTextContent` now exclude ordinary text and input/textarea values hidden by `display: none` (including ancestors) or `visibility: hidden`, along with `input[type=hidden]` values. Displayed values, rendered text transformations, regular expressions and selector scopes remain supported, including `display: contents` text and descendants that restore `visibility: visible`. Selector presence still counts attached hidden elements; opacity-zero and offscreen text remain eligible.
+
 ## 3.4.1
 
 - Support Node 24 while making Node 26 the primary CI runtime.
