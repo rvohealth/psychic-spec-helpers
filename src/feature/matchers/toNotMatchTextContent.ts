@@ -4,6 +4,12 @@ import getAllTextContentFromPage from '../internal/getAllTextContentFromPage.js'
 import requirePuppeteerPage from '../internal/requirePuppeteerPage.js'
 import type { TextContentMatcherExpected, TextContentMatcherOpts } from './toMatchTextContent.js'
 
+/**
+ * Assert absence of a string or regular expression from rendered text and
+ * displayed input/textarea values in the selector scope. Uses the same
+ * display:none, visibility:hidden and type=hidden exclusions as
+ * toMatchTextContent; opacity-zero and offscreen content remain eligible.
+ */
 export default async function toNotMatchTextContent(
   argumentPassedToExpect: Page,
   expected: TextContentMatcherExpected,

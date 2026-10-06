@@ -1,3 +1,7 @@
+## Unreleased
+
+- `toMatchTextContent` / `toNotMatchTextContent` now exclude ordinary text and input/textarea values hidden by `display: none` (including ancestors) or `visibility: hidden`, along with `input[type=hidden]` values. Displayed values, rendered text transformations, regular expressions and selector scopes remain supported, including `display: contents` text and descendants that restore `visibility: visible`. Selector presence still counts attached hidden elements; opacity-zero and offscreen text remain eligible.
+
 ## 3.4.2
 
 - `specRequest`, `OpenapiSpecRequest` and their sessions bind the app under test to `127.0.0.1` before each request and close it afterwards. supertest bound with a wildcard `listen(0)` and connected to `127.0.0.1`, and on macOS that bind could take a port another process held on `127.0.0.1` only, so a request intermittently got that process's response (often an empty 401) instead of the app's. Linux refused that bind, so CI never saw it. A session no longer keeps a server listening between its requests. `SpecSession` and `OpenapiSpecSession` still accept a plain supertest agent in their constructors, used as before.

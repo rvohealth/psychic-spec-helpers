@@ -72,10 +72,17 @@ interface PuppeteerAssertions {
   toEqualCalendarDate(expected: any): CustomMatcherResult
 
   // begin: fspec matchers
+  /**
+   * Match a string or RegExp in rendered text and displayed input/textarea values,
+   * optionally scoped by selector. Excludes display:none ancestry,
+   * visibility:hidden content and input[type=hidden] values; opacity-zero and
+   * offscreen content remain eligible.
+   */
   toMatchTextContent(
     expected: TextContentMatcherExpected,
     opts?: TextContentMatcherOpts
   ): Promise<CustomMatcherResult>
+  /** Assert absence using the same text/value scope and exclusions as toMatchTextContent. */
   toNotMatchTextContent(
     expected: TextContentMatcherExpected,
     opts?: TextContentMatcherOpts

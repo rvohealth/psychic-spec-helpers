@@ -6,6 +6,12 @@ import requirePuppeteerPage from '../internal/requirePuppeteerPage.js'
 export type TextContentMatcherExpected = string | RegExp
 export type TextContentMatcherOpts = { selector?: string } & WaitForSelectorOptions
 
+/**
+ * Match rendered text or displayed input/textarea values in the selector scope.
+ * Excludes display:none ancestry, visibility:hidden text/values and type=hidden
+ * inputs. Opacity-zero and offscreen content remain eligible. Accepts strings
+ * and regular expressions; toNotMatchTextContent is the complementary assertion.
+ */
 export default async function toMatchTextContent(
   argumentPassedToExpect: Page,
   expected: TextContentMatcherExpected,
