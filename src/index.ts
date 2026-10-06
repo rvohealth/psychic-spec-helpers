@@ -1,6 +1,9 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
 import { CustomMatcherResult } from './feature/helpers/providePuppeteerViteMatchers.js'
-import { ExpectToEvaluateOpts } from './feature/internal/evaluateWithRetryAndTimeout.js'
+import type {
+  ExpectToEvaluateOpts,
+  ExpectToEvaluateReturnType,
+} from './feature/internal/evaluateWithRetryAndTimeout.js'
 import { ToFillMatcherOpts } from './feature/matchers/toFill.js'
 import type {
   TextContentMatcherExpected,
@@ -119,9 +122,15 @@ interface PuppeteerAssertions {
   toFill(cssSelector: string, text: string, opts?: ToFillMatcherOpts): Promise<CustomMatcherResult>
   // eslint-disable-next-line
   toUncheck(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  /**
+   * Retry a synchronous or asynchronous callback receiving the value passed to
+   * expect until its { pass, actual } result passes or the timeout expires.
+   * failureText receives the final actual value; optional successText receives
+   * the successful actual value for negated assertion diagnostics.
+   */
   toEvaluate(
     // eslint-disable-next-line
-    expected: (a: any) => boolean | Promise<boolean>,
+    expected: (a: any) => ExpectToEvaluateReturnType | Promise<ExpectToEvaluateReturnType>,
     opts: ExpectToEvaluateOpts
   ): Promise<CustomMatcherResult>
 }
