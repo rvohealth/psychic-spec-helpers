@@ -398,3 +398,73 @@ for (const browser of ['firefox', 'chrome'] as const) {
     })
   })
 }
+
+for (const browser of ['firefox', 'chrome'] as const) {
+  describe('toMatchTextContent whitespace-only siblings on ' + browser, () => {
+    let browserPage: Page
+
+    beforeAll(async () => {
+      browserPage = await launchPage({ browser })
+    })
+
+    afterAll(async () => {
+      await browserPage.browser().close()
+    })
+
+    it.each([
+      [
+        'collapsed whitespace-only block',
+        '<div id="scope">A <div> </div><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'AB',
+        false,
+      ],
+      [
+        'collapsed tab-only block',
+        '<div id="scope">A \t<div> \t</div><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'AB',
+        false,
+      ],
+      [
+        'pre whitespace-only block',
+        '<div id="scope">A <div style="white-space:pre">  </div><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A\n  \nB',
+        true,
+      ],
+      [
+        'pre-wrap whitespace-only block',
+        '<div id="scope">A <div style="white-space:pre-wrap">  </div><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A\n  \nB',
+        true,
+      ],
+      [
+        'break-spaces whitespace-only block',
+        '<div id="scope">A <div style="white-space:break-spaces">  </div><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A\n  \nB',
+        true,
+      ],
+      [
+        'nested preformatted whitespace-only block',
+        '<div id="scope">A <div><span style="white-space:pre">  </span></div><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A\n  \nB',
+        true,
+      ],
+      [
+        'preformatted whitespace-only inline',
+        '<div id="scope">A <span style="white-space:pre">  </span><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A   B',
+        true,
+      ],
+    ])('preserves %s', async (_name, html, text, present) => {
+      await browserPage.setContent(html)
+      for (const selector of [undefined, '#scope']) {
+        if (present === true) {
+          await expect(browserPage).toMatchTextContent(text, { selector, timeout: 100 })
+        } else {
+          await expect(async () => {
+            await expect(browserPage).toMatchTextContent(text, { selector, timeout: 100 })
+          }).rejects.toThrow()
+        }
+      }
+    })
+  })
+}
