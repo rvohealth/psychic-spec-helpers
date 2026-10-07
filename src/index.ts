@@ -1,6 +1,9 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
 import { CustomMatcherResult } from './feature/helpers/providePuppeteerViteMatchers.js'
-import { ExpectToEvaluateOpts } from './feature/internal/evaluateWithRetryAndTimeout.js'
+import type {
+  ExpectToEvaluateOpts,
+  ExpectToEvaluateReturnType,
+} from './feature/internal/evaluateWithRetryAndTimeout.js'
 import { ToFillMatcherOpts } from './feature/matchers/toFill.js'
 import type {
   TextContentMatcherExpected,
@@ -72,10 +75,17 @@ interface PuppeteerAssertions {
   toEqualCalendarDate(expected: any): CustomMatcherResult
 
   // begin: fspec matchers
+  /**
+   * Match a string or RegExp in rendered text and displayed input/textarea values,
+   * optionally scoped by selector. Excludes display:none ancestry,
+   * visibility:hidden content and input[type=hidden] values; opacity-zero and
+   * offscreen content remain eligible.
+   */
   toMatchTextContent(
     expected: TextContentMatcherExpected,
     opts?: TextContentMatcherOpts
   ): Promise<CustomMatcherResult>
+  /** Assert absence using the same text/value scope and exclusions as toMatchTextContent. */
   toNotMatchTextContent(
     expected: TextContentMatcherExpected,
     opts?: TextContentMatcherOpts
@@ -112,9 +122,15 @@ interface PuppeteerAssertions {
   toFill(cssSelector: string, text: string, opts?: ToFillMatcherOpts): Promise<CustomMatcherResult>
   // eslint-disable-next-line
   toUncheck(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  /**
+   * Retry a synchronous or asynchronous callback receiving the value passed to
+   * expect until its { pass, actual } result passes or the timeout expires.
+   * failureText receives the final actual value; optional successText receives
+   * the successful actual value for negated assertion diagnostics.
+   */
   toEvaluate(
     // eslint-disable-next-line
-    expected: (a: any) => boolean | Promise<boolean>,
+    expected: (a: any) => ExpectToEvaluateReturnType | Promise<ExpectToEvaluateReturnType>,
     opts: ExpectToEvaluateOpts
   ): Promise<CustomMatcherResult>
 }
