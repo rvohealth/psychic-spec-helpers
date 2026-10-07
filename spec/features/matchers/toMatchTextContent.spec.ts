@@ -203,7 +203,12 @@ describe('toMatchTextContent Chrome option aggregation', () => {
   let chromePage: Page
 
   beforeAll(async () => {
-    chromePage = await launchPage({ browser: 'chrome' })
+    chromePage = await launchPage({
+      browser: 'chrome',
+      ...(process.platform === 'linux' && process.env.CI === 'true'
+        ? { args: ['--no-sandbox'] }
+        : {}),
+    })
   })
 
   afterAll(async () => {
@@ -310,7 +315,12 @@ for (const browser of ['firefox', 'chrome'] as const) {
     let browserPage: Page
 
     beforeAll(async () => {
-      browserPage = await launchPage({ browser })
+      browserPage = await launchPage({
+        browser,
+        ...(browser === 'chrome' && process.platform === 'linux' && process.env.CI === 'true'
+          ? { args: ['--no-sandbox'] }
+          : {}),
+      })
     })
 
     afterAll(async () => {
@@ -342,7 +352,12 @@ for (const browser of ['firefox', 'chrome'] as const) {
     let browserPage: Page
 
     beforeAll(async () => {
-      browserPage = await launchPage({ browser })
+      browserPage = await launchPage({
+        browser,
+        ...(browser === 'chrome' && process.platform === 'linux' && process.env.CI === 'true'
+          ? { args: ['--no-sandbox'] }
+          : {}),
+      })
     })
 
     afterAll(async () => {
@@ -409,7 +424,12 @@ for (const browser of ['firefox', 'chrome'] as const) {
     let browserPage: Page
 
     beforeAll(async () => {
-      browserPage = await launchPage({ browser })
+      browserPage = await launchPage({
+        browser,
+        ...(browser === 'chrome' && process.platform === 'linux' && process.env.CI === 'true'
+          ? { args: ['--no-sandbox'] }
+          : {}),
+      })
     })
 
     afterAll(async () => {
