@@ -240,13 +240,13 @@ describe('toMatchTextContent Chrome option aggregation', () => {
     [
       'duplicate direct text before a select',
       '<div id="scope" style="white-space:pre">Shown sentinel\nConcealed sentinel\nDirect tail<select size="2"><option>Shown sentinel</option><option style="display:none">Concealed sentinel</option></select></div>',
-      'Shown sentinel\nConcealed sentinel\nDirect tail',
+      /Shown sentinel\s+Concealed sentinel\s+Direct tail/,
       '#scope',
     ],
     [
       'duplicate direct text after a select',
       '<div id="scope" style="white-space:pre"><select size="2"><option>Shown sentinel</option><option style="display:none">Concealed sentinel</option></select>Shown sentinel\nConcealed sentinel\nDirect tail</div>',
-      'Shown sentinel\nConcealed sentinel\nDirect tail',
+      /Shown sentinel\s+Concealed sentinel\s+Direct tail/,
       '#scope',
     ],
     [
@@ -353,47 +353,52 @@ for (const browser of ['firefox', 'chrome'] as const) {
       [
         'normal block-edge whitespace hidden select',
         '<div id="scope">A<div> B<select style="display:none"><option>Hidden sentinel</option></select> </div>C</div>',
-        'A\nB\nC',
+        /A\s+B\s+C/,
       ],
       [
         'normal block-edge whitespace visible select hidden option',
         '<div id="scope">A<div> B<select><option style="display:none">Hidden sentinel</option></select> </div>C</div>',
-        'A\nB\nC',
+        /A\s+B\s+C/,
       ],
       [
         'normal block-edge whitespace tabs and outer padding',
         '<div id="scope">A \t<div> \tB<select style="display:none"><option>Hidden sentinel</option></select> \t</div> \tC</div>',
-        'A\nB\nC',
+        /A\s+B\s+C/,
       ],
       [
         'pre-line block-edge whitespace',
         '<div id="scope" style="white-space:pre-line">A<div> B<select style="display:none"><option>Hidden sentinel</option></select> </div>C</div>',
-        'A\nB\nC',
+        /A\s+B\s+C/,
       ],
       [
         'preformatted block-edge whitespace',
         '<div id="scope">A<div style="white-space:pre">  B<select style="display:none"><option>Hidden sentinel</option></select>  </div>C</div>',
-        'A\n  B  \nC',
+        /A\s+ {2}B {2}\s+C/,
       ],
       [
         'pre-wrap block-edge whitespace',
         '<div id="scope">A<div style="white-space:pre-wrap">  B<select style="display:none"><option>Hidden sentinel</option></select>  </div>C</div>',
-        'A\n  B  \nC',
+        /A\s+ {2}B {2}\s+C/,
       ],
       [
         'break-spaces block-edge whitespace',
         '<div id="scope">A<div style="white-space:break-spaces">  B<select style="display:none"><option>Hidden sentinel</option></select>  </div>C</div>',
-        'A\n  B  \nC',
+        /A\s+ {2}B {2}\s+C/,
       ],
       [
         'normal block-edge whitespace beside preformatted inline',
         '<div id="scope">A<div> <span style="white-space:pre">  B  </span><select style="display:none"><option>Hidden sentinel</option></select> </div>C</div>',
-        'A\n  B  \nC',
+        /A\s+ {2}B {2}\s+C/,
       ],
     ])('preserves %s', async (_name, html, text) => {
       await browserPage.setContent(html)
       for (const selector of [undefined, '#scope']) {
         await expect(browserPage).toMatchTextContent(text, { selector, timeout: 100 })
+        for (const absent of ['AB', 'BC', 'Hidden sentinel']) {
+          await expect(async () => {
+            await expect(browserPage).toMatchTextContent(absent, { selector, timeout: 100 })
+          }).rejects.toThrow()
+        }
       }
     })
   })
@@ -415,53 +420,45 @@ for (const browser of ['firefox', 'chrome'] as const) {
       [
         'collapsed whitespace-only block',
         '<div id="scope">A <div> </div><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
-        'AB',
-        false,
+        /A\s+B/,
       ],
       [
         'collapsed tab-only block',
         '<div id="scope">A \t<div> \t</div><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
-        'AB',
-        false,
+        /A\s+B/,
       ],
       [
         'pre whitespace-only block',
         '<div id="scope">A <div style="white-space:pre">  </div><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
-        'A\n  \nB',
-        true,
+        /A\s* {2}\s*B/,
       ],
       [
         'pre-wrap whitespace-only block',
         '<div id="scope">A <div style="white-space:pre-wrap">  </div><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
-        'A\n  \nB',
-        true,
+        /A\s* {2}\s*B/,
       ],
       [
         'break-spaces whitespace-only block',
         '<div id="scope">A <div style="white-space:break-spaces">  </div><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
-        'A\n  \nB',
-        true,
+        /A\s* {2}\s*B/,
       ],
       [
         'nested preformatted whitespace-only block',
         '<div id="scope">A <div><span style="white-space:pre">  </span></div><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
-        'A\n  \nB',
-        true,
+        /A\s* {2}\s*B/,
       ],
       [
         'preformatted whitespace-only inline',
         '<div id="scope">A <span style="white-space:pre">  </span><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
         'A   B',
-        true,
       ],
-    ])('preserves %s', async (_name, html, text, present) => {
+    ])('preserves %s', async (_name, html, text) => {
       await browserPage.setContent(html)
       for (const selector of [undefined, '#scope']) {
-        if (present === true) {
-          await expect(browserPage).toMatchTextContent(text, { selector, timeout: 100 })
-        } else {
+        await expect(browserPage).toMatchTextContent(text, { selector, timeout: 100 })
+        for (const absent of ['AB', 'Hidden sentinel']) {
           await expect(async () => {
-            await expect(browserPage).toMatchTextContent(text, { selector, timeout: 100 })
+            await expect(browserPage).toMatchTextContent(absent, { selector, timeout: 100 })
           }).rejects.toThrow()
         }
       }
