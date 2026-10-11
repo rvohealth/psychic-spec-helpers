@@ -1,8 +1,32 @@
 import { Page } from 'puppeteer'
 
-/** Collect rendered text and displayed control values, excluding CSS-hidden content. */
+/**
+ * `window` property caching the hidden-option probe's result for a document:
+ * `true` where the browser's `innerText` includes CSS-hidden option labels
+ * (Chrome), `false` where it excludes them (Firefox). Internal; exposed for specs.
+ */
+export const HIDDEN_OPTION_LEAK_CACHE_KEY =
+  '__psychicSpecHelpersInnerTextIncludesHiddenOptionLabels'
+
+/** Label of the probe's hidden option. The probe is removed before any text is collected. */
+export const HIDDEN_OPTION_PROBE_LABEL = 'psychic-spec-helpers hidden option probe'
+
+/**
+ * Collect rendered text and displayed control values, excluding CSS-hidden content.
+ *
+ * Text is the browser's native `innerText` throughout, except in a browser
+ * whose `innerText` includes CSS-hidden option labels (Chrome): there, each
+ * select or ancestor containing a hidden option is recomposed by hand to drop
+ * those labels. A probe run once per document decides which case applies, so
+ * other browsers (Firefox, the default) never recompose.
+ */
 export default async function getAllTextContentFromPage(page: Page, selector = 'body') {
-  const allText = await page.evaluate(selector => {
+  const evaluateArgs = {
+    selector,
+    probeLabel: HIDDEN_OPTION_PROBE_LABEL,
+    cacheKey: HIDDEN_OPTION_LEAK_CACHE_KEY,
+  }
+  const allText = await page.evaluate(({ selector, probeLabel, cacheKey }) => {
     type TextNode = {
       nodeType: number
       textContent: string | null
@@ -59,16 +83,66 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
         .join('')
     }
 
+    type ProbeElement = TextElement & {
+      setAttribute: (name: string, value: string) => void
+      append: (...nodes: ProbeElement[]) => void
+      remove: () => void
+    }
+    // The callback is type-checked against the Node lib; these browser globals
+    // exist at runtime (same idiom as resetBrowserState). window is globalThis.
+    const browserGlobals = globalThis as unknown as {
+      document: { body: ProbeElement | null; createElement: (tagName: string) => ProbeElement }
+      window: Record<string, unknown>
+    }
+
+    // Chrome's innerText includes CSS-hidden option labels in select and
+    // ancestor aggregates; Firefox's excludes them. Probe once per document
+    // with an offscreen but rendered select (a display:none select's innerText
+    // falls back to textContent, which always includes the label) holding a
+    // hidden option, and remove it before any text is collected.
+    const innerTextIncludesHiddenOptionLabels = (): boolean => {
+      const cached = browserGlobals.window[cacheKey]
+      if (typeof cached === 'boolean') return cached
+      const body = browserGlobals.document.body
+      // No body yet: recomposition is correct in every browser, so assume the
+      // labels leak and probe again on the next evaluate.
+      if (!body) return true
+      const select = browserGlobals.document.createElement('select')
+      select.setAttribute('style', 'position:absolute;left:-10000px;top:-10000px')
+      const hiddenOption = browserGlobals.document.createElement('option')
+      hiddenOption.setAttribute('style', 'display:none')
+      hiddenOption.textContent = probeLabel
+      const shownOption = browserGlobals.document.createElement('option')
+      shownOption.textContent = 'shown'
+      select.append(hiddenOption, shownOption)
+      body.append(select)
+      let innerText: string | undefined
+      try {
+        innerText = select.innerText
+      } finally {
+        select.remove()
+      }
+      const includesHiddenLabel = typeof innerText !== 'string' || innerText.includes(probeLabel)
+      browserGlobals.window[cacheKey] = includesHiddenLabel
+      return includesHiddenLabel
+    }
+    const recomposesHiddenOptions = innerTextIncludesHiddenOptionLabels()
+
+    // Only where the browser's innerText includes hidden option labels does an
+    // element containing one need recomposition; elsewhere native innerText
+    // already excludes them.
     const hiddenOptions = (element: TextElement) =>
+      recomposesHiddenOptions &&
       Array.from(element.querySelectorAll('option')).some(option => !contributesText(option))
 
     // Required line break counts dropped at the edges of the most recent
     // recomposed text; native innerText already drops its own.
     let edgeLineBreaks = { leading: 0, trailing: 0 }
 
-    // Chrome's innerText includes CSS-hidden option labels in select/ancestor
-    // aggregates. Recompose only those paths; unaffected subtrees keep native
-    // innerText, including their formatting and explicitly restored visibility.
+    // Where innerText includes CSS-hidden option labels (Chrome), recompose
+    // only the select/ancestor aggregates containing one; every other element,
+    // and every element in other browsers (Firefox), keeps native innerText,
+    // including its formatting and explicitly restored visibility.
     const renderedText = (element: TextElement): string => {
       edgeLineBreaks = { leading: 0, trailing: 0 }
       const tagName = element.tagName.toLowerCase()
@@ -269,7 +343,7 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
     })
 
     return textContentArray.join(' ')
-  }, selector)
+  }, evaluateArgs)
 
   return allText
 }
