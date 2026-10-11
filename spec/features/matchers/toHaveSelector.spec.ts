@@ -18,3 +18,13 @@ describe('toHaveSelector', () => {
     await expect(page).toHaveSelector('#my-hidden-div', { visible: true, timeout: 500 })
   })
 })
+
+it('preserves DOM presence for visibility-hidden elements', async () => {
+  await page.setContent(
+    '<div id="visibility-hidden" style="visibility:hidden">Attached sentinel</div>'
+  )
+  await expect(page).toHaveSelector('#visibility-hidden', { timeout: 100 })
+  await expect(async () => {
+    await expect(page).toNotHaveSelector('#visibility-hidden', { timeout: 100 })
+  }).rejects.toThrow()
+})
