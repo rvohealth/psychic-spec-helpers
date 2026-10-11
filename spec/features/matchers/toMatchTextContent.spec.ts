@@ -1,4 +1,8 @@
 import { Page } from 'puppeteer'
+import {
+  HIDDEN_OPTION_LEAK_CACHE_KEY,
+  HIDDEN_OPTION_PROBE_LABEL,
+} from '../../../src/feature/internal/getAllTextContentFromPage.js'
 import { launchPage } from '../../../src/index.js'
 
 describe('toMatchTextContent', () => {
@@ -613,6 +617,48 @@ for (const browser of ['firefox', 'chrome'] as const) {
           }).rejects.toThrow()
         }
       }
+    })
+  })
+}
+
+for (const browser of ['firefox', 'chrome'] as const) {
+  describe('toMatchTextContent hidden option probe on ' + browser, () => {
+    let browserPage: Page
+
+    beforeAll(async () => {
+      browserPage = await launchPage({
+        browser,
+        ...(browser === 'chrome' && process.platform === 'linux' && process.env.CI === 'true'
+          ? { args: ['--no-sandbox'] }
+          : {}),
+      })
+    })
+
+    afterAll(async () => {
+      await browserPage.browser().close()
+    })
+
+    it('removes the probe and recomposes only where hidden option labels leak', async () => {
+      await browserPage.setContent(
+        '<div id="scope">Shown sentinel<select><option>Shown option</option><option style="display:none">Hidden sentinel</option></select></div>'
+      )
+      for (const selector of [undefined, '#scope']) {
+        await expect(browserPage).toMatchTextContent('Shown sentinel', { selector, timeout: 100 })
+        for (const absent of [HIDDEN_OPTION_PROBE_LABEL, 'Hidden sentinel']) {
+          await expect(browserPage).toNotMatchTextContent(absent, { selector, timeout: 100 })
+        }
+      }
+      const probe = await browserPage.evaluate(cacheKey => {
+        const { document, window } = globalThis as unknown as {
+          document: { querySelectorAll: (selector: string) => ArrayLike<unknown> }
+          window: Record<string, unknown>
+        }
+        return { cached: window[cacheKey], selects: document.querySelectorAll('select').length }
+      }, HIDDEN_OPTION_LEAK_CACHE_KEY)
+      // Chrome's innerText includes the hidden label, so it recomposes; Firefox's
+      // excludes it, so native innerText is used throughout. The probe select
+      // itself is gone, leaving only the fixture's.
+      expect(probe).toEqual({ cached: browser === 'chrome', selects: 1 })
     })
   })
 }
