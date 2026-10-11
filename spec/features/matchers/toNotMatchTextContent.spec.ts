@@ -468,3 +468,107 @@ for (const browser of ['firefox', 'chrome'] as const) {
     })
   })
 }
+
+for (const browser of ['firefox', 'chrome'] as const) {
+  describe('toNotMatchTextContent recomposed line breaks on ' + browser, () => {
+    let browserPage: Page
+
+    beforeAll(async () => {
+      browserPage = await launchPage({
+        browser,
+        ...(browser === 'chrome' && process.platform === 'linux' && process.env.CI === 'true'
+          ? { args: ['--no-sandbox'] }
+          : {}),
+      })
+    })
+
+    afterAll(async () => {
+      await browserPage.browser().close()
+    })
+
+    it.each([
+      [
+        'empty block between inline text',
+        '<div id="scope">A<hr>B<select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A\nB',
+        ['AB', 'A B'],
+      ],
+      [
+        'empty block between inline elements',
+        '<div id="scope"><span>A</span><div></div><span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A\nB',
+        ['AB'],
+      ],
+      [
+        'empty paragraph between inline text',
+        '<div id="scope">A<p></p>B<select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A\n\nB',
+        ['AB', 'A\nB'],
+      ],
+      [
+        'collapsed spaces around an empty block',
+        '<div id="scope">A <div></div> B<select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A\nB',
+        ['AB', 'A B', 'A \n', '\n B'],
+      ],
+      [
+        'adjacent empty blocks',
+        '<div id="scope">A<div></div><div></div>B<select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A\nB',
+        ['AB', 'A\n\nB'],
+      ],
+      [
+        'trailing block inside a nested container',
+        '<div id="scope">X<div>A<div>B</div><select style="display:none"><option>Hidden sentinel</option></select></div>C</div>',
+        'X\nA\nB\nC',
+        ['B\n\nC', 'BC'],
+      ],
+      [
+        'leading block inside a nested container',
+        '<div id="scope">X<div><div>B</div>A<select style="display:none"><option>Hidden sentinel</option></select></div>C</div>',
+        'X\nB\nA\nC',
+        ['X\n\nB', 'XB'],
+      ],
+      [
+        'trailing paragraph inside a nested container',
+        '<div id="scope">X<div>A<p>B</p><select style="display:none"><option>Hidden sentinel</option></select></div>C</div>',
+        'X\nA\n\nB\n\nC',
+        ['B\nC', 'B\n\n\nC'],
+      ],
+      [
+        'line break before a block',
+        '<div id="scope">A<br><div>B</div><select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A\n\nB',
+        ['A\nB'],
+      ],
+      [
+        'invisible empty block',
+        '<div id="scope">A<div style="visibility:hidden"></div>B<select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'AB',
+        ['A\nB', 'A B'],
+      ],
+      [
+        'capitalized text after a block',
+        '<div id="scope" style="text-transform:capitalize"><div>para</div>next<select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'Para\nNext',
+        ['Para\nnext'],
+      ],
+      [
+        'flex item boundary spaces',
+        '<div id="scope" style="display:flex">A <span>B</span><select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A\nB',
+        ['A \nB', 'A B'],
+      ],
+    ])('preserves %s', async (_name, html, text, absent) => {
+      await browserPage.setContent(html)
+      for (const selector of [undefined, '#scope']) {
+        await expect(async () => {
+          await expect(browserPage).toNotMatchTextContent(text, { selector, timeout: 100 })
+        }).rejects.toThrow()
+        for (const missing of [...absent, 'Hidden sentinel']) {
+          await expect(browserPage).toNotMatchTextContent(missing, { selector, timeout: 100 })
+        }
+      }
+    })
+  })
+}

@@ -61,10 +61,15 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
     const hiddenOptions = (element: TextElement) =>
       Array.from(element.querySelectorAll('option')).some(option => !contributesText(option))
 
+    // Required line break counts dropped at the edges of the most recent
+    // recomposed text; native innerText already drops its own.
+    let edgeLineBreaks = { leading: 0, trailing: 0 }
+
     // Chrome's innerText includes CSS-hidden option labels in select/ancestor
     // aggregates. Recompose only those paths; unaffected subtrees keep native
     // innerText, including their formatting and explicitly restored visibility.
     const renderedText = (element: TextElement): string => {
+      edgeLineBreaks = { leading: 0, trailing: 0 }
       const tagName = element.tagName.toLowerCase()
       if (!hasRenderedAncestry(element)) return ''
       if (['script', 'style', 'noscript'].includes(tagName)) return ''
@@ -103,17 +108,42 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
         !['inline', 'inline-block', 'inline-flex', 'inline-grid', 'contents', 'none'].includes(
           styleFor(element).display
         )
+      // A rendered, visible block child separates its neighbors even when it
+      // renders no text; invisible boxes contribute neither text nor breaks.
+      const separates = (child: TextElement) =>
+        hasRenderedAncestry(child) &&
+        styleFor(child).visibility === 'visible' &&
+        (separatesItems || isBlock(child))
       let text = ''
-      const append = (fragment: string, lineBreaks = 0, preservesFragmentSpaces = false) => {
-        if (!fragment) return
-        if (lineBreaks) {
-          const trailingBreaks = text.match(/\n*$/)?.[0].length || 0
-          text += '\n'.repeat(Math.max(0, lineBreaks - trailingBreaks))
-        } else if (!preservesSpaces && !preservesFragmentSpaces && /[ \t\n]$/.test(text)) {
+      // innerText's required line break counts: adjacent counts merge into the
+      // larger one, counts at either edge of the composed text are dropped, and
+      // a count is only emitted once a later fragment renders. The dropped edge
+      // counts are reported so a recomposed ancestor can merge them.
+      let pendingLineBreaks = 0
+      let leadingLineBreaks = 0
+      const append = (
+        fragment: string,
+        before = 0,
+        after = before,
+        preservesFragmentSpaces = false
+      ) => {
+        pendingLineBreaks = Math.max(pendingLineBreaks, before)
+        if (!fragment) {
+          pendingLineBreaks = Math.max(pendingLineBreaks, after)
+          return
+        }
+        const collapsible = !preservesSpaces && !preservesFragmentSpaces
+        if (pendingLineBreaks) {
+          if (text) text += '\n'.repeat(pendingLineBreaks)
+          else leadingLineBreaks = pendingLineBreaks
+          // An inline fragment starts a line here. Block fragments already shed
+          // their own edge padding, keeping preformatted descendant spaces.
+          if (collapsible && !before) fragment = fragment.replace(/^[ \t]+/, '')
+        } else if (collapsible && /[ \t\n]$/.test(text)) {
           fragment = fragment.replace(/^[ \t]+/, '')
         }
         text += fragment
-        if (lineBreaks) text += '\n'.repeat(lineBreaks)
+        pendingLineBreaks = after
       }
 
       const nodes = Array.from(element.childNodes)
@@ -129,21 +159,23 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
           if (!preservesSpaces) {
             // Discard only collapsed text-node padding at rendered block edges;
             // spaces contributed by preformatted descendants remain meaningful.
-            if ((isBlock(element) && !text) || text.endsWith('\n')) {
+            if ((isBlock(element) && !text) || pendingLineBreaks > 0 || text.endsWith('\n')) {
               fragment = fragment.replace(/^[ \t]+/, '')
             }
-            // Only a fragment that composition will append can define a block edge.
-            // Whitespace-only preformatted siblings still contribute their spaces.
+            // Only a sibling that separates or that composition will append can
+            // define a block edge. Whitespace-only preformatted siblings still
+            // contribute their spaces.
             const next = nodes
               .slice(index + 1)
               .find(sibling =>
                 sibling.nodeType === 3
                   ? contributesText(element) && /[^ \t\f\r\n]/.test(sibling.textContent || '')
-                  : sibling.nodeType === 1 && !!renderedText(sibling as TextElement)
+                  : sibling.nodeType === 1 &&
+                    (separates(sibling as TextElement) || !!renderedText(sibling as TextElement))
               )
             if (
               (!next && isBlock(element)) ||
-              (next?.nodeType === 1 && isBlock(next as TextElement))
+              (next?.nodeType === 1 && separates(next as TextElement))
             ) {
               fragment = fragment.replace(/[ \t]+$/, '')
             }
@@ -155,7 +187,12 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
               new Intl.Segmenter(language, { granularity: 'word' }).segment(fragment)
             )
               .map(segment =>
-                segment.isWordLike && !(segment.index === 0 && /[\p{L}\p{N}\p{M}]$/u.test(text))
+                segment.isWordLike &&
+                !(
+                  segment.index === 0 &&
+                  pendingLineBreaks === 0 &&
+                  /[\p{L}\p{N}\p{M}]$/u.test(text)
+                )
                   ? segment.segment.replace(/\p{L}/u, letter => letter.toLocaleUpperCase(language))
                   : segment.segment
               )
@@ -177,17 +214,21 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
           append(fragment, separatesItems ? 1 : 0)
         } else if (node.nodeType === 1) {
           const child = node as TextElement
-          const childStyle = styleFor(child)
-          const block = separatesItems || isBlock(child)
+          if (!hasRenderedAncestry(child)) return
+          const childText = renderedText(child)
+          const childEdges = edgeLineBreaks
+          const lineBreaks = separates(child) ? (child.tagName.toLowerCase() === 'p' ? 2 : 1) : 0
           append(
-            renderedText(child),
-            block ? (child.tagName.toLowerCase() === 'p' ? 2 : 1) : 0,
-            ['pre', 'pre-wrap', 'break-spaces'].includes(childStyle.whiteSpace)
+            childText,
+            Math.max(lineBreaks, childEdges.leading),
+            Math.max(lineBreaks, childEdges.trailing),
+            ['pre', 'pre-wrap', 'break-spaces'].includes(styleFor(child).whiteSpace)
           )
         }
       })
       // Inline fragments retain boundary spaces until their ancestor is composed.
       // Normal block padding is removed from its own text nodes above.
+      edgeLineBreaks = { leading: leadingLineBreaks, trailing: pendingLineBreaks }
       return text
     }
 
