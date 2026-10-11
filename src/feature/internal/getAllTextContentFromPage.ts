@@ -153,7 +153,9 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
           if (!preservesSpaces) {
             fragment =
               style.whiteSpace === 'pre-line'
-                ? fragment.replace(/[ \t\f\r]+/g, ' ')
+                ? // pre-line keeps segment breaks but removes the collapsible
+                  // spaces around them.
+                  fragment.replace(/[ \t\f\r]+/g, ' ').replace(/ ?\n ?/g, '\n')
                 : fragment.replace(/[ \t\f\r\n]+/g, ' ')
           }
           if (!preservesSpaces) {
