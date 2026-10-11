@@ -559,6 +559,18 @@ for (const browser of ['firefox', 'chrome'] as const) {
         'A\nB',
         ['A \nB', 'A B'],
       ],
+      [
+        'pre-line segment break',
+        '<div id="scope" style="white-space:pre-line">A  \n  B<select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A\nB',
+        ['A \n', '\n B', 'A B'],
+      ],
+      [
+        'pre-line double segment break',
+        '<div id="scope" style="white-space:pre-line">A \n\n B<select style="display:none"><option>Hidden sentinel</option></select></div>',
+        'A\n\nB',
+        ['A \n', '\n B', 'A\nB'],
+      ],
     ])('preserves %s', async (_name, html, text, absent) => {
       await browserPage.setContent(html)
       for (const selector of [undefined, '#scope']) {
