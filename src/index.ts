@@ -78,7 +78,7 @@ interface PuppeteerAssertions {
   /**
    * Match a string or RegExp in rendered text and displayed input/textarea values,
    * optionally scoped by selector. Excludes display:none ancestry,
-   * visibility:hidden content and input[type=hidden] values; opacity-zero and
+   * visibility:hidden (or collapse) content and input[type=hidden] values; opacity-zero and
    * offscreen content remain eligible.
    */
   toMatchTextContent(

@@ -42,8 +42,9 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
       return !(element.tagName.toLowerCase() === 'input' && element.type === 'hidden')
     }
 
+    // visibility: collapse hides text like hidden (and removes table rows).
     const contributesText = (element: TextElement) =>
-      hasRenderedAncestry(element) && styleFor(element).visibility !== 'hidden'
+      hasRenderedAncestry(element) && !['hidden', 'collapse'].includes(styleFor(element).visibility)
 
     // Non-HTML elements (e.g. SVG) lack innerText. Filter their text nodes
     // through the same rule so ancestor textContent cannot re-add hidden text.

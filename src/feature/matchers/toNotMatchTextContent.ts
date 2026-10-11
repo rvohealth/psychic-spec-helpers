@@ -7,7 +7,7 @@ import type { TextContentMatcherExpected, TextContentMatcherOpts } from './toMat
 /**
  * Assert absence of a string or regular expression from rendered text and
  * displayed input/textarea values in the selector scope. Uses the same
- * display:none, visibility:hidden and type=hidden exclusions as
+ * display:none, visibility:hidden (or collapse) and type=hidden exclusions as
  * toMatchTextContent; opacity-zero and offscreen content remain eligible.
  */
 export default async function toNotMatchTextContent(

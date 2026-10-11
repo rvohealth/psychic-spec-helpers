@@ -95,6 +95,21 @@ describe('toMatchTextContent CSS-hidden content', () => {
     ],
     ['hidden-type input', '<input id="scope" type="hidden" value="Concealed sentinel">', '#scope'],
     [
+      'visibility-collapse row',
+      '<table><tr id="scope" style="visibility:collapse"><td>Concealed sentinel</td></tr></table>',
+      '#scope',
+    ],
+    [
+      'visibility-collapse row recomposed beside a hidden option',
+      '<table><tr id="scope" style="visibility:collapse"><td>Concealed sentinel<select><option style="display:none">Hidden option</option></select></td></tr></table>',
+      '#scope',
+    ],
+    [
+      'visibility-collapse input',
+      '<input id="scope" style="visibility:collapse" value="Concealed sentinel">',
+      '#scope',
+    ],
+    [
       'display-contents hidden child',
       '<div id="scope" style="display:contents">Shown content<span style="display:none">Concealed sentinel</span></div>',
       '#scope',
