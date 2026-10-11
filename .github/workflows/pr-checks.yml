@@ -189,6 +189,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      - name: type-check test app and specs
+        run: pnpm build:test-app
 
   check-no-sync-diff:
     name: Ensure no sync diffs
