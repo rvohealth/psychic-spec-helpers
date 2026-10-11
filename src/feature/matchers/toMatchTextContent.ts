@@ -8,8 +8,8 @@ export type TextContentMatcherOpts = { selector?: string } & WaitForSelectorOpti
 
 /**
  * Match rendered text or displayed input/textarea values in the selector scope.
- * Excludes display:none ancestry, visibility:hidden text/values and type=hidden
- * inputs. Opacity-zero and offscreen content remain eligible. Accepts strings
+ * Excludes display:none ancestry, visibility:hidden (or collapse) text/values and
+ * type=hidden inputs. Opacity-zero and offscreen content remain eligible. Accepts strings
  * and regular expressions; toNotMatchTextContent is the complementary assertion.
  */
 export default async function toMatchTextContent(
