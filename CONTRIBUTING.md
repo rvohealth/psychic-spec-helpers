@@ -48,8 +48,6 @@ Both spec scripts accept vitest arguments, for example `pnpm uspec spec/unit/spe
 
 CI (`.github/workflows/pr-checks.yml`) installs with `pnpm install --frozen-lockfile`, then runs the lint, build (`pnpm build`), unit spec and feature spec jobs, plus a job that runs `pnpm psy db:migrate --skip-sync` and `pnpm psy sync` and fails if that changes any file. If you change test-app models, serializers, controllers or routes, run `pnpm psy sync` and commit what it generates.
 
-Known issue: on macOS a unit spec can occasionally fail with an unexpected status (for example a 404 or an empty 401) because supertest's request reached another local process listening on the same port. Rerun before debugging; Linux CI does not hit this.
-
 ## Dependency updates and supply-chain policy
 
 - There are two independent dependency graphs: the root (`package.json` + `pnpm-lock.yaml`) and `client/` (its own `package.json`, `pnpm-lock.yaml` and `pnpm-workspace.yaml`). Regenerate each manifest together with its own lockfile and commit both.

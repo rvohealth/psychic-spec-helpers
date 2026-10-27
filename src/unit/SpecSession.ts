@@ -65,23 +65,29 @@ export class SpecSession {
     }
 
     const req = this._session
-    let request = req[method](`/${uri.replace(/^\//, '')}`)
-    request = request.set({ ...this._defaultHeaders, ...opts.headers })
-    if (opts.query) request = request.query(opts.query)
-    if (method !== 'get') request = request.send(opts.data)
+    await req.listen()
 
     try {
-      const res = await request.expect(expectedStatus)
-      process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = undefined
-      return res
-    } catch (err) {
-      // without manually console logging, you get no stack trace here
-      console.error(err)
-      console.trace()
+      let request = req[method](`/${uri.replace(/^\//, '')}`)
+      request = request.set({ ...this._defaultHeaders, ...opts.headers })
+      if (opts.query) request = request.query(opts.query)
+      if (method !== 'get') request = request.send(opts.data)
 
-      process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = undefined
+      try {
+        const res = await request.expect(expectedStatus)
+        process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = undefined
+        return res
+      } catch (err) {
+        // without manually console logging, you get no stack trace here
+        console.error(err)
+        console.trace()
 
-      throw err
+        process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = undefined
+
+        throw err
+      }
+    } finally {
+      await req.close()
     }
   }
 }
