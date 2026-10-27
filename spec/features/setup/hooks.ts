@@ -3,6 +3,7 @@ import { provideDreamViteMatchers, truncate } from '@rvoh/dream-spec-helpers'
 import { PsychicServer } from '@rvoh/psychic'
 import { providePuppeteerViteMatchers, resetBrowserState } from '../../../src/index.js'
 import initializePsychicApp from '../../../test-app/src/cli/helpers/initializePsychicApp.js'
+import { CLIENT_URL } from '../helpers/clientUrl.js'
 import getPage from '../helpers/getPage.js'
 
 provideDreamViteMatchers(Dream)
@@ -35,7 +36,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   await truncate(DreamApp)
 
-  await visit('/')
+  await visit('/', { baseUrl: CLIENT_URL })
   await expect(page).toMatchTextContent('My div', { timeout: 10000 })
 }, 15000)
 
