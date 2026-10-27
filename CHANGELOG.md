@@ -1,3 +1,9 @@
+## 3.5.0
+
+- `visit` requires `baseUrl` (`visit(path, { baseUrl })`); it no longer defaults to `http://localhost:3000`. A create-psychic app runs its feature-spec client on 3050 (and its admin and internal clients on 3051 and 3052), so the default navigated to the development client, or to nothing, while the app's own scaffolded spec already passed `baseUrl`. A call without it now fails to compile instead of driving the wrong server. In a create-psychic app, pass `AppEnv.string('CLIENT_APP_HOST')`. `visit` gains TSDoc.
+- `specRequest`, `OpenapiSpecRequest` and their sessions bind the app under test to `127.0.0.1` before each request and close it afterwards. supertest bound with a wildcard `listen(0)` and connected to `127.0.0.1`, and on macOS that bind could take a port another process held on `127.0.0.1` only, so a request intermittently got that process's response (often an empty 401) instead of the app's. Linux refused that bind, so CI never saw it. A session no longer keeps a server listening between its requests.
+- maintenance: pnpm 12.14.0; `.npmrc` drops the `always-auth` line pnpm does not read; `CONTRIBUTING.md` rewritten.
+
 ## 3.4.1
 
 - Support Node 24 while making Node 26 the primary CI runtime.
