@@ -10,6 +10,22 @@ Compatibility-only residue (an error kept exported only for backward
 compatibility, not because new code should throw or catch it) must be
 documented as such, not treated as proof it still belongs in the public API.
 
+## Starting New Work
+
+Before creating a branch for new work, run `git fetch origin` and check whether
+the current branch's work is already in `main`. It is when either:
+
+- the branch has no commits ahead of `origin/main`
+  (`git rev-list --count origin/main..HEAD` prints `0`), or
+- its pull request is merged and `HEAD` is that pull request's head
+  (`gh pr view --json state,headRefOid`).
+
+Pull requests here are squash-merged, so `git branch --merged` cannot tell.
+
+If the work is in `main` and the working tree is clean, branch from
+`origin/main`. Otherwise, stop and ask the owner whether to build on
+`origin/main` or continue from the current branch. Do not choose for them.
+
 ## Breaking Changes
 
 Every Psychic application that depends on `@rvoh/psychic-spec-helpers` is a
