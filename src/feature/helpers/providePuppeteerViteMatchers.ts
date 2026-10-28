@@ -74,10 +74,10 @@ export default function providePuppeteerViteMatchers() {
     async toSelect(
       page: Page,
       cssSelector: string,
-      optionText: string,
+      optionValue: string,
       opts?: WaitForSelectorOptions
     ) {
-      return await toSelect(page, cssSelector, optionText, opts)
+      return await toSelect(page, cssSelector, optionValue, opts)
     },
 
     async toClickLink(page: Page, text: string, opts?: WaitForSelectorOptions) {

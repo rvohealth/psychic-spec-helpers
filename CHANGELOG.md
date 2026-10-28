@@ -4,6 +4,7 @@
 - `toEvaluate`'s declared callback type now matches its runtime: the callback returns `{ pass, actual }`, synchronously or asynchronously. **Breaks:** a callback that returns a bare boolean, as the old declaration asked for, no longer compiles. Such a callback never worked: `toEvaluate` always failed after its timeout, and `.not.toEvaluate` always passed.
 - `toMatchTextContent` / `toNotMatchTextContent` ignore `<select>` menus: a menu is a form control, not page text. Firefox, the default browser, already left option labels out of the page's text, while Chrome included every label, even of hidden options. **Breaks:** a spec that matches an option label as text (in Chrome, or through an option's own text in Firefox). Assert on the menu with `toHaveSelected` instead.
 - New `toHaveSelected(cssSelector, optionLabel)` / `toHaveUnselected(cssSelector, optionLabel)` assert which option of a `<select>` is selected, by the label the user sees. `toHaveUnselected` fails when the select or option is missing, so a typo cannot pass. Both retry until `timeout`, like the text matchers.
+- `toSelect` / `select` name their second argument `optionValue` and document what it has always done: it matches an option's `value` attribute, not its label, and a value no option has selects nothing without failing (a single-choice select falls back to its first option).
 
 ## 3.4.2
 

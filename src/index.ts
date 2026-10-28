@@ -101,9 +101,15 @@ interface PuppeteerAssertions {
   toCheck(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   // eslint-disable-next-line
   toClick(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  /**
+   * Select the option whose value attribute (not its label) is optionValue in the
+   * select matching cssSelector. A value no option has does not fail: every option
+   * is deselected, and a single-choice select falls back to its first option.
+   * Confirm the result with toHaveSelected.
+   */
   toSelect(
     cssSelector: string,
-    optionText: string,
+    optionValue: string,
     opts?: WaitForSelectorOptions
   ): Promise<CustomMatcherResult>
   // eslint-disable-next-line
