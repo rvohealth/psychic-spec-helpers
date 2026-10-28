@@ -1,6 +1,10 @@
 import { Page } from 'puppeteer'
 
 /**
+ * Feature specs are user stories, so the text matchers see only what a user
+ * can see without inspecting the page (see "Feature Spec Matchers Describe
+ * What a User Sees" in AGENTS.md).
+ *
  * Collect rendered text and displayed control values, excluding content hidden
  * by `display: none` (on the element or an ancestor), `visibility: hidden` or
  * `collapse`, and `input[type=hidden]` values. Text is the browser's native

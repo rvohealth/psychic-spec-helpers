@@ -26,6 +26,22 @@ If the work is in `main` and the working tree is clean, branch from
 `origin/main`. Otherwise, stop and ask the owner whether to build on
 `origin/main` or continue from the current branch. Do not choose for them.
 
+## Feature Spec Matchers Describe What a User Sees
+
+A feature spec is a user story told from the user's perspective. An assertion
+that text is or is not on the page must therefore mean what a user can see
+without opening the browser's inspector. `toMatchTextContent` and
+`toNotMatchTextContent` count only visible text: content hidden by
+`display: none`, the `hidden` attribute, `visibility: hidden` or `collapse`, and
+hidden inputs never counts. Do not propose counting hidden text by default; it
+makes specs pass for stories the user never experiences. Presence in the DOM,
+hidden or not, is what the selector matchers (`toHaveSelector`) are for.
+
+When deciding what counts as visible, follow an established visible-text
+implementation (such as WebDriver's "Get Element Text") rather than inventing
+rules. Where the matchers still count something a user cannot see, treat it as
+a gap to close, not as the intended contract.
+
 ## Breaking Changes
 
 Every Psychic application that depends on `@rvoh/psychic-spec-helpers` is a

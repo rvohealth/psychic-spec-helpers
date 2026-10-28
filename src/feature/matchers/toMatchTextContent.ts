@@ -8,6 +8,8 @@ export type TextContentMatcherOpts = { selector?: string } & WaitForSelectorOpti
 
 /**
  * Match rendered text or displayed input/textarea values in the selector scope.
+ * Feature specs are user stories, so only text a user can see counts; asserting
+ * on hidden DOM content is what the selector matchers are for.
  * Excludes display:none ancestry, visibility:hidden (or collapse) text/values and
  * type=hidden inputs. Opacity-zero and offscreen content remain eligible. Text is the
  * browser's innerText, so in Chrome the label of a hidden option inside a displayed select

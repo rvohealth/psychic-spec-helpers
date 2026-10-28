@@ -77,7 +77,8 @@ interface PuppeteerAssertions {
   // begin: fspec matchers
   /**
    * Match a string or RegExp in rendered text and displayed input/textarea values,
-   * optionally scoped by selector. Excludes display:none ancestry,
+   * optionally scoped by selector. Feature specs are user stories, so only text a
+   * user can see counts. Excludes display:none ancestry,
    * visibility:hidden (or collapse) content and input[type=hidden] values; opacity-zero and
    * offscreen content remain eligible. Text is the browser's innerText, so in Chrome the
    * label of a hidden option inside a displayed select still matches.
