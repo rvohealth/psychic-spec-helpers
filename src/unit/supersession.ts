@@ -130,6 +130,12 @@ HttpMethods.forEach(function (m) {
 
 export type SupersessionAgent = ReturnType<typeof request> & Pick<Supersession, 'listen' | 'close'>
 
+// What SpecSession and OpenapiSpecSession accept. Their constructors are public and
+// took a plain supertest agent before sessions bound to 127.0.0.1, so listen() and
+// close() stay optional: an agent without them is used as it always was.
+export type SessionAgent = ReturnType<typeof request> &
+  Partial<Pick<Supersession, 'listen' | 'close'>>
+
 export default function supersession(
   // eslint-disable-next-line
   server: any,

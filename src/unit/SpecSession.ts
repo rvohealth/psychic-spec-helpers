@@ -1,13 +1,13 @@
 import { Response } from 'supertest'
 import { SpecRequestOptsAll, SpecRequestOptsGet, SpecRequestOptsPost } from './SpecRequest.js'
-import supersession from './supersession.js'
+import { SessionAgent } from './supersession.js'
 
 // like SpecRequest, but meant to be bound to an instance
 // of supersession, enabling chained requests to collect cookies
 export class SpecSession {
   private _defaultHeaders: Record<string, string>
 
-  constructor(private _session: ReturnType<typeof supersession>) {}
+  constructor(private _session: SessionAgent) {}
 
   public setDefaultHeaders(headers: Record<string, string>) {
     this._defaultHeaders = headers
@@ -65,7 +65,7 @@ export class SpecSession {
     }
 
     const req = this._session
-    await req.listen()
+    await req.listen?.()
 
     try {
       let request = req[method](`/${uri.replace(/^\//, '')}`)
@@ -87,7 +87,7 @@ export class SpecSession {
         throw err
       }
     } finally {
-      await req.close()
+      await req.close?.()
     }
   }
 }

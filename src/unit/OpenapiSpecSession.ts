@@ -13,12 +13,12 @@ import {
   OpenapiSpecResponse,
 } from './OpenapiSpecRequest.js'
 import { SpecRequestOptsAll } from './SpecRequest.js'
-import supersession from './supersession.js'
+import { SessionAgent } from './supersession.js'
 
 // like SpecRequest, but meant to be bound to an instance
 // of supersession, enabling chained requests to collect cookies
 export class OpenapiSpecSession<OpenapiPaths> {
-  constructor(private _session: ReturnType<typeof supersession>) {}
+  constructor(private _session: SessionAgent) {}
 
   private _defaultHeaders: Record<string, string>
   public setDefaultHeaders(headers: Record<string, string>) {
@@ -444,7 +444,7 @@ export class OpenapiSpecSession<OpenapiPaths> {
     }
 
     const req = this._session
-    await req.listen()
+    await req.listen?.()
 
     try {
       let request = req[method](`/${uri.replace(/^\//, '')}`)
@@ -466,7 +466,7 @@ export class OpenapiSpecSession<OpenapiPaths> {
         throw err
       }
     } finally {
-      await req.close()
+      await req.close?.()
     }
   }
 }
