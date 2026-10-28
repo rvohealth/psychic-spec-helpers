@@ -10,6 +10,38 @@ Compatibility-only residue (an error kept exported only for backward
 compatibility, not because new code should throw or catch it) must be
 documented as such, not treated as proof it still belongs in the public API.
 
+## Starting New Work
+
+Before creating a branch for new work, run `git fetch origin` and check whether
+the current branch's work is already in `main`. It is when either:
+
+- the branch has no commits ahead of `origin/main`
+  (`git rev-list --count origin/main..HEAD` prints `0`), or
+- its pull request is merged and `HEAD` is that pull request's head
+  (`gh pr view --json state,headRefOid`).
+
+Pull requests here are squash-merged, so `git branch --merged` cannot tell.
+
+If the work is in `main` and the working tree is clean, branch from
+`origin/main`. Otherwise, stop and ask the owner whether to build on
+`origin/main` or continue from the current branch. Do not choose for them.
+
+## Feature Spec Matchers Describe What a User Sees
+
+A feature spec is a user story told from the user's perspective. An assertion
+that text is or is not on the page must therefore mean what a user can see
+without opening the browser's inspector. `toMatchTextContent` and
+`toNotMatchTextContent` count only visible text: content hidden by
+`display: none`, the `hidden` attribute, `visibility: hidden` or `collapse`, and
+hidden inputs never counts. Do not propose counting hidden text by default; it
+makes specs pass for stories the user never experiences. Presence in the DOM,
+hidden or not, is what the selector matchers (`toHaveSelector`) are for.
+
+When deciding what counts as visible, follow an established visible-text
+implementation (such as WebDriver's "Get Element Text") rather than inventing
+rules. Where the matchers still count something a user cannot see, treat it as
+a gap to close, not as the intended contract.
+
 ## Breaking Changes
 
 Every Psychic application that depends on `@rvoh/psychic-spec-helpers` is a
@@ -28,11 +60,24 @@ breaking. That includes:
 
 Rules:
 
-- **Do not make a breaking change without the owner's explicit approval, and
-  never release one as a minor or patch version.** A bug note, an audit item or
-  a reviewer's suggestion is not approval. When the recommended fix would break
-  callers, stop and bring the owner the cost and a non-breaking alternative
-  (documentation, a TSDoc warning, a new opt-in option).
+- **Do not make a breaking change without the owner's explicit approval.** A
+  bug note, an audit item or a reviewer's suggestion is not approval. When the
+  recommended fix would break callers, stop and bring the owner the cost and a
+  non-breaking alternative (documentation, a TSDoc warning, a new opt-in
+  option).
+- **A major version is not a remedy.** Bumping the major version does not make
+  a break acceptable; every app that upgrades still has to fix its specs. Never
+  offer a major release as the way to ship a breaking change.
+- **Fixing an inconsistency at the edges is not the same as breaking the
+  suite.** When two things that look the same to a caller behave differently
+  (text hidden with `display: none` matched while text hidden with
+  `visibility: hidden` did not; a declared type that contradicts what the
+  runtime requires), making them consistent can break the few specs that relied
+  on the odd half. With the owner's approval, that can ship in a minor version,
+  provided ordinary usage of the helper is unaffected. The PR and the CHANGELOG
+  must say exactly which caller code stops compiling or behaves differently, and
+  why the change is worth it. A change that would fail the specs most apps
+  already have is never in this category.
 - **A trap is not a production bug.** If a behavior only misleads code nobody
   has written yet, and that code fails loudly on its first run, fix it with
   documentation, not by breaking the callers who use the behavior correctly.

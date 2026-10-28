@@ -6,6 +6,16 @@ import requirePuppeteerPage from '../internal/requirePuppeteerPage.js'
 export type TextContentMatcherExpected = string | RegExp
 export type TextContentMatcherOpts = { selector?: string } & WaitForSelectorOptions
 
+/**
+ * Match rendered text or displayed input/textarea values in the selector scope.
+ * Feature specs are user stories, so only text a user can see counts; asserting
+ * on hidden DOM content is what the selector matchers are for.
+ * Excludes display:none ancestry, visibility:hidden (or collapse) text/values and
+ * type=hidden inputs. Opacity-zero and offscreen content remain eligible. Text is the
+ * browser's innerText. Select menus are form controls, not text, and are ignored;
+ * assert on them with toHaveSelected and toHaveUnselected. Accepts strings and
+ * regular expressions; toNotMatchTextContent is the complementary assertion.
+ */
 export default async function toMatchTextContent(
   argumentPassedToExpect: Page,
   expected: TextContentMatcherExpected,

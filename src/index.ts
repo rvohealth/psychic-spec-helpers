@@ -1,7 +1,11 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
 import { CustomMatcherResult } from './feature/helpers/providePuppeteerViteMatchers.js'
-import { ExpectToEvaluateOpts } from './feature/internal/evaluateWithRetryAndTimeout.js'
+import type {
+  ExpectToEvaluateOpts,
+  ExpectToEvaluateReturnType,
+} from './feature/internal/evaluateWithRetryAndTimeout.js'
 import { ToFillMatcherOpts } from './feature/matchers/toFill.js'
+import type { SelectMatcherOpts } from './feature/matchers/toHaveSelected.js'
 import type {
   TextContentMatcherExpected,
   TextContentMatcherOpts,
@@ -72,10 +76,19 @@ interface PuppeteerAssertions {
   toEqualCalendarDate(expected: any): CustomMatcherResult
 
   // begin: fspec matchers
+  /**
+   * Match a string or RegExp in rendered text and displayed input/textarea values,
+   * optionally scoped by selector. Feature specs are user stories, so only text a
+   * user can see counts. Excludes display:none ancestry,
+   * visibility:hidden (or collapse) content and input[type=hidden] values; opacity-zero and
+   * offscreen content remain eligible. Select menus are form controls, not text, and are
+   * ignored; assert on them with toHaveSelected and toHaveUnselected.
+   */
   toMatchTextContent(
     expected: TextContentMatcherExpected,
     opts?: TextContentMatcherOpts
   ): Promise<CustomMatcherResult>
+  /** Assert absence using the same text/value scope and exclusions as toMatchTextContent. */
   toNotMatchTextContent(
     expected: TextContentMatcherExpected,
     opts?: TextContentMatcherOpts
@@ -88,9 +101,15 @@ interface PuppeteerAssertions {
   toCheck(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   // eslint-disable-next-line
   toClick(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  /**
+   * Select the option whose value attribute (not its label) is optionValue in the
+   * select matching cssSelector. A value no option has does not fail: every option
+   * is deselected, and a single-choice select falls back to its first option.
+   * Confirm the result with toHaveSelected.
+   */
   toSelect(
     cssSelector: string,
-    optionText: string,
+    optionValue: string,
     opts?: WaitForSelectorOptions
   ): Promise<CustomMatcherResult>
   // eslint-disable-next-line
@@ -107,14 +126,39 @@ interface PuppeteerAssertions {
   toHaveChecked(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   // eslint-disable-next-line
   toHaveUnchecked(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  /**
+   * Assert that the select matching cssSelector has the option whose value is
+   * optionValue selected. Like toSelect, this matches the option's value attribute,
+   * not its label. Select menus are form controls, so the text matchers ignore them.
+   */
+  toHaveSelected(
+    cssSelector: string,
+    optionValue: string,
+    opts?: SelectMatcherOpts
+  ): Promise<CustomMatcherResult>
+  /**
+   * Assert that the select matching cssSelector has an option whose value is
+   * optionValue and that it is not selected. A missing select or option fails.
+   */
+  toHaveUnselected(
+    cssSelector: string,
+    optionValue: string,
+    opts?: SelectMatcherOpts
+  ): Promise<CustomMatcherResult>
   // eslint-disable-next-line
   toHaveLink(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toFill(cssSelector: string, text: string, opts?: ToFillMatcherOpts): Promise<CustomMatcherResult>
   // eslint-disable-next-line
   toUncheck(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  /**
+   * Retry a synchronous or asynchronous callback receiving the value passed to
+   * expect until its { pass, actual } result passes or the timeout expires.
+   * failureText receives the final actual value; optional successText receives
+   * the successful actual value for negated assertion diagnostics.
+   */
   toEvaluate(
     // eslint-disable-next-line
-    expected: (a: any) => boolean | Promise<boolean>,
+    expected: (a: any) => ExpectToEvaluateReturnType | Promise<ExpectToEvaluateReturnType>,
     opts: ExpectToEvaluateOpts
   ): Promise<CustomMatcherResult>
 }

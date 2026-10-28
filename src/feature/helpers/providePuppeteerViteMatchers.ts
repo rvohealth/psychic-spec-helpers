@@ -12,8 +12,10 @@ import toFill, { ToFillMatcherOpts } from '../matchers/toFill.js'
 import toHaveChecked from '../matchers/toHaveChecked.js'
 import toHaveLink from '../matchers/toHaveLink.js'
 import toHavePath from '../matchers/toHavePath.js'
+import toHaveSelected, { SelectMatcherOpts } from '../matchers/toHaveSelected.js'
 import toHaveSelector from '../matchers/toHaveSelector.js'
 import toHaveUnchecked from '../matchers/toHaveUnchecked.js'
+import toHaveUnselected from '../matchers/toHaveUnselected.js'
 import toHaveUrl from '../matchers/toHaveUrl.js'
 import type {
   TextContentMatcherExpected,
@@ -72,10 +74,10 @@ export default function providePuppeteerViteMatchers() {
     async toSelect(
       page: Page,
       cssSelector: string,
-      optionText: string,
+      optionValue: string,
       opts?: WaitForSelectorOptions
     ) {
-      return await toSelect(page, cssSelector, optionText, opts)
+      return await toSelect(page, cssSelector, optionValue, opts)
     },
 
     async toClickLink(page: Page, text: string, opts?: WaitForSelectorOptions) {
@@ -104,6 +106,24 @@ export default function providePuppeteerViteMatchers() {
 
     async toHaveUnchecked(page: Page, checked: string, opts?: WaitForSelectorOptions) {
       return await toHaveUnchecked(page, checked, opts)
+    },
+
+    async toHaveSelected(
+      page: Page,
+      cssSelector: string,
+      optionValue: string,
+      opts?: SelectMatcherOpts
+    ) {
+      return await toHaveSelected(page, cssSelector, optionValue, opts)
+    },
+
+    async toHaveUnselected(
+      page: Page,
+      cssSelector: string,
+      optionValue: string,
+      opts?: SelectMatcherOpts
+    ) {
+      return await toHaveUnselected(page, cssSelector, optionValue, opts)
     },
 
     async toHaveLink(page: Page, text: string, opts?: WaitForSelectorOptions) {
