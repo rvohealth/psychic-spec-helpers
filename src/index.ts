@@ -5,6 +5,7 @@ import type {
   ExpectToEvaluateReturnType,
 } from './feature/internal/evaluateWithRetryAndTimeout.js'
 import { ToFillMatcherOpts } from './feature/matchers/toFill.js'
+import type { SelectMatcherOpts } from './feature/matchers/toHaveSelected.js'
 import type {
   TextContentMatcherExpected,
   TextContentMatcherOpts,
@@ -80,8 +81,8 @@ interface PuppeteerAssertions {
    * optionally scoped by selector. Feature specs are user stories, so only text a
    * user can see counts. Excludes display:none ancestry,
    * visibility:hidden (or collapse) content and input[type=hidden] values; opacity-zero and
-   * offscreen content remain eligible. Text is the browser's innerText, so in Chrome the
-   * label of a hidden option inside a displayed select still matches.
+   * offscreen content remain eligible. Select menus are form controls, not text, and are
+   * ignored; assert on them with toHaveSelected and toHaveUnselected.
    */
   toMatchTextContent(
     expected: TextContentMatcherExpected,
@@ -119,6 +120,25 @@ interface PuppeteerAssertions {
   toHaveChecked(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   // eslint-disable-next-line
   toHaveUnchecked(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  /**
+   * Assert that the select matching cssSelector has the option labeled
+   * optionLabel selected. The label is what the user sees in the menu, not the
+   * option's value. Select menus are form controls, so the text matchers ignore them.
+   */
+  toHaveSelected(
+    cssSelector: string,
+    optionLabel: string,
+    opts?: SelectMatcherOpts
+  ): Promise<CustomMatcherResult>
+  /**
+   * Assert that the select matching cssSelector has an option labeled
+   * optionLabel that is not selected. A missing select or option fails.
+   */
+  toHaveUnselected(
+    cssSelector: string,
+    optionLabel: string,
+    opts?: SelectMatcherOpts
+  ): Promise<CustomMatcherResult>
   // eslint-disable-next-line
   toHaveLink(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   toFill(cssSelector: string, text: string, opts?: ToFillMatcherOpts): Promise<CustomMatcherResult>

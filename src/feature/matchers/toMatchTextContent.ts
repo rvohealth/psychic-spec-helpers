@@ -12,9 +12,9 @@ export type TextContentMatcherOpts = { selector?: string } & WaitForSelectorOpti
  * on hidden DOM content is what the selector matchers are for.
  * Excludes display:none ancestry, visibility:hidden (or collapse) text/values and
  * type=hidden inputs. Opacity-zero and offscreen content remain eligible. Text is the
- * browser's innerText, so in Chrome the label of a hidden option inside a displayed select
- * still matches. Accepts strings and regular expressions; toNotMatchTextContent is the
- * complementary assertion.
+ * browser's innerText. Select menus are form controls, not text, and are ignored;
+ * assert on them with toHaveSelected and toHaveUnselected. Accepts strings and
+ * regular expressions; toNotMatchTextContent is the complementary assertion.
  */
 export default async function toMatchTextContent(
   argumentPassedToExpect: Page,

@@ -7,8 +7,8 @@ import { Page } from 'puppeteer'
  *
  * Collect rendered text and displayed control values, excluding content hidden
  * by `display: none` (on the element or an ancestor), `visibility: hidden` or
- * `collapse`, and `input[type=hidden]` values. Text is the browser's native
- * innerText.
+ * `collapse`, `input[type=hidden]` values, and select menus (form controls, not
+ * text). Text is the browser's native innerText.
  */
 export default async function getAllTextContentFromPage(page: Page, selector = 'body') {
   const allText = await page.evaluate(selector => {
@@ -67,30 +67,51 @@ export default async function getAllTextContentFromPage(page: Page, selector = '
 
     const textContentArray: string[] = []
 
-    roots.forEach(root => {
-      const elements = [root, ...Array.from(root.querySelectorAll('*'))]
+    // A select menu is a form control, not page text; toHaveSelected and
+    // toHaveUnselected assert on it. Firefox's innerText already leaves select
+    // options out, but Chrome's includes every option label, hidden ones too.
+    // While text is collected, hide selects with a constructed stylesheet,
+    // which leaves the page's markup untouched; isRendered then skips them.
+    type StyleSheetList = { adoptedStyleSheets: unknown[] }
+    const browserGlobals = globalThis as unknown as {
+      document: StyleSheetList
+      CSSStyleSheet: new () => { replaceSync: (css: string) => void }
+    }
+    const hideSelects = new browserGlobals.CSSStyleSheet()
+    hideSelects.replaceSync('select { display: none !important; }')
+    const styledDocument = browserGlobals.document
+    styledDocument.adoptedStyleSheets = [...styledDocument.adoptedStyleSheets, hideSelects]
 
-      elements.forEach(element => {
-        const tagName = String(element.tagName || '').toLowerCase()
-        if (['script', 'style', 'noscript'].includes(tagName)) return
-        if (!isRendered(element)) return
+    try {
+      roots.forEach(root => {
+        const elements = [root, ...Array.from(root.querySelectorAll('*'))]
 
-        // Form-control values (input/textarea) are not part of innerText or
-        // textContent, but the previous ::-p-text()-based matcher matched them
-        // and callers assert on entered values, so include visible ones explicitly.
-        const isControl =
-          (tagName === 'input' && element.type !== 'hidden') || tagName === 'textarea'
-        if (isControl && isVisible(element)) {
-          const value = element.value?.trim()
-          if (value) textContentArray.push(value)
-        }
+        elements.forEach(element => {
+          const tagName = String(element.tagName || '').toLowerCase()
+          if (['script', 'style', 'noscript'].includes(tagName)) return
+          if (!isRendered(element)) return
 
-        const elementText =
-          typeof element.innerText === 'string' ? element.innerText : visibleTextContent(element)
-        const normalizedText = elementText?.trim()
-        if (normalizedText) textContentArray.push(normalizedText)
+          // Form-control values (input/textarea) are not part of innerText or
+          // textContent, but the previous ::-p-text()-based matcher matched them
+          // and callers assert on entered values, so include visible ones explicitly.
+          const isControl =
+            (tagName === 'input' && element.type !== 'hidden') || tagName === 'textarea'
+          if (isControl && isVisible(element)) {
+            const value = element.value?.trim()
+            if (value) textContentArray.push(value)
+          }
+
+          const elementText =
+            typeof element.innerText === 'string' ? element.innerText : visibleTextContent(element)
+          const normalizedText = elementText?.trim()
+          if (normalizedText) textContentArray.push(normalizedText)
+        })
       })
-    })
+    } finally {
+      styledDocument.adoptedStyleSheets = styledDocument.adoptedStyleSheets.filter(
+        sheet => sheet !== hideSelects
+      )
+    }
 
     return textContentArray.join(' ')
   }, selector)

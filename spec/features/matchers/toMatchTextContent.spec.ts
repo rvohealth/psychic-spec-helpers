@@ -1,3 +1,6 @@
+import { Page } from 'puppeteer'
+import { launchPage } from '../../../src/index.js'
+
 describe('toMatchTextContent', () => {
   it('succeeds when the page matches the content', async () => {
     await expect(page).toMatchTextContent('My div')
@@ -205,3 +208,62 @@ describe('toMatchTextContent preservation', () => {
     }).rejects.toThrow()
   })
 })
+
+for (const browser of ['firefox', 'chrome'] as const) {
+  describe('text matchers ignore select menus on ' + browser, () => {
+    let browserPage: Page
+
+    beforeAll(async () => {
+      browserPage = await launchPage({
+        browser,
+        // GitHub's Ubuntu runners block Chrome's sandbox.
+        ...(browser === 'chrome' && process.platform === 'linux' && process.env.CI === 'true'
+          ? { args: ['--no-sandbox'] }
+          : {}),
+      })
+      await browserPage.setContent(
+        '<label id="scope">Country <select id="menu"><option>Canada sentinel</option><option selected>Mexico sentinel</option><option style="display:none">Hidden sentinel</option></select> of residence</label>'
+      )
+    })
+
+    afterAll(async () => {
+      await browserPage.browser().close()
+    })
+
+    it('leaves option labels out of the text, selected, unselected or hidden', async () => {
+      for (const selector of [undefined, '#scope', '#menu']) {
+        for (const label of ['Canada sentinel', 'Mexico sentinel', 'Hidden sentinel']) {
+          await expect(browserPage).toNotMatchTextContent(label, { selector, timeout: 100 })
+          await expect(async () => {
+            await expect(browserPage).toMatchTextContent(label, { selector, timeout: 100 })
+          }).rejects.toThrow()
+        }
+      }
+    })
+
+    it('keeps the text around the menu', async () => {
+      for (const text of ['Country', 'of residence']) {
+        await expect(browserPage).toMatchTextContent(text, { selector: '#scope', timeout: 100 })
+      }
+    })
+
+    it('leaves the page as it was', async () => {
+      await expect(browserPage).toMatchTextContent('Country', { timeout: 100 })
+      const after = await browserPage.evaluate(() => {
+        const browserGlobals = globalThis as unknown as {
+          document: {
+            adoptedStyleSheets: unknown[]
+            querySelector: (selector: string) => { value: string; offsetHeight: number }
+          }
+        }
+        const menu = browserGlobals.document.querySelector('#menu')
+        return {
+          sheets: browserGlobals.document.adoptedStyleSheets.length,
+          value: menu.value,
+          rendered: menu.offsetHeight > 0,
+        }
+      })
+      expect(after).toEqual({ sheets: 0, value: 'Mexico sentinel', rendered: true })
+    })
+  })
+}
