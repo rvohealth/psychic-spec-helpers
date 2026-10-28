@@ -75,9 +75,7 @@ export class SpecRequest {
 
     await session.listen()
     try {
-      // supersession is borrowed from a non-typescript repo, which
-      // does not have strong types around http methods, so we need to any cast
-      let req = session[(opts.httpMethod || 'post') as 'post'](`/${uri.replace(/^\//, '')}`)
+      let req = session[opts.httpMethod || 'post'](`/${uri.replace(/^\//, '')}`)
 
       if (opts.data) {
         req = req.send(opts.data)

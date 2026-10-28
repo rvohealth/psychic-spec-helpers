@@ -11,7 +11,7 @@ import { closeServer, listenOnLoopback } from './helpers/loopbackServer.js'
 
 type AgentOptions = Parameters<typeof request.agent>[1]
 
-class Supersession {
+export class Supersession {
   private app: http.Server
   private agent: ReturnType<typeof request.agent>
   private url: UrlWithStringQuery
@@ -23,7 +23,7 @@ class Supersession {
   constructor(
     // eslint-disable-next-line
     server: any,
-    // not `options`: that name is the HTTP OPTIONS method assigned to the prototype below
+    // not `options`: that name is the HTTP OPTIONS method below
     private agentOptions: AgentOptions = {}
   ) {
     // eslint-disable-next-line
@@ -99,6 +99,30 @@ class Supersession {
     }
   }
 
+  get(route: string) {
+    return this.request('get', route)
+  }
+
+  post(route: string) {
+    return this.request('post', route)
+  }
+
+  put(route: string) {
+    return this.request('put', route)
+  }
+
+  patch(route: string) {
+    return this.request('patch', route)
+  }
+
+  delete(route: string) {
+    return this.request('delete', route)
+  }
+
+  options(route: string) {
+    return this.request('options', route)
+  }
+
   request(method: HttpMethod, route: string) {
     if (!this.app.listening)
       throw new Error('Supersession: await listen() before making a request, and close() after it')
@@ -119,28 +143,15 @@ class Supersession {
 export const HttpMethods = ['get', 'post', 'put', 'patch', 'delete', 'options'] as const
 export type HttpMethod = (typeof HttpMethods)[number]
 
-HttpMethods.forEach(function (m) {
-  // eslint-disable-next-line
-  ;(Supersession as any).prototype[m as any] = function () {
-    // eslint-disable-next-line
-    var args = [].slice.call(arguments)
-    // eslint-disable-next-line
-    return this.request.apply(this, [m].concat(args))
-  }
-})
-
-export type SupersessionAgent = ReturnType<typeof request> & Pick<Supersession, 'listen' | 'close'>
-
 // What SpecSession and OpenapiSpecSession accept. Their constructors are public and
-// took a plain supertest agent before sessions bound to 127.0.0.1, so listen() and
-// close() stay optional: an agent without them is used as it always was.
-export type SessionAgent = ReturnType<typeof request> &
-  Partial<Pick<Supersession, 'listen' | 'close'>>
+// took a plain supertest agent before sessions bound to 127.0.0.1, so they still
+// take one and use it as they always did.
+export type SessionAgent = Supersession | ReturnType<typeof request>
 
 export default function supersession(
   // eslint-disable-next-line
   server: any,
   config: AgentOptions = {}
-): SupersessionAgent {
-  return new Supersession(server, config) as unknown as SupersessionAgent
+): Supersession {
+  return new Supersession(server, config)
 }

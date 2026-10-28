@@ -518,9 +518,7 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
 
     await session.listen()
     try {
-      // supersession is borrowed from a non-typescript repo, which
-      // does not have strong types around http methods, so we need to any cast
-      let req = session[(httpMethod || 'post') as 'post'](`/${uri.replace(/^\//, '')}`)
+      let req = session[httpMethod || 'post'](`/${uri.replace(/^\//, '')}`)
 
       if (postOpts.data) {
         req = req.send(postOpts.data)
