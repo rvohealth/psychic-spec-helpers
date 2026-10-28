@@ -28,11 +28,24 @@ breaking. That includes:
 
 Rules:
 
-- **Do not make a breaking change without the owner's explicit approval, and
-  never release one as a minor or patch version.** A bug note, an audit item or
-  a reviewer's suggestion is not approval. When the recommended fix would break
-  callers, stop and bring the owner the cost and a non-breaking alternative
-  (documentation, a TSDoc warning, a new opt-in option).
+- **Do not make a breaking change without the owner's explicit approval.** A
+  bug note, an audit item or a reviewer's suggestion is not approval. When the
+  recommended fix would break callers, stop and bring the owner the cost and a
+  non-breaking alternative (documentation, a TSDoc warning, a new opt-in
+  option).
+- **A major version is not a remedy.** Bumping the major version does not make
+  a break acceptable; every app that upgrades still has to fix its specs. Never
+  offer a major release as the way to ship a breaking change.
+- **Fixing an inconsistency at the edges is not the same as breaking the
+  suite.** When two things that look the same to a caller behave differently
+  (text hidden with `display: none` matched while text hidden with
+  `visibility: hidden` did not; a declared type that contradicts what the
+  runtime requires), making them consistent can break the few specs that relied
+  on the odd half. With the owner's approval, that can ship in a minor version,
+  provided ordinary usage of the helper is unaffected. The PR and the CHANGELOG
+  must say exactly which caller code stops compiling or behaves differently, and
+  why the change is worth it. A change that would fail the specs most apps
+  already have is never in this category.
 - **A trap is not a production bug.** If a behavior only misleads code nobody
   has written yet, and that code fails loudly on its first run, fix it with
   documentation, not by breaking the callers who use the behavior correctly.
