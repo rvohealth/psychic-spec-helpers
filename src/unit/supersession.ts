@@ -23,7 +23,8 @@ class Supersession {
   constructor(
     // eslint-disable-next-line
     server: any,
-    private options: AgentOptions = {}
+    // not `options`: that name is the HTTP OPTIONS method assigned to the prototype below
+    private agentOptions: AgentOptions = {}
   ) {
     // eslint-disable-next-line
     if (!server.koaApp) {
@@ -38,10 +39,10 @@ class Supersession {
 
     this.reset()
 
-    // typescript is telling me I don't need to worry about options.helpers,
+    // typescript is telling me I don't need to worry about agentOptions.helpers,
     // but leaving this commented out in case we need to revisit
-    // if (this.options.helpers instanceof Object) {
-    //   assign(this, this.options.helpers)
+    // if (this.agentOptions.helpers instanceof Object) {
+    //   assign(this, this.agentOptions.helpers)
     // }
   }
 
@@ -53,7 +54,7 @@ class Supersession {
   public reset() {
     // Unset supertest-session options before forwarding options to superagent.
     const agentOptions = {
-      ...this.options,
+      ...this.agentOptions,
       before: undefined,
       cookieAccess: undefined,
       destroy: undefined,
@@ -72,7 +73,7 @@ class Supersession {
 
   destroy() {
     // eslint-disable-next-line
-    if ((this.options as any).destroy) (this.options as any).destroy.call(this)
+    if ((this.agentOptions as any).destroy) (this.agentOptions as any).destroy.call(this)
     this.reset()
   }
 
@@ -105,10 +106,10 @@ class Supersession {
     // eslint-disable-next-line
     var test = this.agent[method](route)
 
-    // typescript is telling me I don't need to worry about options.before,
+    // typescript is telling me I don't need to worry about agentOptions.before,
     // but leaving this commented out in case we need to revisit
-    // if (this.options.before) {
-    //   this.options.before.call(this, test)
+    // if (this.agentOptions.before) {
+    //   this.agentOptions.before.call(this, test)
     // }
 
     return test
