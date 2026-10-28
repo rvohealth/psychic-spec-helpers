@@ -61,6 +61,7 @@ CI (`.github/workflows/pr-checks.yml`) installs with `pnpm install --frozen-lock
 - Branch from `main` and open a pull request against `main`; all CI checks above must pass. Reviewers come from `CODEOWNERS`.
 - Describe both the problem and the solution in the PR, with an issue number if there is one.
 - Add a `CHANGELOG.md` entry under the next version for any behavior or typing change. Releases are cut from a PR that bumps `version` in `package.json` and adds its `CHANGELOG.md` entry; a maintainer then publishes a GitHub release and the release workflow publishes to npm with provenance. See [RELEASING.md](RELEASING.md).
+- A change that makes any existing caller stop compiling or behave differently, including removing a default or making an option required, is breaking. It needs the maintainers' approval and a major version; see [Breaking Changes](AGENTS.md#breaking-changes) for what counts and how to check.
 - Public error exports follow the rule in [AGENTS.md](AGENTS.md): export an error only when a Psychic application developer needs to throw it or should reasonably be able to catch it in an expected workflow.
 
 ## Reporting bugs
