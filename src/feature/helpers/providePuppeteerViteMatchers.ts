@@ -111,19 +111,19 @@ export default function providePuppeteerViteMatchers() {
     async toHaveSelected(
       page: Page,
       cssSelector: string,
-      optionLabel: string,
+      optionValue: string,
       opts?: SelectMatcherOpts
     ) {
-      return await toHaveSelected(page, cssSelector, optionLabel, opts)
+      return await toHaveSelected(page, cssSelector, optionValue, opts)
     },
 
     async toHaveUnselected(
       page: Page,
       cssSelector: string,
-      optionLabel: string,
+      optionValue: string,
       opts?: SelectMatcherOpts
     ) {
-      return await toHaveUnselected(page, cssSelector, optionLabel, opts)
+      return await toHaveUnselected(page, cssSelector, optionValue, opts)
     },
 
     async toHaveLink(page: Page, text: string, opts?: WaitForSelectorOptions) {

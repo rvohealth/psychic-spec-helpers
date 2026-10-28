@@ -6,14 +6,14 @@ import requirePuppeteerPage from '../internal/requirePuppeteerPage.js'
 export type SelectMatcherOpts = { timeout?: number }
 
 /**
- * Assert that the select matching cssSelector has the option labeled
- * optionLabel selected. The label is what the user sees in the menu, not the
- * option's value. toHaveUnselected is the complementary assertion.
+ * Assert that the select matching cssSelector has the option whose value is
+ * optionValue selected. Like toSelect, this matches the option's value
+ * attribute, not its label. toHaveUnselected is the complementary assertion.
  */
 export default async function toHaveSelected(
   argumentPassedToExpect: Page,
   cssSelector: string,
-  optionLabel: string,
+  optionValue: string,
   opts: SelectMatcherOpts = {}
 ) {
   return await evaluateWithRetryAndTimeout(
@@ -23,7 +23,7 @@ export default async function toHaveSelected(
 
       const state = await getSelectState(argumentPassedToExpect, cssSelector)
       return {
-        pass: state.found && state.selectedLabels.includes(optionLabel),
+        pass: state.found && state.selectedValues.includes(optionValue),
         actual: state,
       }
     },
@@ -32,10 +32,10 @@ export default async function toHaveSelected(
         throw new Error('Cannot negate toHaveSelected, use toHaveUnselected instead')
       },
       failureText: (state: SelectState) =>
-        missingSelectOrOption(state, cssSelector, optionLabel) ??
-        `Expected "${optionLabel}" to be selected in the "${cssSelector}" select, but the selected option is: ${
-          state.found && state.selectedLabels.length
-            ? state.selectedLabels.map(label => `"${label}"`).join(', ')
+        missingSelectOrOption(state, cssSelector, optionValue) ??
+        `Expected "${optionValue}" to be selected in the "${cssSelector}" select, but the selected value is: ${
+          state.found && state.selectedValues.length
+            ? state.selectedValues.map(value => `"${value}"`).join(', ')
             : 'none'
         }`,
       timeout: opts.timeout,

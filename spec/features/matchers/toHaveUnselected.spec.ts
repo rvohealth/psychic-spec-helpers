@@ -1,30 +1,32 @@
-const countryMenu =
-  '<select id="country"><option value="ca">Canada</option><option value="mx" selected>Mexico</option></select>'
+const statusMenu =
+  '<select id="status"><option value="pending">Pending review</option><option value="active" selected>Active</option></select>'
 
 describe('toHaveUnselected', () => {
-  it('succeeds when the labeled option is not selected', async () => {
-    await page.setContent(countryMenu)
-    await expect(page).toHaveUnselected('#country', 'Canada', { timeout: 300 })
+  it('succeeds when the option with the value is not selected', async () => {
+    await page.setContent(statusMenu)
+    await expect(page).toHaveUnselected('#status', 'pending', { timeout: 300 })
   })
 
-  it('fails when the labeled option is selected', async () => {
-    await page.setContent(countryMenu)
+  it('fails when the option with the value is selected', async () => {
+    await page.setContent(statusMenu)
     await expect(async () => {
-      await expect(page).toHaveUnselected('#country', 'Mexico', { timeout: 300 })
-    }).rejects.toThrow('"Mexico" not to be selected')
+      await expect(page).toHaveUnselected('#status', 'active', { timeout: 300 })
+    }).rejects.toThrow('"active" not to be selected')
   })
 
-  it('fails when no option has the label, so a typo cannot pass', async () => {
-    await page.setContent(countryMenu)
-    await expect(async () => {
-      await expect(page).toHaveUnselected('#country', 'Canda', { timeout: 300 })
-    }).rejects.toThrow('its options are: "Canada", "Mexico"')
+  it('fails when no option has the value, so a typo or a label cannot pass', async () => {
+    await page.setContent(statusMenu)
+    for (const missing of ['pendng', 'Pending review']) {
+      await expect(async () => {
+        await expect(page).toHaveUnselected('#status', missing, { timeout: 300 })
+      }).rejects.toThrow('its option values are: "pending", "active"')
+    }
   })
 
   it('fails when the select is not found', async () => {
-    await page.setContent(countryMenu)
+    await page.setContent(statusMenu)
     await expect(async () => {
-      await expect(page).toHaveUnselected('#missing', 'Canada', { timeout: 300 })
+      await expect(page).toHaveUnselected('#missing', 'pending', { timeout: 300 })
     }).rejects.toThrow('none was found')
   })
 })

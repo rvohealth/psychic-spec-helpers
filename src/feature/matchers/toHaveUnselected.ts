@@ -5,15 +5,15 @@ import requirePuppeteerPage from '../internal/requirePuppeteerPage.js'
 import type { SelectMatcherOpts } from './toHaveSelected.js'
 
 /**
- * Assert that the select matching cssSelector has an option labeled
- * optionLabel and that it is not selected. A missing select or option fails,
- * so a typo cannot pass. The label is what the user sees in the menu, not the
- * option's value.
+ * Assert that the select matching cssSelector has an option whose value is
+ * optionValue and that it is not selected. A missing select or option fails,
+ * so a typo cannot pass. Like toSelect, this matches the option's value
+ * attribute, not its label.
  */
 export default async function toHaveUnselected(
   argumentPassedToExpect: Page,
   cssSelector: string,
-  optionLabel: string,
+  optionValue: string,
   opts: SelectMatcherOpts = {}
 ) {
   return await evaluateWithRetryAndTimeout(
@@ -25,8 +25,8 @@ export default async function toHaveUnselected(
       return {
         pass:
           state.found &&
-          state.optionLabels.includes(optionLabel) &&
-          !state.selectedLabels.includes(optionLabel),
+          state.optionValues.includes(optionValue) &&
+          !state.selectedValues.includes(optionValue),
         actual: state,
       }
     },
@@ -35,8 +35,8 @@ export default async function toHaveUnselected(
         throw new Error('Cannot negate toHaveUnselected, use toHaveSelected instead')
       },
       failureText: (state: SelectState) =>
-        missingSelectOrOption(state, cssSelector, optionLabel) ??
-        `Expected "${optionLabel}" not to be selected in the "${cssSelector}" select, but it is`,
+        missingSelectOrOption(state, cssSelector, optionValue) ??
+        `Expected "${optionValue}" not to be selected in the "${cssSelector}" select, but it is`,
       timeout: opts.timeout,
     }
   )

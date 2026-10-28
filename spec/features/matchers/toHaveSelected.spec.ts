@@ -1,56 +1,57 @@
-const countryMenu =
-  '<select id="country"><option value="ca">Canada</option><option value="mx" selected>Mexico</option></select>'
+const statusMenu =
+  '<select id="status"><option value="pending">Pending review</option><option value="active" selected>Active</option></select>'
 
 describe('toHaveSelected', () => {
-  it('succeeds when the labeled option is selected', async () => {
-    await page.setContent(countryMenu)
-    await expect(page).toHaveSelected('#country', 'Mexico', { timeout: 300 })
+  it('succeeds when the option with the value is selected', async () => {
+    await page.setContent(statusMenu)
+    await expect(page).toHaveSelected('#status', 'active', { timeout: 300 })
   })
 
-  it('matches the label the user sees, not the option value', async () => {
-    await page.setContent(countryMenu)
+  it('matches the option value, not the label the user sees', async () => {
+    await page.setContent(statusMenu)
     await expect(async () => {
-      await expect(page).toHaveSelected('#country', 'mx', { timeout: 300 })
-    }).rejects.toThrow('to have an option labeled "mx"')
+      await expect(page).toHaveSelected('#status', 'Active', { timeout: 300 })
+    }).rejects.toThrow('to have an option with value "Active"')
   })
 
   it('fails when another option is selected', async () => {
-    await page.setContent(countryMenu)
+    await page.setContent(statusMenu)
     await expect(async () => {
-      await expect(page).toHaveSelected('#country', 'Canada', { timeout: 300 })
-    }).rejects.toThrow('but the selected option is: "Mexico"')
+      await expect(page).toHaveSelected('#status', 'pending', { timeout: 300 })
+    }).rejects.toThrow('but the selected value is: "active"')
   })
 
   it('fails when the select is not found', async () => {
-    await page.setContent(countryMenu)
+    await page.setContent(statusMenu)
     await expect(async () => {
-      await expect(page).toHaveSelected('#missing', 'Mexico', { timeout: 300 })
+      await expect(page).toHaveSelected('#missing', 'active', { timeout: 300 })
     }).rejects.toThrow('none was found')
   })
 
   it('waits for a selection made after the assertion starts', async () => {
-    await page.setContent(countryMenu)
+    await page.setContent(statusMenu)
     await page.evaluate(() => {
       const browserGlobals = globalThis as unknown as {
         document: { querySelector: (selector: string) => { value: string } }
       }
       setTimeout(() => {
-        browserGlobals.document.querySelector('#country').value = 'ca'
+        browserGlobals.document.querySelector('#status').value = 'pending'
       }, 100)
     })
-    await expect(page).toHaveSelected('#country', 'Canada', { timeout: 1000 })
+    await expect(page).toHaveSelected('#status', 'pending', { timeout: 1000 })
   })
 
   it('checks each selected option of a multiple select', async () => {
     await page.setContent(
-      '<select id="toppings" multiple><option selected>Basil</option><option>Olives</option><option selected>Onion</option></select>'
+      '<select id="toppings" multiple><option value="basil" selected>Basil</option><option value="olives">Olives</option><option value="onion" selected>Onion</option></select>'
     )
-    await expect(page).toHaveSelected('#toppings', 'Basil', { timeout: 300 })
-    await expect(page).toHaveSelected('#toppings', 'Onion', { timeout: 300 })
+    await expect(page).toHaveSelected('#toppings', 'basil', { timeout: 300 })
+    await expect(page).toHaveSelected('#toppings', 'onion', { timeout: 300 })
   })
 
-  it('confirms an option chosen with toSelect', async () => {
-    await expect(page).toSelect('#select-box', 'option 2')
-    await expect(page).toHaveSelected('#select-box', 'option 2', { timeout: 300 })
+  it('confirms the value passed to toSelect', async () => {
+    await page.setContent(statusMenu)
+    await expect(page).toSelect('#status', 'pending')
+    await expect(page).toHaveSelected('#status', 'pending', { timeout: 300 })
   })
 })

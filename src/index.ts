@@ -127,22 +127,22 @@ interface PuppeteerAssertions {
   // eslint-disable-next-line
   toHaveUnchecked(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   /**
-   * Assert that the select matching cssSelector has the option labeled
-   * optionLabel selected. The label is what the user sees in the menu, not the
-   * option's value. Select menus are form controls, so the text matchers ignore them.
+   * Assert that the select matching cssSelector has the option whose value is
+   * optionValue selected. Like toSelect, this matches the option's value attribute,
+   * not its label. Select menus are form controls, so the text matchers ignore them.
    */
   toHaveSelected(
     cssSelector: string,
-    optionLabel: string,
+    optionValue: string,
     opts?: SelectMatcherOpts
   ): Promise<CustomMatcherResult>
   /**
-   * Assert that the select matching cssSelector has an option labeled
-   * optionLabel that is not selected. A missing select or option fails.
+   * Assert that the select matching cssSelector has an option whose value is
+   * optionValue and that it is not selected. A missing select or option fails.
    */
   toHaveUnselected(
     cssSelector: string,
-    optionLabel: string,
+    optionValue: string,
     opts?: SelectMatcherOpts
   ): Promise<CustomMatcherResult>
   // eslint-disable-next-line
