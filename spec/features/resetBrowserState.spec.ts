@@ -1,5 +1,4 @@
 import { resetBrowserState } from '../../src/index.js'
-import { CLIENT_URL } from './helpers/clientUrl.js'
 
 // `document` isn't in the Node lib this package is type-checked against; these
 // evaluate callbacks run in the browser, so pull it off globalThis with a cast
@@ -8,7 +7,7 @@ type DocumentGlobal = { document: { cookie: string } }
 
 describe('resetBrowserState', () => {
   it('clears localStorage/sessionStorage and cookies and navigates to about:blank', async () => {
-    await visit('/', { baseUrl: CLIENT_URL })
+    await visit('/')
 
     await page.evaluate(() => {
       const { document } = globalThis as unknown as DocumentGlobal
@@ -31,7 +30,7 @@ describe('resetBrowserState', () => {
 
     expect(page.url()).toEqual('about:blank')
 
-    await visit('/', { baseUrl: CLIENT_URL })
+    await visit('/')
     const after = await page.evaluate(() => {
       const { document } = globalThis as unknown as DocumentGlobal
       return {
