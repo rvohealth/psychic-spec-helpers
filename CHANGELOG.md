@@ -1,3 +1,9 @@
+## 3.4.2
+
+- `specRequest`, `OpenapiSpecRequest` and their sessions bind the app under test to `127.0.0.1` before each request and close it afterwards. supertest bound with a wildcard `listen(0)` and connected to `127.0.0.1`, and on macOS that bind could take a port another process held on `127.0.0.1` only, so a request intermittently got that process's response (often an empty 401) instead of the app's. Linux refused that bind, so CI never saw it. A session no longer keeps a server listening between its requests. `SpecSession` and `OpenapiSpecSession` still accept a plain supertest agent in their constructors, used as before.
+- fix: `specRequest.session(uri, status, { httpMethod: 'options' })` sends an OPTIONS request. It threw `session[...] is not a function` (and, before sessions were awaited directly, left the spec hanging until its timeout), because the session's agent options lived in a field named `options` that shadowed the OPTIONS method.
+- maintenance: pnpm 12.14.0; `.npmrc` drops the `always-auth` line pnpm does not read; `CONTRIBUTING.md` rewritten.
+
 ## 3.4.1
 
 - Support Node 24 while making Node 26 the primary CI runtime.

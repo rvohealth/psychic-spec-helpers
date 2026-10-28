@@ -1,13 +1,13 @@
 import { Response } from 'supertest'
 import { SpecRequestOptsAll, SpecRequestOptsGet, SpecRequestOptsPost } from './SpecRequest.js'
-import supersession from './supersession.js'
+import { SessionAgent, Supersession } from './supersession.js'
 
 // like SpecRequest, but meant to be bound to an instance
 // of supersession, enabling chained requests to collect cookies
 export class SpecSession {
   private _defaultHeaders: Record<string, string>
 
-  constructor(private _session: ReturnType<typeof supersession>) {}
+  constructor(private _session: SessionAgent) {}
 
   public setDefaultHeaders(headers: Record<string, string>) {
     this._defaultHeaders = headers
@@ -65,23 +65,29 @@ export class SpecSession {
     }
 
     const req = this._session
-    let request = req[method](`/${uri.replace(/^\//, '')}`)
-    request = request.set({ ...this._defaultHeaders, ...opts.headers })
-    if (opts.query) request = request.query(opts.query)
-    if (method !== 'get') request = request.send(opts.data)
+    if (req instanceof Supersession) await req.listen()
 
     try {
-      const res = await request.expect(expectedStatus)
-      process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = undefined
-      return res
-    } catch (err) {
-      // without manually console logging, you get no stack trace here
-      console.error(err)
-      console.trace()
+      let request = req[method](`/${uri.replace(/^\//, '')}`)
+      request = request.set({ ...this._defaultHeaders, ...opts.headers })
+      if (opts.query) request = request.query(opts.query)
+      if (method !== 'get') request = request.send(opts.data)
 
-      process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = undefined
+      try {
+        const res = await request.expect(expectedStatus)
+        process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = undefined
+        return res
+      } catch (err) {
+        // without manually console logging, you get no stack trace here
+        console.error(err)
+        console.trace()
 
-      throw err
+        process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = undefined
+
+        throw err
+      }
+    } finally {
+      if (req instanceof Supersession) await req.close()
     }
   }
 }

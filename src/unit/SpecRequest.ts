@@ -1,5 +1,7 @@
+import http from 'node:http'
 import supertest, { Response } from 'supertest'
 import { createPsychicServer } from '../index.js'
+import { closeServer, listenOnLoopback } from './helpers/loopbackServer.js'
 import supersession, { HttpMethod } from './supersession.js'
 import { SpecSession } from './SpecSession.js'
 
@@ -67,33 +69,27 @@ export class SpecRequest {
     expectedStatus: number,
     opts: SpecRequestSessionOpts = {}
   ): Promise<SpecSession> {
-    return await new Promise((accept, reject) => {
-      createPsychicServer(this.PsychicServer)
-        .then(server => {
-          const session = supersession(server)
+    // eslint-disable-next-line
+    const server = await createPsychicServer(this.PsychicServer)
+    const session = supersession(server)
 
-          // supersession is borrowed from a non-typescript repo, which
-          // does not have strong types around http methods, so we need to any cast
-          let req = session[(opts.httpMethod || 'post') as 'post'](`/${uri.replace(/^\//, '')}`)
+    await session.listen()
+    try {
+      let req = session[opts.httpMethod || 'post'](`/${uri.replace(/^\//, '')}`)
 
-          if (opts.data) {
-            req = req.send(opts.data)
-          }
+      if (opts.data) {
+        req = req.send(opts.data)
+      }
 
-          req
-            .expect(expectedStatus)
-            .query(opts.query || {})
-            .set({ ...this._defaultHeaders, ...opts.headers })
-            .end((err: Error) => {
-              if (err) return reject(err)
+      await req
+        .expect(expectedStatus)
+        .query(opts.query || {})
+        .set({ ...this._defaultHeaders, ...opts.headers })
+    } finally {
+      await session.close()
+    }
 
-              return accept(new SpecSession(session).setDefaultHeaders(this._defaultHeaders))
-            })
-        })
-        .catch(err => {
-          throw err
-        })
-    })
+    return new SpecSession(session).setDefaultHeaders(this._defaultHeaders)
   }
 
   private async makeRequest(
@@ -120,24 +116,31 @@ export class SpecRequest {
     }
 
     // eslint-disable-next-line
-    const req = supertest.agent(this.server.koaApp.callback())
-    let request = req[method](`/${uri.replace(/^\//, '')}`)
-    request = request.set({ ...this._defaultHeaders, ...opts.headers })
-    if (opts.query) request = request.query(opts.query)
-    if (method !== 'get') request = request.send(opts.data)
+    const server = http.createServer(this.server.koaApp.callback())
+    await listenOnLoopback(server)
 
     try {
-      const res = await request.expect(expectedStatus)
-      process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = undefined
-      return res
-    } catch (err) {
-      // without manually console logging, you get no stack trace here
-      console.error(err)
-      console.trace()
+      const req = supertest.agent(server)
+      let request = req[method](`/${uri.replace(/^\//, '')}`)
+      request = request.set({ ...this._defaultHeaders, ...opts.headers })
+      if (opts.query) request = request.query(opts.query)
+      if (method !== 'get') request = request.send(opts.data)
 
-      process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = undefined
+      try {
+        const res = await request.expect(expectedStatus)
+        process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = undefined
+        return res
+      } catch (err) {
+        // without manually console logging, you get no stack trace here
+        console.error(err)
+        console.trace()
 
-      throw err
+        process.env.PSYCHIC_EXPECTING_INTERNAL_SERVER_ERROR = undefined
+
+        throw err
+      }
+    } finally {
+      await closeServer(server)
     }
   }
 }

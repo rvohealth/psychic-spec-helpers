@@ -1,8 +1,8 @@
 import { CookieAccessInfo as CookieAccess } from 'cookiejar'
 import http from 'http'
 import request from 'supertest'
-import { App } from 'supertest/types.js'
 import URL, { UrlWithStringQuery } from 'url'
+import { closeServer, listenOnLoopback } from './helpers/loopbackServer.js'
 
 // NOTE: this is not original code.
 // it was adapted from a non-typescript library with an uncertain future:
@@ -11,16 +11,20 @@ import URL, { UrlWithStringQuery } from 'url'
 
 type AgentOptions = Parameters<typeof request.agent>[1]
 
-class Supersession {
+export class Supersession {
   private app: http.Server
   private agent: ReturnType<typeof request.agent>
   private url: UrlWithStringQuery
   private cookieAccess: CookieAccess
+  private activeRequests = 0
+  private listening: Promise<void> = Promise.resolve()
+  private closing: Promise<void> = Promise.resolve()
 
   constructor(
     // eslint-disable-next-line
     server: any,
-    private options: AgentOptions = {}
+    // not `options`: that name is the HTTP OPTIONS method below
+    private agentOptions: AgentOptions = {}
   ) {
     // eslint-disable-next-line
     if (!server.koaApp) {
@@ -28,24 +32,17 @@ class Supersession {
     }
 
     // eslint-disable-next-line
-    const callback = server.koaApp.callback()
-    this.agent = request.agent(callback as App, options)
-
-    // eslint-disable-next-line
-    const app = http.createServer(callback)
-    // eslint-disable-next-line
-    const url = (request as any).Test.prototype.serverAddress(app, '/')
-
-    this.app = app
-    // eslint-disable-next-line
-    this.url = URL.parse(url)
+    this.app = http.createServer(server.koaApp.callback())
+    // requests go to 127.0.0.1 on whichever port listen() binds; cookies match
+    // on host and path, not port
+    this.url = URL.parse('http://127.0.0.1/')
 
     this.reset()
 
-    // typescript is telling me I don't need to worry about options.helpers,
+    // typescript is telling me I don't need to worry about agentOptions.helpers,
     // but leaving this commented out in case we need to revisit
-    // if (this.options.helpers instanceof Object) {
-    //   assign(this, this.options.helpers)
+    // if (this.agentOptions.helpers instanceof Object) {
+    //   assign(this, this.agentOptions.helpers)
     // }
   }
 
@@ -57,7 +54,7 @@ class Supersession {
   public reset() {
     // Unset supertest-session options before forwarding options to superagent.
     const agentOptions = {
-      ...this.options,
+      ...this.agentOptions,
       before: undefined,
       cookieAccess: undefined,
       destroy: undefined,
@@ -76,18 +73,67 @@ class Supersession {
 
   destroy() {
     // eslint-disable-next-line
-    if ((this.options as any).destroy) (this.options as any).destroy.call(this)
+    if ((this.agentOptions as any).destroy) (this.agentOptions as any).destroy.call(this)
     this.reset()
   }
 
+  /**
+   * Binds the session's server to an ephemeral port on 127.0.0.1. Await this
+   * before building a request and call close() once it has finished; a session
+   * holds its port only while requests are in flight.
+   */
+  async listen() {
+    this.activeRequests++
+    if (this.activeRequests === 1) {
+      const closing = this.closing
+      this.listening = closing.then(() => listenOnLoopback(this.app))
+    }
+    await this.listening
+  }
+
+  async close() {
+    this.activeRequests--
+    if (this.activeRequests === 0) {
+      this.closing = closeServer(this.app)
+      await this.closing
+    }
+  }
+
+  get(route: string) {
+    return this.request('get', route)
+  }
+
+  post(route: string) {
+    return this.request('post', route)
+  }
+
+  put(route: string) {
+    return this.request('put', route)
+  }
+
+  patch(route: string) {
+    return this.request('patch', route)
+  }
+
+  delete(route: string) {
+    return this.request('delete', route)
+  }
+
+  options(route: string) {
+    return this.request('options', route)
+  }
+
   request(method: HttpMethod, route: string) {
+    if (!this.app.listening)
+      throw new Error('Supersession: await listen() before making a request, and close() after it')
+
     // eslint-disable-next-line
     var test = this.agent[method](route)
 
-    // typescript is telling me I don't need to worry about options.before,
+    // typescript is telling me I don't need to worry about agentOptions.before,
     // but leaving this commented out in case we need to revisit
-    // if (this.options.before) {
-    //   this.options.before.call(this, test)
+    // if (this.agentOptions.before) {
+    //   this.agentOptions.before.call(this, test)
     // }
 
     return test
@@ -97,20 +143,15 @@ class Supersession {
 export const HttpMethods = ['get', 'post', 'put', 'patch', 'delete', 'options'] as const
 export type HttpMethod = (typeof HttpMethods)[number]
 
-HttpMethods.forEach(function (m) {
-  // eslint-disable-next-line
-  ;(Supersession as any).prototype[m as any] = function () {
-    // eslint-disable-next-line
-    var args = [].slice.call(arguments)
-    // eslint-disable-next-line
-    return this.request.apply(this, [m].concat(args))
-  }
-})
+// What SpecSession and OpenapiSpecSession accept. Their constructors are public and
+// took a plain supertest agent before sessions bound to 127.0.0.1, so they still
+// take one and use it as they always did.
+export type SessionAgent = Supersession | ReturnType<typeof request>
 
 export default function supersession(
   // eslint-disable-next-line
   server: any,
   config: AgentOptions = {}
-): ReturnType<typeof request> {
-  return new Supersession(server, config) as unknown as ReturnType<typeof request>
+): Supersession {
+  return new Supersession(server, config)
 }
