@@ -22,7 +22,8 @@ function onWebOrigin(page: Page): boolean {
 const IDLE_WINDOW_MS = 100
 
 // The longest the reset waits for in-flight requests before carrying on
-// anyway. Kept well under vitest's default 10 s hook timeout.
+// anyway. Kept well under vitest's default 10 s hook timeout; a reset that
+// hits it takes a little over 2 s, which a shorter hook timeout fails.
 const IN_FLIGHT_LIMIT_MS = 2000
 
 /**
@@ -50,7 +51,10 @@ const IN_FLIGHT_LIMIT_MS = 2000
  *     job, a promise it doesn't await) is not covered. A request that holds
  *     its response open (socket.io long-polling before its websocket
  *     upgrade) costs the full limit. Hitting the limit does not fail the
- *     spec.
+ *     spec on its own: the reset carries on. The whole reset can then take
+ *     a little over 2 seconds, so an `afterEach` hook timeout lower than
+ *     that (vitest's `hookTimeout`; the default is 10 seconds) fails the
+ *     hook; raise it.
  *  3. Clear `localStorage` / `sessionStorage` again, for the origin the page
  *     is on now, which catches anything a response handler wrote during
  *     step 2. Storage is inaccessible once we navigate to `about:blank`.
