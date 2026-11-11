@@ -26,12 +26,30 @@ const IDLE_WINDOW_MS = 100
 // hits it takes a little over 2 s, which a shorter hook timeout fails.
 const IN_FLIGHT_LIMIT_MS = 2000
 
+// Only a WebDriver BiDi browser (Firefox) gets the network-idle wait. On a
+// CDP browser (Chrome), Puppeteer never counts a request aborted by a
+// navigation as finished, so after the first one every later wait would run
+// to IN_FLIGHT_LIMIT_MS. `Browser.protocol` ('cdp' | 'webDriverBiDi') is set
+// at runtime by every Puppeteer from the 24.15.0 peer floor on, but its type
+// is marked internal, hence the cast.
+function waitsForInFlightRequests(page: Page): boolean {
+  const { protocol } = page.browser() as unknown as { protocol?: string }
+  return protocol !== 'cdp'
+}
+
 /**
  * Per-spec browser cleanup for feature specs that share a single browser
  * across spec files. Call in `afterEach` so every spec starts from a clean
  * slate.
  *
- * Five best-effort steps, in this order:
+ * Five best-effort steps, in this order. Steps 1 and 2 run only when
+ * Puppeteer drives the browser over WebDriver BiDi (Firefox, the default
+ * browser). On Chrome (CDP) the reset starts at step 3 and behaves as it did
+ * in 3.5.0, because Puppeteer's in-flight request count on Chrome never
+ * forgets a request that a navigation cancelled: after the first such
+ * cancellation, every later wait would run to the full 2-second limit. So on
+ * Chrome a request the spec never waited for is aborted at step 5, and a
+ * database write its handler makes can still land in the next spec.
  *
  *  1. Clear `localStorage` / `sessionStorage` for the origin the page is on
  *     when the reset starts (auth tokens, app state). Done first because a
@@ -55,9 +73,10 @@ const IN_FLIGHT_LIMIT_MS = 2000
  *     a little over 2 seconds, so an `afterEach` hook timeout lower than
  *     that (vitest's `hookTimeout`; the default is 10 seconds) fails the
  *     hook; raise it.
- *  3. Clear `localStorage` / `sessionStorage` again, for the origin the page
- *     is on now, which catches anything a response handler wrote during
- *     step 2. Storage is inaccessible once we navigate to `about:blank`.
+ *  3. Clear `localStorage` / `sessionStorage` (again, on Firefox) for the
+ *     origin the page is on now, which catches anything a response handler
+ *     wrote during step 2. Storage is inaccessible once we navigate to
+ *     `about:blank`.
  *  4. Clear cookies for the page's browser context (context-scoped so
  *     parallel contexts stay isolated). Runs after step 2 so a cookie set by
  *     a response that was still in flight is cleared too.
@@ -72,22 +91,24 @@ export default async function resetBrowserState(): Promise<void> {
   const page = (globalThis as { page?: Page }).page
   if (!page || page.isClosed()) return
 
-  // Before the wait: a navigation in flight can commit to another origin
-  // during it, leaving this origin's storage behind for the next spec.
-  if (onWebOrigin(page)) {
+  if (waitsForInFlightRequests(page)) {
+    // Before the wait: a navigation in flight can commit to another origin
+    // during it, leaving this origin's storage behind for the next spec.
+    if (onWebOrigin(page)) {
+      await bestEffort(() =>
+        page.evaluate(() => {
+          localStorage.clear()
+          sessionStorage.clear()
+        })
+      )
+    }
+
+    // Must come before anything that navigates: an aborted request counts as
+    // finished, so waiting after the navigation would return at once.
     await bestEffort(() =>
-      page.evaluate(() => {
-        localStorage.clear()
-        sessionStorage.clear()
-      })
+      page.waitForNetworkIdle({ idleTime: IDLE_WINDOW_MS, timeout: IN_FLIGHT_LIMIT_MS })
     )
   }
-
-  // Must come before anything that navigates: an aborted request counts as
-  // finished, so waiting after the navigation would return at once.
-  await bestEffort(() =>
-    page.waitForNetworkIdle({ idleTime: IDLE_WINDOW_MS, timeout: IN_FLIGHT_LIMIT_MS })
-  )
 
   if (onWebOrigin(page)) {
     await bestEffort(() =>
