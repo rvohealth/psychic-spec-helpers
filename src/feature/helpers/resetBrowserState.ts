@@ -10,21 +10,43 @@ async function bestEffort(fn: () => Promise<unknown>): Promise<void> {
   }
 }
 
+// How long the page must go without a request in flight to count as idle.
+// Every reset pays this once, even when nothing is in flight; a request the
+// page starts within it (e.g. one chained off the previous response) is
+// waited for too.
+const IDLE_WINDOW_MS = 100
+
+// The longest the reset waits for in-flight requests before carrying on
+// anyway. Kept well under vitest's default 10 s hook timeout.
+const IN_FLIGHT_LIMIT_MS = 2000
+
 /**
  * Per-spec browser cleanup for feature specs that share a single browser
  * across spec files. Call in `afterEach` so every spec starts from a clean
- * slate and so server-side resources are released between specs.
+ * slate.
  *
- * Three best-effort steps, in this order:
+ * Four best-effort steps, in this order:
  *
- *  1. Clear `localStorage` / `sessionStorage` for the current origin (auth
- *     tokens, app state). Done first, while the page is still on the app
- *     origin — storage is inaccessible once we navigate to `about:blank`.
- *  2. Clear cookies for the page's browser context (context-scoped so
- *     parallel contexts stay isolated).
- *  3. Navigate to `about:blank`. Besides the clean slate, this cancels any
- *     still-in-flight requests, releasing server-side resources they held
- *     (e.g. a pooled database client) so server teardown isn't blocked.
+ *  1. Wait for the page's in-flight requests to receive their responses, up
+ *     to a limit of 2 seconds (a page with nothing in flight waits only a
+ *     100 ms idle window). A spec often ends right after an action whose
+ *     request it never waited for; when the request's handler writes to the
+ *     database before responding, waiting here keeps that write from landing
+ *     in the next spec. This waits for each response's headers, not for the
+ *     server to finish: work a handler does after responding (a background
+ *     job, a promise it doesn't await) is not covered. A request that holds
+ *     its response open (socket.io long-polling before its websocket
+ *     upgrade) costs the full limit. Hitting the limit does not fail the
+ *     spec.
+ *  2. Clear `localStorage` / `sessionStorage` for the current origin (auth
+ *     tokens, app state). Done while the page is still on the app origin —
+ *     storage is inaccessible once we navigate to `about:blank`.
+ *  3. Clear cookies for the page's browser context (context-scoped so
+ *     parallel contexts stay isolated). Runs after step 1 so a cookie set by
+ *     a response that was still in flight is cleared too.
+ *  4. Navigate to `about:blank`, which aborts any request still in flight
+ *     in the browser. Aborting does not stop the server: a handler for an
+ *     aborted request keeps running.
  *
  * The shared browser is intentionally left open and reusable. Operates on
  * the global `page`; a no-op if there is no open page.
@@ -32,6 +54,12 @@ async function bestEffort(fn: () => Promise<unknown>): Promise<void> {
 export default async function resetBrowserState(): Promise<void> {
   const page = (globalThis as { page?: Page }).page
   if (!page || page.isClosed()) return
+
+  // Must come before anything that navigates: an aborted request counts as
+  // finished, so waiting after the navigation would return at once.
+  await bestEffort(() =>
+    page.waitForNetworkIdle({ idleTime: IDLE_WINDOW_MS, timeout: IN_FLIGHT_LIMIT_MS })
+  )
 
   if (/^https?:/.test(page.url())) {
     await bestEffort(() =>
