@@ -145,6 +145,65 @@ describe('resetBrowserState', () => {
       expect(elapsed).toBeLessThan(IN_FLIGHT_LIMIT_MS + 2000)
       expect(page.url()).toEqual('about:blank')
     })
+
+    async function setStorageOnAppOrigin() {
+      await visit('/')
+      await page.evaluate(() => {
+        localStorage.setItem('token', 'previous-spec')
+        sessionStorage.setItem('flash', 'previous-spec')
+      })
+    }
+
+    async function readStorageOnAppOrigin() {
+      await visit('/')
+      return await page.evaluate(() => [
+        localStorage.getItem('token'),
+        sessionStorage.getItem('flash'),
+      ])
+    }
+
+    // A spec that ends right after a link, form or redirect to another origin
+    // (an auth provider, say): the navigation commits while the reset waits,
+    // so storage must be cleared on the origin the reset started on as well.
+    it('clears the storage of the origin it started on when a navigation away is still in flight', async () => {
+      responseDelayMs = 500
+      await setStorageOnAppOrigin()
+
+      const url = `${baseUrl}/slow`
+      const sent = page.waitForRequest(url)
+      await page.evaluate((url: string) => {
+        const { location } = globalThis as unknown as { location: { assign(url: string): void } }
+        location.assign(url)
+      }, url)
+      await Promise.all([sent, requestReceivedPromise])
+
+      await resetBrowserState()
+
+      expect(page.url()).toEqual('about:blank')
+      expect(await readStorageOnAppOrigin()).toEqual([null, null])
+    })
+
+    it('clears storage that a response arriving during the wait writes', async () => {
+      responseDelayMs = 500
+      await visit('/')
+
+      const url = `${baseUrl}/slow`
+      const sent = page.waitForRequest(url)
+      await page.evaluate((url: string) => {
+        void fetch(url)
+          .then(() => {
+            localStorage.setItem('token', 'late-response')
+            sessionStorage.setItem('flash', 'late-response')
+          })
+          .catch(() => undefined)
+      }, url)
+      await Promise.all([sent, requestReceivedPromise])
+
+      await resetBrowserState()
+
+      expect(responsesSent).toEqual(1)
+      expect(await readStorageOnAppOrigin()).toEqual([null, null])
+    })
   })
 
   it('does not wait for the limit when nothing is in flight', async () => {
