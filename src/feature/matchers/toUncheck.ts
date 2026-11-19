@@ -1,64 +1,80 @@
-import { ElementHandle, Page, WaitForSelectorOptions } from 'puppeteer'
+import { Page, WaitForSelectorOptions } from 'puppeteer'
 import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
-import emptyForAttribute from '../error-messages/emptyForAttribute.js'
-import missingInputToMatchForAttribute from '../error-messages/missingInputToMatchForAttribute.js'
-import captureAttributeFromClosestElementWithType from '../internal/captureAttributeFromClosestElementWithType.js'
+import evaluateWithRetryAndTimeout from '../internal/evaluateWithRetryAndTimeout.js'
+import {
+  checkableActionFailure,
+  checkableLabelSelector,
+  findCheckableTarget,
+  readCheckableTargetAgain,
+} from '../internal/checkableControl.js'
 
+/**
+ * Uncheck the checkbox, radio or switch the text names. A control that is
+ * already unchecked is left alone; otherwise it is clicked once (through its
+ * label when today's label lookup found it, as always, or directly when the
+ * fallback found it), and then must become unchecked within 5000ms. See
+ * findCheckableTarget for how the text finds the control.
+ */
 export default async function toUncheck(
   page: Page,
   expectedText: string,
   opts?: WaitForSelectorOptions
-) {
+): Promise<{ pass: boolean; message: () => string }> {
+  const failure = {
+    pass: false,
+    message: () => `Expected page to have checkable element with text: "${expectedText}"`,
+  }
+
   try {
-    const labelSelector = `label::-p-text("${expectedText}")`
-    const forAttributeValue = await captureAttributeFromClosestElementWithType(
-      labelSelector,
-      'label',
-      'for'
-    )
-    if (!forAttributeValue) {
-      return {
-        pass: false,
-        message: () => emptyForAttribute(),
-      }
-    }
+    const found = await findCheckableTarget(page, expectedText, opts)
+    if ('failure' in found) return checkableActionFailure(found.failure, expectedText)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let inputElement: ElementHandle<any> | null = null
+    const { target } = found
     try {
-      inputElement = await page.waitForSelector(
-        `#${forAttributeValue}`,
-        applyDefaultWaitForOpts(opts)
-      )
-    } catch {
-      return {
-        pass: false,
-        message: () => missingInputToMatchForAttribute(forAttributeValue),
+      // { hidden: true } accepts an absent control, which has never been
+      // uncheckable.
+      if (!target.reading) return failure
+      if (target.reading.state === 'unchecked') return success()
+
+      if (target.tier === 'label') {
+        // As before, the label is clicked without the caller's options.
+        await expect(page).toClickSelector(checkableLabelSelector(expectedText))
+      } else {
+        await target.control.click()
       }
+    } finally {
+      await target.control?.dispose()
     }
 
-    // eslint-disable-next-line
-    const isChecked = await page.evaluate(checkbox => checkbox.checked, inputElement)
-    if (!isChecked)
-      return {
-        pass: false,
-        message: () => `A checkbox was found with "${expectedText}", but it is already unchecked`,
-      }
-
-    await expect(page).toHaveSelector(`#${forAttributeValue}:checked`)
-    await expect(page).toClickSelector(labelSelector)
-    await expect(page).toNotHaveSelector(`#${forAttributeValue}:checked`)
-
-    return {
-      pass: true,
-      message: () => {
-        throw new Error('Cannot negate toUncheck, try toCheck')
+    // As before, the control must then be unchecked within the default
+    // timeout, whatever opts says; a control that is gone counts as unchecked.
+    const unchecked = await evaluateWithRetryAndTimeout(
+      page,
+      async () => {
+        const after = await readCheckableTargetAgain(page, expectedText, target)
+        return { pass: after === null || after?.state === 'unchecked', actual: after }
       },
-    }
+      {
+        failureText: (after: Awaited<ReturnType<typeof readCheckableTargetAgain>>) =>
+          `Clicked the checkable element with text: "${expectedText}"${
+            after ? ` (${after.control})` : ''
+          }, but it is still ${after ? after.state : 'checked'}`,
+        timeout: applyDefaultWaitForOpts().timeout,
+      }
+    )
+    if (!unchecked.pass) return { pass: false, message: unchecked.message }
+
+    return success()
   } catch {
-    return {
-      pass: false,
-      message: () => `Expected page to have checkable element with text: "${expectedText}"`,
-    }
+    return failure
+  }
+}
+
+function success() {
+  return {
+    pass: true,
+    message: () => {
+      throw new Error('Cannot negate toUncheck, try toCheck')
+    },
   }
 }

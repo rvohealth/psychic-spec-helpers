@@ -35,16 +35,17 @@ describe('uncheck', () => {
     }).rejects.toThrow()
   })
 
-  it('fails when the selector is found, but it is not already checked', async () => {
+  it('succeeds without clicking when the checkbox is already unchecked', async () => {
     await check('My checkbox')
     await uncheck('My checkbox', { timeout: 500 })
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-    const inputValue = await page.$eval('#my-checkbox', input => input.checked).catch(() => null)
+    let inputValue = await page.$eval('#my-checkbox', input => input.checked).catch(() => null)
     expect(inputValue).toBe(false)
 
-    await expect(async () => {
-      await uncheck('My checkbox', { timeout: 500 })
-    }).rejects.toThrow()
+    await uncheck('My checkbox', { timeout: 500 })
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+    inputValue = await page.$eval('#my-checkbox', input => input.checked).catch(() => null)
+    expect(inputValue).toBe(false)
   })
 })

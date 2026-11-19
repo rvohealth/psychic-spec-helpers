@@ -17,12 +17,14 @@ import toHaveSelector from '../matchers/toHaveSelector.js'
 import toHaveUnchecked from '../matchers/toHaveUnchecked.js'
 import toHaveUnselected from '../matchers/toHaveUnselected.js'
 import toHaveUrl from '../matchers/toHaveUrl.js'
+import toHaveValue, { ValueMatcherExpected, ValueMatcherOpts } from '../matchers/toHaveValue.js'
 import type {
   TextContentMatcherExpected,
   TextContentMatcherOpts,
 } from '../matchers/toMatchTextContent.js'
 import toMatchTextContent from '../matchers/toMatchTextContent.js'
 import toNotHaveSelector from '../matchers/toNotHaveSelector.js'
+import toNotHaveValue from '../matchers/toNotHaveValue.js'
 import toNotMatchTextContent from '../matchers/toNotMatchTextContent.js'
 import toUncheck from '../matchers/toUncheck.js'
 import check from './matcher-globals/check.js'
@@ -124,6 +126,24 @@ export default function providePuppeteerViteMatchers() {
       opts?: SelectMatcherOpts
     ) {
       return await toHaveUnselected(page, cssSelector, optionValue, opts)
+    },
+
+    async toHaveValue(
+      page: Page,
+      cssSelector: string,
+      expected: ValueMatcherExpected,
+      opts?: ValueMatcherOpts
+    ) {
+      return await toHaveValue(page, cssSelector, expected, opts)
+    },
+
+    async toNotHaveValue(
+      page: Page,
+      cssSelector: string,
+      unexpected: ValueMatcherExpected,
+      opts?: ValueMatcherOpts
+    ) {
+      return await toNotHaveValue(page, cssSelector, unexpected, opts)
     },
 
     async toHaveLink(page: Page, text: string, opts?: WaitForSelectorOptions) {
