@@ -23,7 +23,9 @@ import type {
   TextContentMatcherOpts,
 } from '../matchers/toMatchTextContent.js'
 import toMatchTextContent from '../matchers/toMatchTextContent.js'
+import toNotHavePath from '../matchers/toNotHavePath.js'
 import toNotHaveSelector from '../matchers/toNotHaveSelector.js'
+import toNotHaveUrl from '../matchers/toNotHaveUrl.js'
 import toNotHaveValue from '../matchers/toNotHaveValue.js'
 import toNotMatchTextContent from '../matchers/toNotMatchTextContent.js'
 import toUncheck from '../matchers/toUncheck.js'
@@ -123,6 +125,14 @@ export default function providePuppeteerViteMatchers() {
 
     async toHaveUrl(page: Page, url: string, opts?: WaitForSelectorOptions) {
       return await toHaveUrl(page, url, opts)
+    },
+
+    async toNotHavePath(page: Page, path: string, opts?: WaitForSelectorOptions) {
+      return await toNotHavePath(page, path, opts)
+    },
+
+    async toNotHaveUrl(page: Page, url: string, opts?: WaitForSelectorOptions) {
+      return await toNotHaveUrl(page, url, opts)
     },
 
     async toHaveChecked(page: Page, text: string, opts?: WaitForSelectorOptions) {

@@ -140,10 +140,33 @@ interface PuppeteerAssertions {
   toClickButton(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   // eslint-disable-next-line
   toClickSelector(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  /**
+   * Assert that the path of the page's url (without its query or hash) is
+   * expected, ignoring one trailing slash on either, retrying until the timeout
+   * (5000ms by default).
+   */
   // eslint-disable-next-line
   toHavePath(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  /**
+   * The negative form of toHavePath: assert that the path of the page's url is
+   * not unexpectedPath, compared as toHavePath compares them. Passes as soon as
+   * it is not, retrying until the timeout (5000ms by default), so it waits for
+   * a navigation away. The failure names the path the page still has.
+   */
+  toNotHavePath(unexpectedPath: string, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  /**
+   * Assert that the page's whole url is expected, ignoring one trailing slash on
+   * either, retrying until the timeout (5000ms by default).
+   */
   // eslint-disable-next-line
   toHaveUrl(expected: any, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
+  /**
+   * The negative form of toHaveUrl: assert that the page's whole url is not
+   * unexpectedUrl, compared as toHaveUrl compares them. Passes as soon as it is
+   * not, retrying until the timeout (5000ms by default), so it waits for a
+   * navigation away. The failure names the url the page still has.
+   */
+  toNotHaveUrl(unexpectedUrl: string, opts?: WaitForSelectorOptions): Promise<CustomMatcherResult>
   /**
    * Assert that the checkbox, radio or switch that the text names is checked,
    * retrying until the timeout (5000ms by default). The failure names the

@@ -11,7 +11,7 @@ export default async function toHaveLink(
     return {
       pass: true,
       message: () => {
-        throw new Error('cannot negate toFill')
+        throw new Error('Cannot negate toHaveLink')
       },
     }
   } catch {

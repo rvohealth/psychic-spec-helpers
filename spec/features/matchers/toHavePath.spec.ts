@@ -9,4 +9,10 @@ describe('toHavePath', () => {
       await expect(page).toHavePath('/not-found', { timeout: 500 })
     }).rejects.toThrow()
   })
+
+  it('cannot be negated, and points to toNotHavePath', async () => {
+    await expect(async () => {
+      await expect(page).not.toHavePath('/', { timeout: 500 })
+    }).rejects.toThrow('cannot negate toHavePath, use toNotHavePath instead.')
+  })
 })
