@@ -1,6 +1,7 @@
 import { ElementHandle, Page, WaitForSelectorOptions } from 'puppeteer'
 import sleep from '../../shared/sleep.js'
 import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
+import { clickBeforeTimeout, ClickOutcome } from './clickBeforeTimeout.js'
 import emptyForAttribute from '../error-messages/emptyForAttribute.js'
 import missingInputToMatchForAttribute from '../error-messages/missingInputToMatchForAttribute.js'
 
@@ -509,6 +510,36 @@ export async function findCheckableTarget(
     }
     await sleep(pollInterval)
   }
+}
+
+/**
+ * Click a control the fallback tier found, as toCheck and toUncheck always
+ * have (ElementHandle#click). When it cannot be clicked yet (it was replaced
+ * by a re-render, or has no point on screen), it is found again by its
+ * accessible name and the click retried until the timeout; a click that
+ * reached the page is never retried. See clickBeforeTimeout. The control
+ * handle is disposed.
+ */
+export async function clickFallbackControl(
+  page: Page,
+  text: string,
+  control: ElementHandle,
+  opts?: WaitForSelectorOptions
+): Promise<ClickOutcome> {
+  let firstAttempt = true
+  return await clickBeforeTimeout(
+    async () => {
+      if (firstAttempt) {
+        firstAttempt = false
+        return control
+      }
+
+      const found = await findByAccessibleName(page, text)
+      if (found.resolved) return found.control
+      throw new Error(unresolvedCheckableControl(found, text))
+    },
+    { timeout: checkableControlTimeout(opts), signal: opts?.signal }
+  )
 }
 
 /**

@@ -4,6 +4,7 @@ import evaluateWithRetryAndTimeout from '../internal/evaluateWithRetryAndTimeout
 import {
   checkableActionFailure,
   checkableLabelSelector,
+  clickFallbackControl,
   findCheckableTarget,
   readCheckableTargetAgain,
 } from '../internal/checkableControl.js'
@@ -14,6 +15,9 @@ import {
  * label when today's label lookup found it, as always, or directly when the
  * fallback found it), and then must become unchecked within 5000ms. See
  * findCheckableTarget for how the text finds the control.
+ *
+ * A click that cannot reach the control yet is retried until 5000ms have
+ * passed, but a click that reached the page never is; see clickBeforeTimeout.
  */
 export default async function toUncheck(
   page: Page,
@@ -24,6 +28,12 @@ export default async function toUncheck(
     pass: false,
     message: () => `Expected page to have checkable element with text: "${expectedText}"`,
   }
+
+  // Why the click failed, when it did.
+  const clickFailure = (cause: string) => ({
+    pass: false,
+    message: () => `Expected page to have checkable element with text: "${expectedText}". ${cause}`,
+  })
 
   try {
     const found = await findCheckableTarget(page, expectedText, opts)
@@ -38,9 +48,15 @@ export default async function toUncheck(
 
       if (target.tier === 'label') {
         // As before, the label is clicked without the caller's options.
-        await expect(page).toClickSelector(checkableLabelSelector(expectedText))
+        try {
+          await expect(page).toClickSelector(checkableLabelSelector(expectedText))
+        } catch (error) {
+          return clickFailure(error instanceof Error ? error.message : String(error))
+        }
       } else {
-        await target.control.click()
+        // Likewise the control, with the default timeout.
+        const outcome = await clickFallbackControl(page, expectedText, target.control)
+        if (!outcome.clicked) return clickFailure(outcome.cause)
       }
     } finally {
       await target.control?.dispose()
