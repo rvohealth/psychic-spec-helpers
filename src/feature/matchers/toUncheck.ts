@@ -1,10 +1,11 @@
-import { Page, WaitForSelectorOptions } from 'puppeteer'
+import { ElementHandle, Page, WaitForSelectorOptions } from 'puppeteer'
 import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 import evaluateWithRetryAndTimeout from '../internal/evaluateWithRetryAndTimeout.js'
 import {
   checkableActionFailure,
   checkableLabelSelector,
-  clickFallbackControl,
+  unresolvedCheckableControl,
+  clickFallbackControlAndKeepIt,
   findCheckableTarget,
   readCheckableTargetAgain,
 } from '../internal/checkableControl.js'
@@ -40,6 +41,8 @@ export default async function toUncheck(
     if ('failure' in found) return checkableActionFailure(found.failure, expectedText)
 
     const { target } = found
+    // The element the click reached, when the fallback found the control.
+    let clicked: ElementHandle | null = null
     try {
       // { hidden: true } accepts an absent control, which has never been
       // uncheckable.
@@ -55,8 +58,9 @@ export default async function toUncheck(
         }
       } else {
         // Likewise the control, with the default timeout.
-        const outcome = await clickFallbackControl(page, expectedText, target.control)
-        if (!outcome.clicked) return clickFailure(outcome.cause)
+        const result = await clickFallbackControlAndKeepIt(page, expectedText, target.control)
+        if (!result.outcome.clicked) return clickFailure(result.outcome.cause)
+        clicked = result.clicked
       }
     } finally {
       await target.control?.dispose()
@@ -64,20 +68,35 @@ export default async function toUncheck(
 
     // As before, the control must then be unchecked within the default
     // timeout, whatever opts says; a control that is gone counts as unchecked.
-    const unchecked = await evaluateWithRetryAndTimeout(
-      page,
-      async () => {
-        const after = await readCheckableTargetAgain(page, expectedText, target)
-        return { pass: after === null || after?.state === 'unchecked', actual: after }
-      },
-      {
-        failureText: (after: Awaited<ReturnType<typeof readCheckableTargetAgain>>) =>
-          `Clicked the checkable element with text: "${expectedText}"${
-            after ? ` (${after.control})` : ''
-          }, but it is still ${after ? after.state : 'checked'}`,
-        timeout: applyDefaultWaitForOpts().timeout,
-      }
-    )
+    let unchecked: { pass: boolean; message: () => string }
+    try {
+      unchecked = await evaluateWithRetryAndTimeout(
+        page,
+        async () => {
+          const after = await readCheckableTargetAgain(page, expectedText, target, clicked)
+          return {
+            pass:
+              after === null ||
+              (after !== undefined && 'state' in after && after.state === 'unchecked'),
+            actual: after,
+          }
+        },
+        {
+          failureText: (after: Awaited<ReturnType<typeof readCheckableTargetAgain>>) => {
+            const clickedText = `Clicked the checkable element with text: "${expectedText}"`
+            if (after && 'reason' in after) {
+              return `${clickedText}, but it left the page. ${unresolvedCheckableControl(after, expectedText)}`
+            }
+            return `${clickedText}${after ? ` (${after.control})` : ''}, but it is still ${
+              after ? after.state : 'checked'
+            }`
+          },
+          timeout: applyDefaultWaitForOpts().timeout,
+        }
+      )
+    } finally {
+      await clicked?.dispose()
+    }
     if (!unchecked.pass) return { pass: false, message: unchecked.message }
 
     return success()

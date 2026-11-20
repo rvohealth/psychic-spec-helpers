@@ -1,4 +1,4 @@
-import { ElementHandle, Page, WaitForSelectorOptions } from 'puppeteer'
+import { ElementHandle, JSHandle, Page, WaitForSelectorOptions } from 'puppeteer'
 import sleep from '../../shared/sleep.js'
 import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 import { clickBeforeTimeout, ClickOutcome } from './clickBeforeTimeout.js'
@@ -579,33 +579,99 @@ export async function clickFallbackControl(
   control: ElementHandle,
   opts?: WaitForSelectorOptions
 ): Promise<ClickOutcome> {
+  return (await clickFallback(page, text, control, opts, false)).outcome
+}
+
+/**
+ * clickFallbackControl for toUncheck, which reads the control it clicked
+ * afterwards: clicked is a handle to the element the click reached (the one
+ * found again when a retry found another), null when nothing was clicked. The
+ * caller disposes it.
+ */
+export async function clickFallbackControlAndKeepIt(
+  page: Page,
+  text: string,
+  control: ElementHandle,
+  opts?: WaitForSelectorOptions
+): Promise<{ outcome: ClickOutcome; clicked: ElementHandle | null }> {
+  return await clickFallback(page, text, control, opts, true)
+}
+
+async function clickFallback(
+  page: Page,
+  text: string,
+  control: ElementHandle,
+  opts: WaitForSelectorOptions | undefined,
+  keepClicked: boolean
+): Promise<{ outcome: ClickOutcome; clicked: ElementHandle | null }> {
+  // clickBeforeTimeout disposes each element it aims at, so a second handle
+  // to the latest one is kept.
+  let latest: ElementHandle | null = null
+  const keep = async (element: ElementHandle) => {
+    if (!keepClicked) return element
+    let kept: ElementHandle | null
+    try {
+      const handle: JSHandle = await element.evaluateHandle((node: unknown) => node)
+      kept = handle.asElement() as ElementHandle | null
+    } catch (error) {
+      // Detached already: clickBeforeTimeout finds it again.
+      await disposeQuietly(element)
+      throw error
+    }
+    await disposeQuietly(latest)
+    latest = kept
+    return element
+  }
+
   let firstAttempt = true
-  return await clickBeforeTimeout(
+  const outcome = await clickBeforeTimeout(
     async () => {
       if (firstAttempt) {
         firstAttempt = false
-        return control
+        return await keep(control)
       }
 
       const found = await findByAccessibleName(page, text)
-      if (found.resolved) return found.control
+      if (found.resolved) return await keep(found.control)
       throw new Error(unresolvedCheckableControl(found, text))
     },
     { timeout: checkableControlTimeout(page, opts), signal: opts?.signal }
   )
+
+  if (outcome.clicked) return { outcome, clicked: latest }
+  await disposeQuietly(latest)
+  return { outcome, clicked: null }
+}
+
+async function disposeQuietly(handle: ElementHandle | null) {
+  try {
+    await handle?.dispose()
+  } catch {
+    // The page navigated away; nothing is left to release.
+  }
 }
 
 /**
  * After toUncheck clicks: the control's reading now; null when it is gone
  * (which has always counted as unchecked); undefined when it could not be read
- * this time (the page re-rendered mid-read). A label-tier control is looked up
- * by today's selector again; a fallback control by its accessible name.
+ * this time (the page re-rendered mid-read); ambiguous when the control left
+ * the page and more than one control now has its name.
+ *
+ * A label-tier control is looked up by today's selector again. A fallback
+ * control is the one the click reached (clicked), read while it is on the
+ * page, even when another control takes its name or its own name changes.
+ * Only once it has left the page (a re-render may have replaced it) is it
+ * found again by its accessible name, and only when nothing has that name is
+ * it gone.
  */
 export async function readCheckableTargetAgain(
   page: Page,
   text: string,
-  target: CheckableTarget
-): Promise<ControlReading | null | undefined> {
+  target: CheckableTarget,
+  clicked: ElementHandle | null
+): Promise<
+  ControlReading | null | undefined | { resolved: false; reason: 'ambiguous'; matches: string[] }
+> {
   try {
     if (target.tier === 'label') {
       const control = await page.$(target.selector)
@@ -617,10 +683,19 @@ export async function readCheckableTargetAgain(
       }
     }
 
+    if (
+      clicked &&
+      (await clicked.evaluate(node => (node as unknown as { isConnected: boolean }).isConnected))
+    ) {
+      return await readCheckableControl(clicked)
+    }
+
     const fallback = await findByAccessibleName(page, text)
-    if (!fallback.resolved) return null
-    await fallback.control.dispose()
-    return fallback.reading
+    if (fallback.resolved) {
+      await fallback.control.dispose()
+      return fallback.reading
+    }
+    return fallback.reason === 'ambiguous' ? fallback : null
   } catch {
     return undefined
   }

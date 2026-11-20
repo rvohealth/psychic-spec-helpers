@@ -335,6 +335,62 @@ describe('checked matchers', () => {
     })
   })
 
+  // After toUncheck clicks a control the fallback found, it reads that same
+  // control until it is unchecked; only a control that left the page is looked
+  // up again by its name, and only one that is gone for good counts as
+  // unchecked.
+  context('toUncheck on a control the fallback found, after the click', () => {
+    const checkedTerms = (onclick: string) =>
+      `<div id="root"><button type="button" role="checkbox" aria-checked="true" aria-label="Terms" id="terms"></button></div><script>document.getElementById('terms').addEventListener('click', () => { ${onclick} })</script>`
+
+    it('fails when the control stays checked while another control with its name appears', async () => {
+      await page.setContent(
+        checkedTerms(
+          `document.getElementById('root').insertAdjacentHTML('beforeend', '<button type="button" role="checkbox" aria-checked="true" aria-label="Terms" id="other"></button>')`
+        )
+      )
+      await expect(async () => {
+        await expect(page).toUncheck('Terms')
+      }).rejects.toThrow('(button#terms[role="checkbox"]), but it is still checked')
+    }, 15000)
+
+    it('fails when the control stays checked while its name changes', async () => {
+      await page.setContent(
+        checkedTerms(`document.getElementById('terms').setAttribute('aria-label', 'Pending')`)
+      )
+      await expect(async () => {
+        await expect(page).toUncheck('Terms')
+      }).rejects.toThrow('(button#terms[role="checkbox"]), but it is still checked')
+    }, 15000)
+
+    it('fails, naming the controls, when it is replaced by more than one control with its name', async () => {
+      await page.setContent(
+        checkedTerms(
+          `document.getElementById('root').innerHTML = '<button type="button" role="checkbox" aria-checked="true" aria-label="Terms" id="first"></button><button type="button" role="checkbox" aria-checked="true" aria-label="Terms" id="second"></button>'`
+        )
+      )
+      await expect(async () => {
+        await expect(page).toUncheck('Terms')
+      }).rejects.toThrow(
+        '2 controls are labelled "Terms": button#first[role="checkbox"], button#second[role="checkbox"]'
+      )
+    }, 15000)
+
+    it('passes when the control is removed', async () => {
+      await page.setContent(checkedTerms(`document.getElementById('terms').remove()`))
+      await expect(page).toUncheck('Terms')
+    })
+
+    it('passes when a re-render replaces the control with an unchecked one', async () => {
+      await page.setContent(
+        checkedTerms(
+          `document.getElementById('root').innerHTML = '<button type="button" role="checkbox" aria-checked="false" aria-label="Terms" id="terms"></button>'`
+        )
+      )
+      await expect(page).toUncheck('Terms')
+    })
+  })
+
   context('finding the control by its text', () => {
     it('follows a label whose text is inside a child element', async () => {
       await check('My other checkbox')
