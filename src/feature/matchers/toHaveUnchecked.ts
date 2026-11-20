@@ -24,5 +24,6 @@ export default async function toHaveUnchecked(
       observation.resolved
         ? `Found element: ${expectedText} (${observation.control}), but it was ${observation.state}`
         : `Expected page to have unchecked checkbox with text: "${expectedText}". ${unresolvedCheckableControl(observation, expectedText)}`,
+    abortedText: () => `Expected page to have unchecked checkbox with text: "${expectedText}"`,
   })
 }

@@ -343,6 +343,36 @@ describe('checked matchers', () => {
           )
           expect(message).toContain('but it was checked')
         })
+
+        // A read begun after the abort reports the page but cannot pass: an
+        // aborted wait has always ended with a failure.
+        it('for toHaveChecked, while the control is already checked, with a signal aborted already', async () => {
+          await page.setContent(
+            '<label for="terms">Accept terms</label><input type="checkbox" id="terms" checked>'
+          )
+          const message = await settlesWithin(
+            expect(page).toHaveChecked('Accept terms', { timeout, signal: AbortSignal.abort() }),
+            1500
+          )
+          expect(message).toContain(
+            'Expected page to have checked checkbox with text: "Accept terms"'
+          )
+          expect(message).not.toContain('no element has that id')
+        })
+
+        it('for toHaveUnchecked, while the control is already unchecked, with a signal aborted already', async () => {
+          await page.setContent(
+            '<label for="terms">Accept terms</label><input type="checkbox" id="terms">'
+          )
+          const message = await settlesWithin(
+            expect(page).toHaveUnchecked('Accept terms', { timeout, signal: AbortSignal.abort() }),
+            1500
+          )
+          expect(message).toContain(
+            'Expected page to have unchecked checkbox with text: "Accept terms"'
+          )
+          expect(message).not.toContain('no element has that id')
+        })
       })
     }
 

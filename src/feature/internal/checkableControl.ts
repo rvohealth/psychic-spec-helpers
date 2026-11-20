@@ -460,7 +460,10 @@ class CheckableWaitAborted extends Error {
  * passes. When the caller's signal aborts, the wait ends with the failure for
  * the last observation instead of retrying, as the single read always ended
  * with its failure. A read the abort cut short (Puppeteer rejects the selector
- * wait) does not stand in for an earlier observation.
+ * wait) does not stand in for an earlier observation. A read begun after the
+ * signal aborted reports the page but cannot pass; when it finds the control
+ * already in the wanted state, the failure is abortedText, as the single
+ * read's aborted wait always failed.
  */
 export async function retryCheckableState(
   page: Page,
@@ -470,6 +473,7 @@ export async function retryCheckableState(
   texts: {
     successText: () => string
     failureText: (observation: CheckableObservation) => string
+    abortedText: () => string
   }
 ): Promise<{ pass: boolean; message: () => string }> {
   const readControl = checkableControlReader(page, text, opts)
@@ -482,18 +486,27 @@ export async function retryCheckableState(
       async () => {
         if (lastObservation && aborted()) throw new CheckableWaitAborted(lastObservation)
 
+        const abortedBeforeRead = aborted()
         const observation = await readControl()
-        const pass = observation.resolved && observation.state === wanted
+        const pass = !abortedBeforeRead && observation.resolved && observation.state === wanted
         if (!pass && aborted()) throw new CheckableWaitAborted(lastObservation ?? observation)
 
         lastObservation = observation
         return { pass, actual: observation }
       },
-      { ...texts, timeout: checkableControlTimeout(page, opts) }
+      {
+        successText: texts.successText,
+        failureText: texts.failureText,
+        timeout: checkableControlTimeout(page, opts),
+      }
     )
   } catch (error) {
     if (!(error instanceof CheckableWaitAborted)) throw error
-    return { pass: false, message: () => texts.failureText(error.observation) }
+    const { observation } = error
+    if (observation.resolved && observation.state === wanted) {
+      return { pass: false, message: texts.abortedText }
+    }
+    return { pass: false, message: () => texts.failureText(observation) }
   }
 }
 
