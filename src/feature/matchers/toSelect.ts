@@ -1,5 +1,6 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
 import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
+import { actionPassed } from '../internal/actionMatcher.js'
 
 /**
  * Select the option whose value is optionValue in the select matching
@@ -30,12 +31,7 @@ export default async function toSelect(
 
     await el.select(optionValue)
 
-    return {
-      pass: true,
-      message: () => {
-        throw new Error('Cannot negate toSelect')
-      },
-    }
+    return actionPassed()
   } catch {
     return {
       pass: false,

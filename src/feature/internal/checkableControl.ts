@@ -1,7 +1,13 @@
 import { ElementHandle, JSHandle, Page, WaitForSelectorOptions } from 'puppeteer'
 import sleep from '../../shared/sleep.js'
 import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
-import { clickBeforeTimeout, ClickOutcome } from './clickBeforeTimeout.js'
+import {
+  clickBeforeTimeout,
+  ClickOutcome,
+  disposeQuietly,
+  messageOf,
+  waitForOptsTimeout,
+} from './clickBeforeTimeout.js'
 import evaluateWithRetryAndTimeout from './evaluateWithRetryAndTimeout.js'
 import emptyForAttribute from '../error-messages/emptyForAttribute.js'
 import missingInputToMatchForAttribute from '../error-messages/missingInputToMatchForAttribute.js'
@@ -37,20 +43,16 @@ export type CheckableObservation =
   | { resolved: false; reason: 'ambiguous'; matches: string[] }
 
 /** The label selector these matchers have always used. */
-export function checkableLabelSelector(text: string) {
-  return `label::-p-text("${text}")`
+/**
+ * What toCheck and toUncheck failed to do, as their failure messages have
+ * always begun.
+ */
+export function checkableExpectation(text: string) {
+  return `Expected page to have checkable element with text: "${text}"`
 }
 
-/**
- * The timeout these four matchers have always taken from their
- * WaitForSelectorOptions: 5000ms by default, an explicit undefined is the
- * page's default timeout, and 0 is no limit, as in Puppeteer's
- * waitForSelector (see clickSelectorBeforeTimeout).
- */
-export function checkableControlTimeout(page: Page, opts?: WaitForSelectorOptions) {
-  const optsTimeout = applyDefaultWaitForOpts(opts).timeout
-  const timeout = optsTimeout === undefined ? page.getDefaultTimeout() : optsTimeout
-  return timeout === 0 ? Infinity : timeout
+export function checkableLabelSelector(text: string) {
+  return `label::-p-text("${text}")`
 }
 
 /**
@@ -396,7 +398,7 @@ export function checkableControlReader(
   text: string,
   opts?: WaitForSelectorOptions
 ): () => Promise<CheckableObservation> {
-  const timeout = checkableControlTimeout(page, opts)
+  const timeout = waitForOptsTimeout(page, opts)
   const deadline = Date.now() + timeout
   let bound: { selector: string; forValue: string } | null = null
   let firstRead = true
@@ -497,7 +499,7 @@ export async function retryCheckableState(
       {
         successText: texts.successText,
         failureText: texts.failureText,
-        timeout: checkableControlTimeout(page, opts),
+        timeout: waitForOptsTimeout(page, opts),
       }
     )
   } catch (error) {
@@ -550,7 +552,7 @@ export async function findCheckableTarget(
   opts?: WaitForSelectorOptions
 ): Promise<{ target: CheckableTarget } | { failure: CheckableObservation }> {
   const startTime = Date.now()
-  const timeout = checkableControlTimeout(page, opts)
+  const timeout = waitForOptsTimeout(page, opts)
   let outcome: LabelTierOutcome = { resolved: false, reason: 'notFound' }
 
   let label: ElementHandle | null
@@ -621,37 +623,41 @@ export async function findCheckableTarget(
 }
 
 /**
+ * Click the control toCheck or toUncheck found, once: through its label when
+ * today's label lookup found it, as always (toClickSelector with opts), or
+ * directly when the fallback found it (see clickFallback). opts are the
+ * caller's for toCheck; toUncheck passes none, as it always has. A click that
+ * could not be made gives its cause. When keepClicked is set, clicked is a
+ * handle to the element a fallback click reached, which the caller disposes;
+ * otherwise it is null.
+ */
+export async function clickCheckableTarget(
+  page: Page,
+  text: string,
+  target: CheckableTarget,
+  opts: WaitForSelectorOptions | undefined,
+  keepClicked: boolean
+): Promise<{ outcome: ClickOutcome; clicked: ElementHandle | null }> {
+  if (target.tier === 'fallback') {
+    return await clickFallback(page, text, target.control, opts, keepClicked)
+  }
+
+  try {
+    await expect(page).toClickSelector(checkableLabelSelector(text), applyDefaultWaitForOpts(opts))
+    return { outcome: { clicked: true }, clicked: null }
+  } catch (error) {
+    return { outcome: { clicked: false, cause: messageOf(error) }, clicked: null }
+  }
+}
+
+/**
  * Click a control the fallback tier found, as toCheck and toUncheck always
  * have (ElementHandle#click). When it cannot be clicked yet (it was replaced
  * by a re-render, or has no point on screen), it is found again by its
  * accessible name and the click retried until the timeout; a click that
  * reached the page is never retried. See clickBeforeTimeout. The control
- * handle is disposed.
+ * handle is disposed. clicked is as in clickCheckableTarget.
  */
-export async function clickFallbackControl(
-  page: Page,
-  text: string,
-  control: ElementHandle,
-  opts?: WaitForSelectorOptions
-): Promise<ClickOutcome> {
-  return (await clickFallback(page, text, control, opts, false)).outcome
-}
-
-/**
- * clickFallbackControl for toUncheck, which reads the control it clicked
- * afterwards: clicked is a handle to the element the click reached (the one
- * found again when a retry found another), null when nothing was clicked. The
- * caller disposes it.
- */
-export async function clickFallbackControlAndKeepIt(
-  page: Page,
-  text: string,
-  control: ElementHandle,
-  opts?: WaitForSelectorOptions
-): Promise<{ outcome: ClickOutcome; clicked: ElementHandle | null }> {
-  return await clickFallback(page, text, control, opts, true)
-}
-
 async function clickFallback(
   page: Page,
   text: string,
@@ -678,32 +684,20 @@ async function clickFallback(
     return element
   }
 
-  let firstAttempt = true
   const outcome = await clickBeforeTimeout(
-    async () => {
-      if (firstAttempt) {
-        firstAttempt = false
-        return await keep(control)
-      }
+    async timeLeft => {
+      if (timeLeft === undefined) return await keep(control)
 
       const found = await findByAccessibleName(page, text)
       if (found.resolved) return await keep(found.control)
       throw new Error(unresolvedCheckableControl(found, text))
     },
-    { timeout: checkableControlTimeout(page, opts), signal: opts?.signal }
+    { timeout: waitForOptsTimeout(page, opts), signal: opts?.signal }
   )
 
   if (outcome.clicked) return { outcome, clicked: latest }
   await disposeQuietly(latest)
   return { outcome, clicked: null }
-}
-
-async function disposeQuietly(handle: ElementHandle | null) {
-  try {
-    await handle?.dispose()
-  } catch {
-    // The page navigated away; nothing is left to release.
-  }
 }
 
 /**
@@ -815,7 +809,7 @@ export function checkableActionFailure(failure: CheckableObservation, text: stri
       return {
         pass: false,
         message: () =>
-          `Expected page to have checkable element with text: "${text}". ${unresolvedCheckableControl(failure, text)}`,
+          `${checkableExpectation(text)}. ${unresolvedCheckableControl(failure, text)}`,
       }
   }
 }

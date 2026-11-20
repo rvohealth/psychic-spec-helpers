@@ -1,9 +1,9 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
-import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
+import { actionPassed } from '../internal/actionMatcher.js'
 import {
   checkableActionFailure,
-  checkableLabelSelector,
-  clickFallbackControl,
+  checkableExpectation,
+  clickCheckableTarget,
   findCheckableTarget,
 } from '../internal/checkableControl.js'
 
@@ -27,46 +27,22 @@ export default async function toCheck(
     if ('failure' in found) return checkableActionFailure(found.failure, expectedText)
 
     const { target } = found
-    // Why the click failed, when it did.
-    let clickCause: string | undefined
     try {
       if (target.reading?.state !== 'checked') {
-        if (target.tier === 'label') {
-          try {
-            await expect(page).toClickSelector(
-              checkableLabelSelector(expectedText),
-              applyDefaultWaitForOpts(opts)
-            )
-          } catch (error) {
-            clickCause = error instanceof Error ? error.message : String(error)
+        const { outcome } = await clickCheckableTarget(page, expectedText, target, opts, false)
+        if (!outcome.clicked) {
+          return {
+            pass: false,
+            message: () => `${checkableExpectation(expectedText)}. ${outcome.cause}`,
           }
-        } else {
-          const outcome = await clickFallbackControl(page, expectedText, target.control, opts)
-          if (!outcome.clicked) clickCause = outcome.cause
         }
       }
     } finally {
       await target.control?.dispose()
     }
 
-    if (clickCause !== undefined) {
-      return {
-        pass: false,
-        message: () =>
-          `Expected page to have checkable element with text: "${expectedText}". ${clickCause}`,
-      }
-    }
-
-    return {
-      pass: true,
-      message: () => {
-        throw new Error('Cannot negate toCheck')
-      },
-    }
+    return actionPassed()
   } catch {
-    return {
-      pass: false,
-      message: () => `Expected page to have checkable element with text: "${expectedText}"`,
-    }
+    return { pass: false, message: () => checkableExpectation(expectedText) }
   }
 }

@@ -1,13 +1,14 @@
 import { ElementHandle, Page, WaitForSelectorOptions } from 'puppeteer'
 import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
+import { actionPassed } from '../internal/actionMatcher.js'
 import evaluateWithRetryAndTimeout from '../internal/evaluateWithRetryAndTimeout.js'
 import {
   checkableActionFailure,
-  checkableLabelSelector,
-  unresolvedCheckableControl,
-  clickFallbackControlAndKeepIt,
+  checkableExpectation,
+  clickCheckableTarget,
   findCheckableTarget,
   readCheckableTargetAgain,
+  unresolvedCheckableControl,
 } from '../internal/checkableControl.js'
 
 /**
@@ -25,16 +26,7 @@ export default async function toUncheck(
   expectedText: string,
   opts?: WaitForSelectorOptions
 ): Promise<{ pass: boolean; message: () => string }> {
-  const failure = {
-    pass: false,
-    message: () => `Expected page to have checkable element with text: "${expectedText}"`,
-  }
-
-  // Why the click failed, when it did.
-  const clickFailure = (cause: string) => ({
-    pass: false,
-    message: () => `Expected page to have checkable element with text: "${expectedText}". ${cause}`,
-  })
+  const failure = { pass: false, message: () => checkableExpectation(expectedText) }
 
   try {
     const found = await findCheckableTarget(page, expectedText, opts)
@@ -47,21 +39,19 @@ export default async function toUncheck(
       // { hidden: true } accepts an absent control, which has never been
       // uncheckable.
       if (!target.reading) return failure
-      if (target.reading.state === 'unchecked') return success()
+      if (target.reading.state === 'unchecked') return actionPassed()
 
-      if (target.tier === 'label') {
-        // As before, the label is clicked without the caller's options.
-        try {
-          await expect(page).toClickSelector(checkableLabelSelector(expectedText))
-        } catch (error) {
-          return clickFailure(error instanceof Error ? error.message : String(error))
+      // As before, the label or the control is clicked without the caller's
+      // options, with the default timeout.
+      const result = await clickCheckableTarget(page, expectedText, target, undefined, true)
+      const { outcome } = result
+      if (!outcome.clicked) {
+        return {
+          pass: false,
+          message: () => `${checkableExpectation(expectedText)}. ${outcome.cause}`,
         }
-      } else {
-        // Likewise the control, with the default timeout.
-        const result = await clickFallbackControlAndKeepIt(page, expectedText, target.control)
-        if (!result.outcome.clicked) return clickFailure(result.outcome.cause)
-        clicked = result.clicked
       }
+      clicked = result.clicked
     } finally {
       await target.control?.dispose()
     }
@@ -99,17 +89,8 @@ export default async function toUncheck(
     }
     if (!unchecked.pass) return { pass: false, message: unchecked.message }
 
-    return success()
+    return actionPassed()
   } catch {
     return failure
-  }
-}
-
-function success() {
-  return {
-    pass: true,
-    message: () => {
-      throw new Error('Cannot negate toUncheck, try toCheck')
-    },
   }
 }

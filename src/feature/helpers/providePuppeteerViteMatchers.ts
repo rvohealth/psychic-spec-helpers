@@ -36,20 +36,8 @@ import fillIn from './matcher-globals/fillIn.js'
 import select from './matcher-globals/select.js'
 import uncheck from './matcher-globals/uncheck.js'
 import visit from './visit.js'
+import { NegationState, refuseNegation } from '../internal/actionMatcher.js'
 import toSelect from '../matchers/toSelect.js'
-
-// The part of Vitest's matcher context the action matchers read.
-interface NegationState {
-  isNot: boolean
-}
-
-// A matcher that acts on the page (a click, a check, typing, a selection) has
-// no negated meaning. Under .not it throws before it waits or acts, so it
-// neither clicks the target nor passes after the timeout when the target is
-// missing.
-function refuseNegation(state: NegationState, message: string) {
-  if (state.isNot) throw new Error(message)
-}
 
 export default function providePuppeteerViteMatchers() {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any

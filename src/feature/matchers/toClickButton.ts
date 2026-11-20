@@ -1,5 +1,6 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
 import { clickFailure, clickSelectorBeforeTimeout } from '../internal/clickBeforeTimeout.js'
+import { actionPassed } from '../internal/actionMatcher.js'
 
 /**
  * Click the innermost element inside a button whose
@@ -22,10 +23,5 @@ export default async function toClickButton(
     )
   }
 
-  return {
-    pass: true,
-    message: () => {
-      throw new Error('Cannot negate toClickButton')
-    },
-  }
+  return actionPassed()
 }

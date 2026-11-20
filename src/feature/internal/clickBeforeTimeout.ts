@@ -91,8 +91,7 @@ async function aim(
 /**
  * The four click matchers' target: page.waitForSelector(selector) with the
  * caller's WaitForSelectorOptions, as they have always used it, and the
- * timeout those options give (5000ms by default; an explicit undefined is the
- * page's default timeout, and 0 no limit, as in waitForSelector).
+ * timeout those options give (see waitForOptsTimeout).
  */
 export function clickSelectorBeforeTimeout(
   page: Page,
@@ -100,7 +99,6 @@ export function clickSelectorBeforeTimeout(
   opts?: WaitForSelectorOptions
 ): Promise<ClickOutcome> {
   const waitOpts = applyDefaultWaitForOpts(opts)
-  const timeout = waitOpts.timeout === undefined ? page.getDefaultTimeout() : waitOpts.timeout
 
   return clickBeforeTimeout(
     async timeLeft =>
@@ -108,8 +106,20 @@ export function clickSelectorBeforeTimeout(
         selector,
         timeLeft === undefined ? waitOpts : { ...waitOpts, timeout: timeLeft }
       ),
-    { timeout: timeout === 0 ? Infinity : timeout, signal: waitOpts.signal }
+    { timeout: waitForOptsTimeout(page, opts), signal: waitOpts.signal }
   )
+}
+
+/**
+ * The timeout, in ms, the click and checkable-control matchers have always
+ * taken from their WaitForSelectorOptions: 5000ms by default, an explicit
+ * undefined is the page's default timeout, and 0 is no limit (Infinity here),
+ * as in Puppeteer's waitForSelector.
+ */
+export function waitForOptsTimeout(page: Page, opts?: WaitForSelectorOptions) {
+  const optsTimeout = applyDefaultWaitForOpts(opts).timeout
+  const timeout = optsTimeout === undefined ? page.getDefaultTimeout() : optsTimeout
+  return timeout === 0 ? Infinity : timeout
 }
 
 /**
@@ -123,11 +133,11 @@ export function clickFailure(expectation: string, outcome: { cause: string }) {
   }
 }
 
-function messageOf(error: unknown) {
+export function messageOf(error: unknown) {
   return error instanceof Error ? error.message : String(error)
 }
 
-async function disposeQuietly(element: ElementHandle | null) {
+export async function disposeQuietly(element: ElementHandle | null) {
   try {
     await element?.dispose()
   } catch {
