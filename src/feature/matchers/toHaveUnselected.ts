@@ -19,7 +19,7 @@ export default async function toHaveUnselected(
   return await evaluateWithRetryAndTimeout(
     argumentPassedToExpect,
     async () => {
-      requirePuppeteerPage(argumentPassedToExpect)
+      requirePuppeteerPage(argumentPassedToExpect, 'toHaveUnselected')
 
       const state = await getSelectState(argumentPassedToExpect, cssSelector)
       return {

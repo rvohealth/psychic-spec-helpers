@@ -106,8 +106,8 @@ export class SpecRequest {
       throw new Error(
         `
   ERROR:
-    When making use of the send spec helper, you must first call "await specRequest.init(PsychicServer)"
-    from a beforEach hook at the root of your specs.
+    When making a request with specRequest, you must first call "await specRequest.init(PsychicServer)"
+    from a beforeEach hook at the root of your specs.
 `
       )
 

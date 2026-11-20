@@ -7,7 +7,7 @@ export default async function toHaveUrl(
   expectedUrl: string,
   opts: WaitForSelectorOptions = {}
 ) {
-  requirePuppeteerPage(page)
+  requirePuppeteerPage(page, 'toHaveUrl')
 
   try {
     await page.waitForFunction(

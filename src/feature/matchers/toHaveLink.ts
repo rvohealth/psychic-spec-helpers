@@ -11,13 +11,13 @@ export default async function toHaveLink(
     return {
       pass: true,
       message: () => {
-        throw new Error('cannot negate toFill')
+        throw new Error('Cannot negate toHaveLink')
       },
     }
   } catch {
     return {
       pass: false,
-      message: () => `Expected page not to have checked checkbox with text: "${expectedText}"`,
+      message: () => `Expected page to have link with text: "${expectedText}"`,
     }
   }
 }

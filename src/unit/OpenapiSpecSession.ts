@@ -169,7 +169,15 @@ export class OpenapiSpecSession<OpenapiPaths> {
      *
      * @param opts.data - request body data you want to send up. Must match the
      *                    requestBody shape in the openapi document for this uri.
-     *                    (Optional)
+     *                    Optional in the type, but required by the endpoint
+     *                    when its openapi requestBody is `required` (psychic
+     *                    3.19 and later mark a body required when its schema
+     *                    rejects `{}`). Leaving it out then sends no body:
+     *                    when the app has request-body validation on for the
+     *                    endpoint, it responds 400; psychic leaves validation
+     *                    off by default, and then the endpoint receives no
+     *                    body (psychic reads it as `{}`) and may succeed.
+     *                    This helper does not enforce it.
      *
      * @param opts.headers - headers you would like to send with your request.
      *                       (Optional)
@@ -250,7 +258,15 @@ export class OpenapiSpecSession<OpenapiPaths> {
      *
      * @param opts.data - request body data you want to send up. Must match the
      *                    requestBody shape in the openapi document for this uri.
-     *                    (Optional)
+     *                    Optional in the type, but required by the endpoint
+     *                    when its openapi requestBody is `required` (psychic
+     *                    3.19 and later mark a body required when its schema
+     *                    rejects `{}`). Leaving it out then sends no body:
+     *                    when the app has request-body validation on for the
+     *                    endpoint, it responds 400; psychic leaves validation
+     *                    off by default, and then the endpoint receives no
+     *                    body (psychic reads it as `{}`) and may succeed.
+     *                    This helper does not enforce it.
      *
      * @param opts.headers - headers you would like to send with your request.
      *                       (Optional)
@@ -332,7 +348,15 @@ export class OpenapiSpecSession<OpenapiPaths> {
      *
      * @param opts.data - request body data you want to send up. Must match the
      *                    requestBody shape in the openapi document for this uri.
-     *                    (Optional)
+     *                    Optional in the type, but required by the endpoint
+     *                    when its openapi requestBody is `required` (psychic
+     *                    3.19 and later mark a body required when its schema
+     *                    rejects `{}`). Leaving it out then sends no body:
+     *                    when the app has request-body validation on for the
+     *                    endpoint, it responds 400; psychic leaves validation
+     *                    off by default, and then the endpoint receives no
+     *                    body (psychic reads it as `{}`) and may succeed.
+     *                    This helper does not enforce it.
      *
      * @param opts.headers - headers you would like to send with your request.
      *                       (Optional)
@@ -414,7 +438,15 @@ export class OpenapiSpecSession<OpenapiPaths> {
      *
      * @param opts.data - request body data you want to send up. Must match the
      *                    requestBody shape in the openapi document for this uri.
-     *                    (Optional)
+     *                    Optional in the type, but required by the endpoint
+     *                    when its openapi requestBody is `required` (psychic
+     *                    3.19 and later mark a body required when its schema
+     *                    rejects `{}`). Leaving it out then sends no body:
+     *                    when the app has request-body validation on for the
+     *                    endpoint, it responds 400; psychic leaves validation
+     *                    off by default, and then the endpoint receives no
+     *                    body (psychic reads it as `{}`) and may succeed.
+     *                    This helper does not enforce it.
      *
      * @param opts.headers - headers you would like to send with your request.
      *                       (Optional)

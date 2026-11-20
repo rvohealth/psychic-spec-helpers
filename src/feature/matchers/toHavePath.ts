@@ -7,7 +7,7 @@ export default async function toHavePath(
   expectedPath: string,
   opts: WaitForSelectorOptions = {}
 ) {
-  requirePuppeteerPage(page)
+  requirePuppeteerPage(page, 'toHavePath')
 
   try {
     await page.waitForFunction(

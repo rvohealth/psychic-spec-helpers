@@ -12,4 +12,12 @@ describe('toFill', () => {
       await expect(page).toFill('#not-found-input', 'hello world', { timeout: 500 })
     }).rejects.toThrow()
   })
+
+  it('names the text it was given when it fails', async () => {
+    await expect(async () => {
+      await expect(page).toFill('#not-found-input', 'hello world', { timeout: 500 })
+    }).rejects.toThrow(
+      /^failed to fill input matching selector #not-found-input with text "hello world"$/
+    )
+  })
 })
