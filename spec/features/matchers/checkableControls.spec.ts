@@ -215,6 +215,126 @@ describe('checked matchers', () => {
     })
   })
 
+  // An app wrapper such as `check(label, { timeout: opts?.timeout })` passes an
+  // explicit undefined, which page.waitForSelector reads as the page's default
+  // timeout, as these matchers always have.
+  context('an explicit timeout: undefined is the page default timeout', () => {
+    it('waits past 5000ms when the page default timeout is longer', async () => {
+      expect(page.getDefaultTimeout()).toBeGreaterThan(6000)
+      await page.setContent(
+        `<label for="terms">Accept terms</label><div id="root"></div><script>setTimeout(() => { document.getElementById('root').innerHTML = '<input type="checkbox" id="terms" checked>' }, 5500)</script>`
+      )
+      await expect(page).toHaveChecked('Accept terms', { timeout: undefined })
+    })
+
+    context('when the page default timeout is shorter than 5000ms', () => {
+      let defaultTimeout: number
+
+      beforeEach(async () => {
+        defaultTimeout = page.getDefaultTimeout()
+        page.setDefaultTimeout(300)
+        await page.setContent('<label for="missing">Accept terms</label>')
+      })
+
+      afterEach(() => {
+        page.setDefaultTimeout(defaultTimeout)
+      })
+
+      const failsWithin = async (assertion: () => Promise<unknown>) => {
+        const startedAt = Date.now()
+        await expect(assertion).rejects.toThrow('missing')
+        expect(Date.now() - startedAt).toBeLessThan(3000)
+      }
+
+      it('for toHaveChecked', async () => {
+        await failsWithin(() => expect(page).toHaveChecked('Accept terms', { timeout: undefined }))
+      })
+
+      it('for toHaveUnchecked', async () => {
+        await failsWithin(() =>
+          expect(page).toHaveUnchecked('Accept terms', { timeout: undefined })
+        )
+      })
+
+      it('for toCheck', async () => {
+        await failsWithin(() => expect(page).toCheck('Accept terms', { timeout: undefined }))
+      })
+
+      it('for toUncheck', async () => {
+        await failsWithin(() => expect(page).toUncheck('Accept terms', { timeout: undefined }))
+      })
+    })
+  })
+
+  // A signal aborts the wait for the control, as it always has: the matcher
+  // fails promptly instead of retrying, even with no timeout.
+  context('an aborted signal ends the wait with a failure', () => {
+    const settlesWithin = async (assertion: Promise<unknown>, ms: number) => {
+      const pending = Symbol('pending')
+      const outcome = await Promise.race([
+        assertion.then(
+          () => 'passed',
+          (error: Error) => error.message
+        ),
+        new Promise(resolve => setTimeout(() => resolve(pending), ms)),
+      ])
+      expect(outcome).not.toBe(pending)
+      return outcome
+    }
+
+    for (const timeout of [0, 3000]) {
+      context(`with { timeout: ${timeout} }`, () => {
+        it('for toHaveChecked, while the control is missing', async () => {
+          await page.setContent('<label for="missing">Accept terms</label>')
+          const message = await settlesWithin(
+            expect(page).toHaveChecked('Accept terms', {
+              timeout,
+              signal: AbortSignal.timeout(100),
+            }),
+            1500
+          )
+          expect(message).toContain('has for="missing", but no element has that id')
+        })
+
+        it('for toHaveUnchecked, while the control is still checked', async () => {
+          await page.setContent(
+            '<label for="terms">Accept terms</label><input type="checkbox" id="terms" checked>'
+          )
+          const message = await settlesWithin(
+            expect(page).toHaveUnchecked('Accept terms', {
+              timeout,
+              signal: AbortSignal.timeout(100),
+            }),
+            1500
+          )
+          expect(message).toContain('but it was checked')
+        })
+
+        it('for toHaveChecked, while no control is labelled', async () => {
+          await page.setContent('<p>Nothing to check</p>')
+          const message = await settlesWithin(
+            expect(page).toHaveChecked('Accept terms', {
+              timeout,
+              signal: AbortSignal.timeout(100),
+            }),
+            1500
+          )
+          expect(message).toContain('No label contains "Accept terms"')
+        })
+      })
+    }
+
+    it('still passes on a control in the expected state', async () => {
+      await page.setContent(
+        '<label for="terms">Accept terms</label><input type="checkbox" id="terms" checked>'
+      )
+      await expect(page).toHaveChecked('Accept terms', {
+        timeout: 0,
+        signal: AbortSignal.timeout(2000),
+      })
+    })
+  })
+
   context('finding the control by its text', () => {
     it('follows a label whose text is inside a child element', async () => {
       await check('My other checkbox')

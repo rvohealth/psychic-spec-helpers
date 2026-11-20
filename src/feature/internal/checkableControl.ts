@@ -2,6 +2,7 @@ import { ElementHandle, Page, WaitForSelectorOptions } from 'puppeteer'
 import sleep from '../../shared/sleep.js'
 import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 import { clickBeforeTimeout, ClickOutcome } from './clickBeforeTimeout.js'
+import evaluateWithRetryAndTimeout from './evaluateWithRetryAndTimeout.js'
 import emptyForAttribute from '../error-messages/emptyForAttribute.js'
 import missingInputToMatchForAttribute from '../error-messages/missingInputToMatchForAttribute.js'
 
@@ -42,11 +43,13 @@ export function checkableLabelSelector(text: string) {
 
 /**
  * The timeout these four matchers have always taken from their
- * WaitForSelectorOptions: 5000ms by default, and 0 for no limit, as in
- * Puppeteer's waitForSelector.
+ * WaitForSelectorOptions: 5000ms by default, an explicit undefined is the
+ * page's default timeout, and 0 is no limit, as in Puppeteer's
+ * waitForSelector (see clickSelectorBeforeTimeout).
  */
-export function checkableControlTimeout(opts?: WaitForSelectorOptions) {
-  const timeout = applyDefaultWaitForOpts(opts).timeout ?? 5000
+export function checkableControlTimeout(page: Page, opts?: WaitForSelectorOptions) {
+  const optsTimeout = applyDefaultWaitForOpts(opts).timeout
+  const timeout = optsTimeout === undefined ? page.getDefaultTimeout() : optsTimeout
   return timeout === 0 ? Infinity : timeout
 }
 
@@ -357,7 +360,7 @@ export function checkableControlReader(
   text: string,
   opts?: WaitForSelectorOptions
 ): () => Promise<CheckableObservation> {
-  const timeout = checkableControlTimeout(opts)
+  const timeout = checkableControlTimeout(page, opts)
   const deadline = Date.now() + timeout
   let bound: { selector: string; forValue: string } | null = null
   let firstRead = true
@@ -402,6 +405,56 @@ export function checkableControlReader(
   }
 }
 
+// Ends the retry in retryCheckableState once the caller's signal has aborted.
+class CheckableWaitAborted extends Error {
+  constructor(public observation: CheckableObservation) {
+    super('The wait for the checkable control was aborted')
+  }
+}
+
+/**
+ * toHaveChecked and toHaveUnchecked: read the control (see
+ * checkableControlReader) until its state is the wanted one or the timeout
+ * passes. When the caller's signal aborts, the wait ends with the failure for
+ * the last observation instead of retrying, as the single read always ended
+ * with its failure. A read the abort cut short (Puppeteer rejects the selector
+ * wait) does not stand in for an earlier observation.
+ */
+export async function retryCheckableState(
+  page: Page,
+  text: string,
+  opts: WaitForSelectorOptions | undefined,
+  wanted: 'checked' | 'unchecked',
+  texts: {
+    successText: () => string
+    failureText: (observation: CheckableObservation) => string
+  }
+): Promise<{ pass: boolean; message: () => string }> {
+  const readControl = checkableControlReader(page, text, opts)
+  const aborted = () => opts?.signal?.aborted === true
+  let lastObservation: CheckableObservation | undefined
+
+  try {
+    return await evaluateWithRetryAndTimeout(
+      page,
+      async () => {
+        if (lastObservation && aborted()) throw new CheckableWaitAborted(lastObservation)
+
+        const observation = await readControl()
+        const pass = observation.resolved && observation.state === wanted
+        if (!pass && aborted()) throw new CheckableWaitAborted(lastObservation ?? observation)
+
+        lastObservation = observation
+        return { pass, actual: observation }
+      },
+      { ...texts, timeout: checkableControlTimeout(page, opts) }
+    )
+  } catch (error) {
+    if (!(error instanceof CheckableWaitAborted)) throw error
+    return { pass: false, message: () => texts.failureText(error.observation) }
+  }
+}
+
 async function elementExists(page: Page, selector: string) {
   const element = await page.$(selector)
   await element?.dispose()
@@ -442,7 +495,7 @@ export async function findCheckableTarget(
   opts?: WaitForSelectorOptions
 ): Promise<{ target: CheckableTarget } | { failure: CheckableObservation }> {
   const startTime = Date.now()
-  const timeout = checkableControlTimeout(opts)
+  const timeout = checkableControlTimeout(page, opts)
   let outcome: LabelTierOutcome = { resolved: false, reason: 'notFound' }
 
   let label: ElementHandle | null
@@ -538,7 +591,7 @@ export async function clickFallbackControl(
       if (found.resolved) return found.control
       throw new Error(unresolvedCheckableControl(found, text))
     },
-    { timeout: checkableControlTimeout(opts), signal: opts?.signal }
+    { timeout: checkableControlTimeout(page, opts), signal: opts?.signal }
   )
 }
 
