@@ -25,7 +25,7 @@ export default async function toClickButton(
   return {
     pass: true,
     message: () => {
-      throw new Error('Cannot negate toClickLink')
+      throw new Error('Cannot negate toClickButton')
     },
   }
 }

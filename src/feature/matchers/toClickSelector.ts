@@ -24,7 +24,7 @@ export default async function toClickSelector(
   return {
     pass: true,
     message: () => {
-      throw new Error('Cannot negate toNotMatchTextContent, use toMatchTextContent instead')
+      throw new Error('Cannot negate toClickSelector')
     },
   }
 }
