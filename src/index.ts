@@ -204,9 +204,7 @@ interface PuppeteerAssertions {
    * selected option's value. A field hidden by display:none,
    * visibility:hidden (or collapse) or type=hidden counts as missing, as it does
    * for toMatchTextContent, and a missing field fails. The failure names the
-   * selector, the expected value and the actual value. jest-dom and Playwright
-   * also define a toHaveValue, with other arguments; registering jest-dom's
-   * matchers after these replaces this one.
+   * selector, the expected value and the actual value.
    */
   toHaveValue(
     cssSelector: string,
