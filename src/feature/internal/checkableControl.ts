@@ -654,13 +654,15 @@ async function disposeQuietly(handle: ElementHandle | null) {
 /**
  * After toUncheck clicks: the control's reading now; null when it is gone
  * (which has always counted as unchecked); undefined when it could not be read
- * this time (the page re-rendered mid-read); ambiguous when the control left
+ * this time (the page re-rendered mid-read, or the page the click navigated to
+ * is still loading); ambiguous when the control left
  * the page and more than one control now has its name.
  *
  * A label-tier control is looked up by today's selector again. A fallback
  * control is the one the click reached (clicked), read while it is on the
  * page, even when another control takes its name or its own name changes.
- * Only once it has left the page (a re-render may have replaced it) is it
+ * Only once it has left the page (a re-render may have replaced it, or the
+ * click navigated and its handle is dead) is it
  * found again by its accessible name, and only when nothing has that name is
  * it gone.
  */
@@ -683,11 +685,26 @@ export async function readCheckableTargetAgain(
       }
     }
 
+    let connected = false
+    try {
+      connected =
+        !!clicked &&
+        (await clicked.evaluate(node => (node as unknown as { isConnected: boolean }).isConnected))
+    } catch {
+      // A navigation destroyed the handle's document: the control left the page.
+    }
+    if (clicked && connected) return await readCheckableControl(clicked)
+
+    // The page the click navigated to has not been parsed yet, so the control
+    // may still arrive; read it again on the next poll.
     if (
-      clicked &&
-      (await clicked.evaluate(node => (node as unknown as { isConnected: boolean }).isConnected))
+      await page.evaluate(
+        () =>
+          (globalThis as unknown as { document: { readyState: string } }).document.readyState ===
+          'loading'
+      )
     ) {
-      return await readCheckableControl(clicked)
+      return undefined
     }
 
     const fallback = await findByAccessibleName(page, text)
