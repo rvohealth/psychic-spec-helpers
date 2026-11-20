@@ -38,6 +38,19 @@ import uncheck from './matcher-globals/uncheck.js'
 import visit from './visit.js'
 import toSelect from '../matchers/toSelect.js'
 
+// The part of Vitest's matcher context the action matchers read.
+interface NegationState {
+  isNot: boolean
+}
+
+// A matcher that acts on the page (a click, a check, typing, a selection) has
+// no negated meaning. Under .not it throws before it waits or acts, so it
+// neither clicks the target nor passes after the timeout when the target is
+// missing.
+function refuseNegation(state: NegationState, message: string) {
+  if (state.isNot) throw new Error(message)
+}
+
 export default function providePuppeteerViteMatchers() {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   ;(global as any).expect.extend({
@@ -65,32 +78,54 @@ export default function providePuppeteerViteMatchers() {
       return await toNotHaveSelector(page, cssSelector, opts)
     },
 
-    async toCheck(page: Page, text: string, opts?: WaitForSelectorOptions) {
+    async toCheck(this: NegationState, page: Page, text: string, opts?: WaitForSelectorOptions) {
+      refuseNegation(this, 'Cannot negate toCheck')
       return await toCheck(page, text, opts)
     },
 
-    async toClick(page: Page, text: string, opts?: WaitForSelectorOptions) {
+    async toClick(this: NegationState, page: Page, text: string, opts?: WaitForSelectorOptions) {
+      refuseNegation(this, 'Cannot negate toClick')
       return await toClick(page, text, opts)
     },
 
     async toSelect(
+      this: NegationState,
       page: Page,
       cssSelector: string,
       optionValue: string,
       opts?: WaitForSelectorOptions
     ) {
+      refuseNegation(this, 'Cannot negate toSelect')
       return await toSelect(page, cssSelector, optionValue, opts)
     },
 
-    async toClickLink(page: Page, text: string, opts?: WaitForSelectorOptions) {
+    async toClickLink(
+      this: NegationState,
+      page: Page,
+      text: string,
+      opts?: WaitForSelectorOptions
+    ) {
+      refuseNegation(this, 'Cannot negate toClickLink')
       return await toClickLink(page, text, opts)
     },
 
-    async toClickButton(page: Page, text: string, opts?: WaitForSelectorOptions) {
+    async toClickButton(
+      this: NegationState,
+      page: Page,
+      text: string,
+      opts?: WaitForSelectorOptions
+    ) {
+      refuseNegation(this, 'Cannot negate toClickButton')
       return await toClickButton(page, text, opts)
     },
 
-    async toClickSelector(page: Page, cssSelector: string, opts?: WaitForSelectorOptions) {
+    async toClickSelector(
+      this: NegationState,
+      page: Page,
+      cssSelector: string,
+      opts?: WaitForSelectorOptions
+    ) {
+      refuseNegation(this, 'Cannot negate toClickSelector')
       return await toClickSelector(page, cssSelector, opts)
     },
 
@@ -150,11 +185,19 @@ export default function providePuppeteerViteMatchers() {
       return await toHaveLink(page, text, opts)
     },
 
-    async toFill(page: Page, cssSelector: string, text: string, opts?: ToFillMatcherOpts) {
+    async toFill(
+      this: NegationState,
+      page: Page,
+      cssSelector: string,
+      text: string,
+      opts?: ToFillMatcherOpts
+    ) {
+      refuseNegation(this, 'cannot negate toFill')
       return await toFill(page, cssSelector, text, opts)
     },
 
-    async toUncheck(page: Page, text: string, opts?: WaitForSelectorOptions) {
+    async toUncheck(this: NegationState, page: Page, text: string, opts?: WaitForSelectorOptions) {
+      refuseNegation(this, 'Cannot negate toUncheck, try toCheck')
       return await toUncheck(page, text, opts)
     },
 
