@@ -321,6 +321,28 @@ describe('checked matchers', () => {
           )
           expect(message).toContain('No label contains "Accept terms"')
         })
+
+        // A signal that has aborted before the first read: the control the
+        // page has is still the one reported.
+        it('for toHaveChecked, while the control is missing, with a signal aborted already', async () => {
+          await page.setContent('<label for="missing">Accept terms</label>')
+          const message = await settlesWithin(
+            expect(page).toHaveChecked('Accept terms', { timeout, signal: AbortSignal.abort() }),
+            1500
+          )
+          expect(message).toContain('has for="missing", but no element has that id')
+        })
+
+        it('for toHaveUnchecked, while the control is still checked, with a signal aborted already', async () => {
+          await page.setContent(
+            '<label for="terms">Accept terms</label><input type="checkbox" id="terms" checked>'
+          )
+          const message = await settlesWithin(
+            expect(page).toHaveUnchecked('Accept terms', { timeout, signal: AbortSignal.abort() }),
+            1500
+          )
+          expect(message).toContain('but it was checked')
+        })
       })
     }
 

@@ -287,6 +287,37 @@ async function unusableSelector(page: Page, selector: string) {
   }
 }
 
+/**
+ * The control a label's for attribute names as the page has it now, without
+ * waiting: what waitForLabelTierControl resolves with when the selector
+ * matches at once, with the visible and hidden options counted as
+ * page.waitForSelector counts them (visible wins over hidden; with hidden, an
+ * absent element is found as null). A timeout when nothing meets them.
+ */
+async function labelTierControlNow(
+  page: Page,
+  selector: string,
+  opts: WaitForSelectorOptions | undefined
+): Promise<LabelTierControl> {
+  const wantVisible = opts?.visible ? true : opts?.hidden ? false : undefined
+  let control: ElementHandle | null = null
+  try {
+    control = await page.$(selector)
+    if (!control)
+      return wantVisible === false ? { status: 'found', control: null } : { status: 'timeout' }
+    if (
+      wantVisible === undefined ||
+      (wantVisible ? await control.isVisible() : await control.isHidden())
+    ) {
+      return { status: 'found', control }
+    }
+  } catch {
+    // The page navigated or re-rendered mid-read.
+  }
+  await disposeQuietly(control)
+  return { status: 'timeout' }
+}
+
 // How long a retry waits for a label-tier control it has already found, at
 // least, so that a read near the timeout is not cut short by the round trip.
 const labelTierRetryWait = 500
@@ -354,6 +385,11 @@ async function assertionLabelFor(page: Page, text: string) {
  * Only when no label matches, when the match has no for attribute (and no
  * element has the id "null"), or when its for attribute is not valid CSS (see
  * unusableSelector), the fallback (Playwright's getByLabel rule) looks for the control.
+ *
+ * When the caller's signal has aborted, Puppeteer rejects the selector wait
+ * without looking, so the control is read as the page has it then (see
+ * labelTierControlNow): an abort reports the control's state, and reports it
+ * missing only when it is.
  */
 export function checkableControlReader(
   page: Page,
@@ -365,6 +401,14 @@ export function checkableControlReader(
   let bound: { selector: string; forValue: string } | null = null
   let firstRead = true
 
+  const labelTierControl = async (selector: string, timeLeft: number) => {
+    const found = await waitForLabelTierControl(page, selector, opts, timeLeft)
+    if (found.status === 'timeout' && opts?.signal?.aborted) {
+      return await labelTierControlNow(page, selector, opts)
+    }
+    return found
+  }
+
   return async () => {
     // A label found on the first read gets the whole timeout for its control,
     // as the single read always gave it.
@@ -372,10 +416,8 @@ export function checkableControlReader(
     firstRead = false
 
     if (bound) {
-      const found = await waitForLabelTierControl(
-        page,
+      const found = await labelTierControl(
         bound.selector,
-        opts,
         Math.max(labelTierRetryWait, deadline - Date.now())
       )
       return await labelTierObservation(found, bound.forValue)
@@ -395,7 +437,7 @@ export function checkableControlReader(
           outcome = { resolved: false, reason: 'invalidFor', forValue: candidate.forValue }
         } else {
           bound = candidate
-          const found = await waitForLabelTierControl(page, candidate.selector, opts, timeLeft)
+          const found = await labelTierControl(candidate.selector, timeLeft)
           return await labelTierObservation(found, candidate.forValue)
         }
       }
