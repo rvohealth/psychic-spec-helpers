@@ -539,7 +539,9 @@ describe('checked matchers', () => {
       }).rejects.toThrow('has no for attribute')
       await expect(async () => {
         await expect(page).toCheck('Accept terms', { timeout: 300 })
-      }).rejects.toThrow('the for attribute found on it')
+      }).rejects.toThrow(
+        'but it has no for attribute (or a blank one),\nand no checkbox, radio or switch is labelled "Accept terms"'
+      )
     })
 
     it('fails when nothing names the control', async () => {
@@ -549,6 +551,84 @@ describe('checked matchers', () => {
       await expect(async () => {
         await expect(page).toHaveUnchecked('Decline terms', { timeout: 300 })
       }).rejects.toThrow('No label contains "Decline terms"')
+    })
+  })
+  // What the failure says when the text resolves no control.
+  context('failure messages', () => {
+    it('toCheck and toUncheck name both helpers and say the label has no for attribute', async () => {
+      await page.setContent('<label>Accept terms</label><input type="checkbox" id="terms">')
+      await expect(async () => {
+        await expect(page).toCheck('Accept terms', { timeout: 300 })
+      }).rejects.toThrow(
+        'When using our check and uncheck helpers, we expect you to have a semantic layout for a checkbox on your page,\nsuch as the following:'
+      )
+
+      await page.setContent('<label>Accept terms</label><input type="checkbox" id="terms" checked>')
+      await expect(async () => {
+        await expect(page).toUncheck('Accept terms', { timeout: 300 })
+      }).rejects.toThrow(
+        'but it has no for attribute (or a blank one),\nand no checkbox, radio or switch is labelled "Accept terms"'
+      )
+    }, 15000)
+
+    it('toCheck says a for attribute that is not valid CSS cannot be used, when an element has that id', async () => {
+      await page.setContent('<label for=":r0:">Accept terms</label><input type="text" id=":r0:">')
+      await expect(async () => {
+        await expect(page).toCheck('Accept terms', { timeout: 300 })
+      }).rejects.toThrow(
+        'but ":r0:" is not usable as a CSS id selector, and no checkbox, radio or switch is labelled "Accept terms".\n\nfor attribute found: ":r0:"\n\nMake sure you have a checkbox, radio or switch with an id matching ":r0:"'
+      )
+    }, 15000)
+
+    it('toCheck says it could not locate the element its label names', async () => {
+      await page.setContent('<label for="missing">Accept terms</label>')
+      await expect(async () => {
+        await expect(page).toCheck('Accept terms', { timeout: 300 })
+      }).rejects.toThrow(
+        'but we could not locate that input element.\n\nfor attribute found: "missing"\n\nMake sure you have an input element with an id matching "missing"'
+      )
+    })
+
+    it('toCheck names the visible option when the element its label names is hidden', async () => {
+      await page.setContent(
+        '<label for="terms">Accept terms</label><input type="checkbox" id="terms" style="display:none">'
+      )
+      await expect(async () => {
+        await expect(page).toCheck('Accept terms', { visible: true, timeout: 300 })
+      }).rejects.toThrow(
+        'but we could not locate a visible element with that id.\n\nfor attribute found: "terms"\n\nMake sure you have a visible input element with an id matching "terms"'
+      )
+    })
+
+    it('toHaveChecked names the visible option when the element its label names is hidden', async () => {
+      await page.setContent(
+        '<label for="terms">Accept terms</label><input type="checkbox" id="terms" checked style="display:none">'
+      )
+      await expect(async () => {
+        await expect(page).toHaveChecked('Accept terms', { visible: true, timeout: 300 })
+      }).rejects.toThrow(
+        'The first label containing "Accept terms" has for="terms", but no visible element has that id'
+      )
+    })
+
+    it('toHaveChecked names the hidden option when the element its label names is visible', async () => {
+      await page.setContent(
+        '<label for="terms">Accept terms</label><input type="checkbox" id="terms" checked>'
+      )
+      await expect(async () => {
+        await expect(page).toHaveChecked('Accept terms', { hidden: true, timeout: 300 })
+      }).rejects.toThrow(
+        'The first label containing "Accept terms" has for="terms", but no hidden element has that id'
+      )
+    })
+
+    it('toHaveChecked says the text is in a child element of the label, which has no for attribute', async () => {
+      await page.setContent('<label for="missing"><span>Accept terms</span></label>')
+      await expect(async () => {
+        await expect(page).toHaveChecked('Accept terms', { timeout: 300 })
+      }).rejects.toThrow(
+        'The first label containing "Accept terms" holds it in a child element, which has no for attribute, and no checkbox, radio or switch is labelled "Accept terms"'
+      )
     })
   })
 })

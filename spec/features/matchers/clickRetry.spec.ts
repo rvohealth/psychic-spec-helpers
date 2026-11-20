@@ -202,4 +202,23 @@ describe('click matchers', () => {
       expect(await clickCount()).toEqual(1)
     })
   })
+  // The control the fallback found could not be clicked, and then left the
+  // page; the label without a for attribute beside it is still there.
+  context('a fallback-found control that cannot be clicked and then leaves', () => {
+    it('toCheck says no control is labelled with the text any more', async () => {
+      await page.setContent(
+        `<label>Terms</label><button type="button" role="checkbox" aria-checked="false" aria-label="Terms" id="t" style="width:0;height:0;padding:0;border:0;display:block"></button><script>setTimeout(() => document.getElementById('t').remove(), 300)</script>`
+      )
+      await expect(async () => {
+        await expect(page).toCheck('Terms', { timeout: 1500 })
+      }).rejects.toThrow(
+        /^Expected page to have checkable element with text: "Terms"\. No checkbox, radio or switch is labelled "Terms" by a label, aria-labelledby or aria-label any more$/
+      )
+      expect(
+        await page.evaluate(
+          'Array.from(document.querySelectorAll("label")).map(label => label.textContent)'
+        )
+      ).toEqual(['Terms'])
+    }, 20000)
+  })
 })

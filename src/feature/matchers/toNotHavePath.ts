@@ -13,7 +13,7 @@ export default async function toNotHavePath(
   unexpectedPath: string,
   opts: WaitForSelectorOptions = {}
 ) {
-  requirePuppeteerPage(page)
+  requirePuppeteerPage(page, 'toNotHavePath')
 
   try {
     await page.waitForFunction(

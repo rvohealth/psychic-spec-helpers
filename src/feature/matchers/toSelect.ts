@@ -1,6 +1,7 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
 import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 import { actionPassed } from '../internal/actionMatcher.js'
+import { messageOf } from '../internal/clickBeforeTimeout.js'
 
 /**
  * Select the option whose value is optionValue in the select matching
@@ -32,11 +33,14 @@ export default async function toSelect(
     await el.select(optionValue)
 
     return actionPassed()
-  } catch {
+  } catch (error) {
+    // A timeout, an element that is not a select, or an aborted signal: a
+    // missing option never throws (see above).
+    const cause = messageOf(error)
     return {
       pass: false,
       message: () =>
-        `the "${cssSelector}" was found, but it did not have the option: "${optionValue}"`,
+        `Expected page to have a select element matching the css selector "${cssSelector}". ${cause}`,
     }
   }
 }

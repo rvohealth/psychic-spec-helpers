@@ -17,7 +17,7 @@ export default async function toHaveLink(
   } catch {
     return {
       pass: false,
-      message: () => `Expected page not to have checked checkbox with text: "${expectedText}"`,
+      message: () => `Expected page to have link with text: "${expectedText}"`,
     }
   }
 }

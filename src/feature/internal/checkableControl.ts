@@ -31,16 +31,33 @@ export type CheckableObservation =
       state: CheckedState
     }
   // The label's for attribute names no element (that meets the visible or
-  // hidden option) before the timeout. Decisive: the fallback does not run.
-  | { resolved: false; reason: 'labelControlMissing'; forValue: string }
+  // hidden option, named by option when the caller gave one) before the
+  // timeout. Decisive: the fallback does not run.
+  | {
+      resolved: false
+      reason: 'labelControlMissing'
+      forValue: string
+      option?: VisibilityOption
+    }
   // The label has no (or an empty) for attribute, and the fallback found no
-  // control.
-  | { resolved: false; reason: 'labelWithoutFor' }
+  // control. inChildElement: the for attribute was read from the child element
+  // of the label that holds the text (see assertionLabelFor), not the label.
+  | { resolved: false; reason: 'labelWithoutFor'; inChildElement?: boolean }
   // The label's for attribute is not usable as a CSS id selector (such as a
   // React 18 id like ":r0:"), and the fallback found no control.
   | { resolved: false; reason: 'invalidFor'; forValue: string }
   | { resolved: false; reason: 'notFound' }
   | { resolved: false; reason: 'ambiguous'; matches: string[] }
+
+/**
+ * The visible or hidden option page.waitForSelector applies (visible wins), or
+ * undefined when the caller gave neither.
+ */
+type VisibilityOption = 'visible' | 'hidden'
+
+function visibilityOption(opts: WaitForSelectorOptions | undefined): VisibilityOption | undefined {
+  return opts?.visible ? 'visible' : opts?.hidden ? 'hidden' : undefined
+}
 
 /** The label selector these matchers have always used. */
 /**
@@ -227,7 +244,7 @@ async function observeByAccessibleName(
 // Why today's lookup resolved nothing, when the fallback finds nothing either.
 type LabelTierOutcome =
   | { resolved: false; reason: 'notFound' }
-  | { resolved: false; reason: 'labelWithoutFor' }
+  | { resolved: false; reason: 'labelWithoutFor'; inChildElement?: boolean }
   | { resolved: false; reason: 'invalidFor'; forValue: string }
 
 type LabelTierControl =
@@ -326,17 +343,18 @@ const labelTierRetryWait = 500
 
 async function labelTierObservation(
   found: LabelTierControl,
-  forValue: string
+  forValue: string,
+  option: VisibilityOption | undefined
 ): Promise<CheckableObservation> {
   if (found.status === 'timeout' || !found.control) {
-    return { resolved: false, reason: 'labelControlMissing', forValue }
+    return { resolved: false, reason: 'labelControlMissing', forValue, option }
   }
 
   try {
     return { resolved: true, tier: 'label', ...(await readCheckableControl(found.control)) }
   } catch {
     // The control was replaced mid-read; look again on the next poll.
-    return { resolved: false, reason: 'labelControlMissing', forValue }
+    return { resolved: false, reason: 'labelControlMissing', forValue, option }
   } finally {
     await found.control.dispose()
   }
@@ -345,8 +363,8 @@ async function labelTierObservation(
 /**
  * The for attribute of the element toHaveChecked and toHaveUnchecked have
  * always read it from: the first element `label::-p-text` matches, which is
- * the label itself, or the child element holding the text. null when nothing
- * matches.
+ * the label itself, or the child element holding the text (inChildElement).
+ * null when nothing matches.
  */
 async function assertionLabelFor(page: Page, text: string) {
   let match: ElementHandle | null
@@ -358,13 +376,16 @@ async function assertionLabelFor(page: Page, text: string) {
   if (!match) return null
 
   try {
-    return {
-      forValue: await match.evaluate(element =>
-        (element as unknown as { getAttribute: (name: string) => string | null }).getAttribute(
-          'for'
-        )
-      ),
-    }
+    return await match.evaluate(element => {
+      const matched = element as unknown as {
+        tagName: string
+        getAttribute: (name: string) => string | null
+      }
+      return {
+        forValue: matched.getAttribute('for'),
+        inChildElement: String(matched.tagName).toLowerCase() !== 'label',
+      }
+    })
   } catch {
     return null
   } finally {
@@ -400,6 +421,7 @@ export function checkableControlReader(
 ): () => Promise<CheckableObservation> {
   const timeout = waitForOptsTimeout(page, opts)
   const deadline = Date.now() + timeout
+  const option = visibilityOption(opts)
   let bound: { selector: string; forValue: string } | null = null
   let firstRead = true
 
@@ -422,17 +444,17 @@ export function checkableControlReader(
         bound.selector,
         Math.max(labelTierRetryWait, deadline - Date.now())
       )
-      return await labelTierObservation(found, bound.forValue)
+      return await labelTierObservation(found, bound.forValue, option)
     }
 
     let outcome: LabelTierOutcome = { resolved: false, reason: 'notFound' }
     const label = await assertionLabelFor(page, text)
     if (label) {
-      const { forValue } = label
+      const { forValue, inChildElement } = label
       if (forValue === null && !(await elementExists(page, '#null'))) {
-        outcome = { resolved: false, reason: 'labelWithoutFor' }
+        outcome = { resolved: false, reason: 'labelWithoutFor', inChildElement }
       } else if (forValue === '') {
-        outcome = { resolved: false, reason: 'labelWithoutFor' }
+        outcome = { resolved: false, reason: 'labelWithoutFor', inChildElement }
       } else {
         const candidate = { selector: `#${forValue}`, forValue: String(forValue) }
         if (await unusableSelector(page, candidate.selector)) {
@@ -440,7 +462,7 @@ export function checkableControlReader(
         } else {
           bound = candidate
           const found = await labelTierControl(candidate.selector, timeLeft)
-          return await labelTierObservation(found, candidate.forValue)
+          return await labelTierObservation(found, candidate.forValue, option)
         }
       }
     }
@@ -588,7 +610,14 @@ export async function findCheckableTarget(
       } else {
         const found = await waitForLabelTierControl(page, selector, opts, timeout)
         if (found.status === 'timeout') {
-          return { failure: { resolved: false, reason: 'labelControlMissing', forValue } }
+          return {
+            failure: {
+              resolved: false,
+              reason: 'labelControlMissing',
+              forValue,
+              option: visibilityOption(opts),
+            },
+          }
         }
         let reading: ControlReading | null
         try {
@@ -690,7 +719,13 @@ async function clickFallback(
 
       const found = await findByAccessibleName(page, text)
       if (found.resolved) return await keep(found.control)
-      throw new Error(unresolvedCheckableControl(found, text))
+      // Only the fallback looks again, so a label containing the text may
+      // still be on the page.
+      throw new Error(
+        found.reason === 'ambiguous'
+          ? unresolvedCheckableControl(found, text)
+          : `No checkbox, radio or switch is labelled "${text}" by a label, aria-labelledby or aria-label any more`
+      )
     },
     { timeout: waitForOptsTimeout(page, opts), signal: opts?.signal }
   )
@@ -778,9 +813,11 @@ export function unresolvedCheckableControl(
 
   switch (observation.reason) {
     case 'labelControlMissing':
-      return `The first label containing "${text}" has for="${observation.forValue}", but no element has that id`
+      return `The first label containing "${text}" has for="${observation.forValue}", but no ${observation.option ? `${observation.option} ` : ''}element has that id`
     case 'labelWithoutFor':
-      return `The first label containing "${text}" has no for attribute, and no checkbox, radio or switch is labelled "${text}"`
+      return observation.inChildElement
+        ? `The first label containing "${text}" holds it in a child element, which has no for attribute, and no checkbox, radio or switch is labelled "${text}"`
+        : `The first label containing "${text}" has no for attribute, and no checkbox, radio or switch is labelled "${text}"`
     case 'invalidFor':
       return `The first label containing "${text}" has for="${observation.forValue}", which is not usable as a CSS id selector, and no checkbox, radio or switch is labelled "${text}"`
     case 'ambiguous':
@@ -792,19 +829,31 @@ export function unresolvedCheckableControl(
 
 /**
  * The failure toCheck and toUncheck report when the text resolved no control:
- * the messages they have always given for a label without a for attribute and
- * for a for attribute that names no usable element, otherwise why nothing was
- * found.
+ * the long-form messages they have always given for a label without a for
+ * attribute and for a for attribute that names no usable element (each saying
+ * why), otherwise why nothing was found.
  */
 export function checkableActionFailure(failure: CheckableObservation, text: string) {
   if (failure.resolved) throw new Error('checkableActionFailure called with a resolved control')
 
   switch (failure.reason) {
     case 'labelWithoutFor':
-      return { pass: false, message: () => emptyForAttribute() }
+      return { pass: false, message: () => emptyForAttribute(text) }
     case 'labelControlMissing':
+      return {
+        pass: false,
+        message: () =>
+          missingInputToMatchForAttribute(failure.forValue, {
+            reason: 'labelControlMissing',
+            option: failure.option,
+          }),
+      }
     case 'invalidFor':
-      return { pass: false, message: () => missingInputToMatchForAttribute(failure.forValue) }
+      return {
+        pass: false,
+        message: () =>
+          missingInputToMatchForAttribute(failure.forValue, { reason: 'invalidFor', text }),
+      }
     default:
       return {
         pass: false,

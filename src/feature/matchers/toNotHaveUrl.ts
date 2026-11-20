@@ -12,7 +12,7 @@ export default async function toNotHaveUrl(
   unexpectedUrl: string,
   opts: WaitForSelectorOptions = {}
 ) {
-  requirePuppeteerPage(page)
+  requirePuppeteerPage(page, 'toNotHaveUrl')
 
   try {
     await page.waitForFunction(

@@ -1,7 +1,8 @@
 import { Page } from 'puppeteer'
 
 export type SelectState =
-  | { found: false }
+  // matched: some element matches the selector, but the first is not a select
+  | { found: false; matched: boolean }
   | { found: true; optionValues: string[]; selectedValues: string[] }
 
 /**
@@ -26,7 +27,7 @@ export default async function getSelectState(page: Page, cssSelector: string) {
 
     const select = browserDocument.querySelector(selector)
     if (!select || select.tagName.toLowerCase() !== 'select' || !select.options) {
-      return { found: false }
+      return { found: false, matched: !!select }
     }
 
     const options = Array.from(select.options)
@@ -48,7 +49,9 @@ export function missingSelectOrOption(
   optionValue: string
 ): string | undefined {
   if (!state.found) {
-    return `Expected page to have a select matching "${cssSelector}", but none was found`
+    return state.matched
+      ? `Expected page to have a select matching "${cssSelector}", but the first element matching it is not a select`
+      : `Expected page to have a select matching "${cssSelector}", but none was found`
   }
 
   if (!state.optionValues.includes(optionValue)) {

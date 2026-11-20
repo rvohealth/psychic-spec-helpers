@@ -30,7 +30,7 @@ export default async function toFill(
   } catch {
     return {
       pass: false,
-      message: () => `failed to fill input matching selector ${cssSelector} with text "text"`,
+      message: () => `failed to fill input matching selector ${cssSelector} with text "${text}"`,
     }
   }
 }

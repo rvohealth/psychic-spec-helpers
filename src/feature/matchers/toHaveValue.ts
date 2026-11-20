@@ -28,7 +28,7 @@ export default async function toHaveValue(
   return await evaluateWithRetryAndTimeout(
     argumentPassedToExpect,
     async () => {
-      requirePuppeteerPage(argumentPassedToExpect)
+      requirePuppeteerPage(argumentPassedToExpect, 'toHaveValue')
 
       const state = await getFieldValue(argumentPassedToExpect, cssSelector)
       return {

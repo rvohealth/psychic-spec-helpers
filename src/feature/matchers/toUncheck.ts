@@ -77,9 +77,9 @@ export default async function toUncheck(
             if (after && 'reason' in after) {
               return `${clickedText}, but it left the page. ${unresolvedCheckableControl(after, expectedText)}`
             }
-            return `${clickedText}${after ? ` (${after.control})` : ''}, but it is still ${
-              after ? after.state : 'checked'
-            }`
+            // undefined: no read succeeded (see readCheckableTargetAgain).
+            if (!after) return `${clickedText}, but its state could not be read after the click`
+            return `${clickedText} (${after.control}), but it is still ${after.state}`
           },
           timeout: applyDefaultWaitForOpts().timeout,
         }

@@ -63,3 +63,44 @@ describe('toUncheck when the click navigates', () => {
     await expect(page).toHaveChecked('Terms')
   })
 })
+
+describe('toUncheck when the click navigates to a page that is still loading', () => {
+  let server: Server
+  let origin: string
+  const held: ServerResponse[] = []
+  const release = () => held.splice(0).forEach(res => res.end('</p></body></html>'))
+
+  beforeAll(async () => {
+    server = createServer((req: IncomingMessage, res: ServerResponse) => {
+      res.writeHead(200, { 'Content-Type': 'text/html' })
+      if (req.url === '/hold') {
+        // The next page never finishes loading until the spec releases it.
+        res.write('<!doctype html><html><body><p>Loading')
+        held.push(res)
+        return
+      }
+      res.end(
+        '<!doctype html><html><body><button type="button" role="checkbox" aria-checked="true" aria-label="Terms" onclick="location.href=\'/hold\'"></button></body></html>'
+      )
+    })
+    await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve))
+    origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`
+  })
+
+  afterAll(async () => {
+    release()
+    server.closeAllConnections()
+    await new Promise<void>(resolve => server.close(() => resolve()))
+  })
+
+  it('says the state could not be read, not that it is still checked', async () => {
+    await page.goto(`${origin}/start`)
+    try {
+      await expect(expect(page).toUncheck('Terms')).rejects.toThrow(
+        /^Clicked the checkable element with text: "Terms", but its state could not be read after the click$/
+      )
+    } finally {
+      release()
+    }
+  }, 30000)
+})

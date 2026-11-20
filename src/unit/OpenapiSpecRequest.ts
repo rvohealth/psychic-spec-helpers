@@ -589,8 +589,8 @@ export class OpenapiSpecRequest<OpenapiPaths = undefined> {
       throw new Error(
         `
   ERROR:
-    When making use of the send spec helper, you must first call "await specRequest.init(PsychicServer)"
-    from a beforEach hook at the root of your specs.
+    When making a request with an OpenapiSpecRequest, you must first call "await request.init(PsychicServer)" on it
+    from a beforeEach hook at the root of your specs.
 `
       )
 
