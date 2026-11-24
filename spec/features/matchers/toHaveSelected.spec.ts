@@ -54,4 +54,15 @@ describe('toHaveSelected', () => {
     await expect(page).toSelect('#status', 'pending')
     await expect(page).toHaveSelected('#status', 'pending', { timeout: 300 })
   })
+
+  it('says so when the first element matching is not a select', async () => {
+    await page.setContent(
+      '<input type="hidden" name="status" value="active"><select name="status"><option value="active" selected>Active</option></select>'
+    )
+    await expect(async () => {
+      await expect(page).toHaveSelected('[name="status"]', 'active', { timeout: 300 })
+    }).rejects.toThrow(
+      /^Expected page to have a select matching "\[name="status"\]", but the first element matching it is not a select$/
+    )
+  })
 })

@@ -19,7 +19,7 @@ export default async function toHaveSelected(
   return await evaluateWithRetryAndTimeout(
     argumentPassedToExpect,
     async () => {
-      requirePuppeteerPage(argumentPassedToExpect)
+      requirePuppeteerPage(argumentPassedToExpect, 'toHaveSelected')
 
       const state = await getSelectState(argumentPassedToExpect, cssSelector)
       return {

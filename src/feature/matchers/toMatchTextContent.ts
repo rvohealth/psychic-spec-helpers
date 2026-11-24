@@ -24,7 +24,7 @@ export default async function toMatchTextContent(
   return await evaluateWithRetryAndTimeout(
     argumentPassedToExpect,
     async () => {
-      requirePuppeteerPage(argumentPassedToExpect)
+      requirePuppeteerPage(argumentPassedToExpect, 'toMatchTextContent')
 
       const actual = await getAllTextContentFromPage(argumentPassedToExpect, opts.selector)
       if (expected instanceof RegExp) expected.lastIndex = 0

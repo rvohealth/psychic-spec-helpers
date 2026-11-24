@@ -1,40 +1,29 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
-import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
+import {
+  CheckableObservation,
+  retryCheckableState,
+  unresolvedCheckableControl,
+} from '../internal/checkableControl.js'
 
+/**
+ * Assert that the checkbox, radio or switch the text names is unchecked
+ * (neither checked nor mixed), retrying until the timeout (5000ms by
+ * default) or until the signal aborts. See checkableControlReader for how the
+ * text finds the control and checkableControl for how its state is read.
+ */
 export default async function toHaveUnchecked(
   page: Page,
   expectedText: string,
   opts?: WaitForSelectorOptions
-) {
-  try {
-    const labelSelector = `label::-p-text("${expectedText}")`
-
-    // eslint-disable-next-line
-    const forAttributeValue = await page.$eval(labelSelector, label => label.getAttribute('for'))
-    const inputElement = await page.waitForSelector(
-      `#${forAttributeValue}`,
-      applyDefaultWaitForOpts(opts)
-    )
-    // eslint-disable-next-line
-    const isChecked = await page.evaluate(checkbox => checkbox.checked, inputElement)
-
-    if (isChecked) {
-      return {
-        pass: false,
-        message: () => `Found element: ${expectedText}, but it was checked`,
-      }
-    }
-
-    return {
-      pass: true,
-      message: () => {
-        throw new Error('cannot negate toHaveUnchecked')
-      },
-    }
-  } catch {
-    return {
-      pass: false,
-      message: () => `Expected page to have unchecked checkbox with text: "${expectedText}"`,
-    }
-  }
+): Promise<{ pass: boolean; message: () => string }> {
+  return await retryCheckableState(page, expectedText, opts, 'unchecked', {
+    successText: () => {
+      throw new Error('cannot negate toHaveUnchecked')
+    },
+    failureText: (observation: CheckableObservation) =>
+      observation.resolved
+        ? `Found element: ${expectedText} (${observation.control}), but it was ${observation.state}`
+        : `Expected page to have unchecked checkbox with text: "${expectedText}". ${unresolvedCheckableControl(observation, expectedText)}`,
+    abortedText: () => `Expected page to have unchecked checkbox with text: "${expectedText}"`,
+  })
 }

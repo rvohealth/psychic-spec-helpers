@@ -17,12 +17,16 @@ import toHaveSelector from '../matchers/toHaveSelector.js'
 import toHaveUnchecked from '../matchers/toHaveUnchecked.js'
 import toHaveUnselected from '../matchers/toHaveUnselected.js'
 import toHaveUrl from '../matchers/toHaveUrl.js'
+import toHaveValue, { ValueMatcherExpected, ValueMatcherOpts } from '../matchers/toHaveValue.js'
 import type {
   TextContentMatcherExpected,
   TextContentMatcherOpts,
 } from '../matchers/toMatchTextContent.js'
 import toMatchTextContent from '../matchers/toMatchTextContent.js'
+import toNotHavePath from '../matchers/toNotHavePath.js'
 import toNotHaveSelector from '../matchers/toNotHaveSelector.js'
+import toNotHaveUrl from '../matchers/toNotHaveUrl.js'
+import toNotHaveValue from '../matchers/toNotHaveValue.js'
 import toNotMatchTextContent from '../matchers/toNotMatchTextContent.js'
 import toUncheck from '../matchers/toUncheck.js'
 import check from './matcher-globals/check.js'
@@ -34,6 +38,7 @@ import fillIn from './matcher-globals/fillIn.js'
 import select from './matcher-globals/select.js'
 import uncheck from './matcher-globals/uncheck.js'
 import visit from './visit.js'
+import { NegationState, refuseNegation } from '../internal/actionMatcher.js'
 import toSelect from '../matchers/toSelect.js'
 
 export default function providePuppeteerViteMatchers() {
@@ -63,32 +68,54 @@ export default function providePuppeteerViteMatchers() {
       return await toNotHaveSelector(page, cssSelector, opts)
     },
 
-    async toCheck(page: Page, text: string, opts?: WaitForSelectorOptions) {
+    async toCheck(this: NegationState, page: Page, text: string, opts?: WaitForSelectorOptions) {
+      refuseNegation(this, 'Cannot negate toCheck')
       return await toCheck(page, text, opts)
     },
 
-    async toClick(page: Page, text: string, opts?: WaitForSelectorOptions) {
+    async toClick(this: NegationState, page: Page, text: string, opts?: WaitForSelectorOptions) {
+      refuseNegation(this, 'Cannot negate toClick')
       return await toClick(page, text, opts)
     },
 
     async toSelect(
+      this: NegationState,
       page: Page,
       cssSelector: string,
       optionValue: string,
       opts?: WaitForSelectorOptions
     ) {
+      refuseNegation(this, 'Cannot negate toSelect')
       return await toSelect(page, cssSelector, optionValue, opts)
     },
 
-    async toClickLink(page: Page, text: string, opts?: WaitForSelectorOptions) {
+    async toClickLink(
+      this: NegationState,
+      page: Page,
+      text: string,
+      opts?: WaitForSelectorOptions
+    ) {
+      refuseNegation(this, 'Cannot negate toClickLink')
       return await toClickLink(page, text, opts)
     },
 
-    async toClickButton(page: Page, text: string, opts?: WaitForSelectorOptions) {
+    async toClickButton(
+      this: NegationState,
+      page: Page,
+      text: string,
+      opts?: WaitForSelectorOptions
+    ) {
+      refuseNegation(this, 'Cannot negate toClickButton')
       return await toClickButton(page, text, opts)
     },
 
-    async toClickSelector(page: Page, cssSelector: string, opts?: WaitForSelectorOptions) {
+    async toClickSelector(
+      this: NegationState,
+      page: Page,
+      cssSelector: string,
+      opts?: WaitForSelectorOptions
+    ) {
+      refuseNegation(this, 'Cannot negate toClickSelector')
       return await toClickSelector(page, cssSelector, opts)
     },
 
@@ -98,6 +125,14 @@ export default function providePuppeteerViteMatchers() {
 
     async toHaveUrl(page: Page, url: string, opts?: WaitForSelectorOptions) {
       return await toHaveUrl(page, url, opts)
+    },
+
+    async toNotHavePath(page: Page, path: string, opts?: WaitForSelectorOptions) {
+      return await toNotHavePath(page, path, opts)
+    },
+
+    async toNotHaveUrl(page: Page, url: string, opts?: WaitForSelectorOptions) {
+      return await toNotHaveUrl(page, url, opts)
     },
 
     async toHaveChecked(page: Page, text: string, opts?: WaitForSelectorOptions) {
@@ -126,15 +161,41 @@ export default function providePuppeteerViteMatchers() {
       return await toHaveUnselected(page, cssSelector, optionValue, opts)
     },
 
+    async toHaveValue(
+      page: Page,
+      cssSelector: string,
+      expected: ValueMatcherExpected,
+      opts?: ValueMatcherOpts
+    ) {
+      return await toHaveValue(page, cssSelector, expected, opts)
+    },
+
+    async toNotHaveValue(
+      page: Page,
+      cssSelector: string,
+      unexpected: ValueMatcherExpected,
+      opts?: ValueMatcherOpts
+    ) {
+      return await toNotHaveValue(page, cssSelector, unexpected, opts)
+    },
+
     async toHaveLink(page: Page, text: string, opts?: WaitForSelectorOptions) {
       return await toHaveLink(page, text, opts)
     },
 
-    async toFill(page: Page, cssSelector: string, text: string, opts?: ToFillMatcherOpts) {
+    async toFill(
+      this: NegationState,
+      page: Page,
+      cssSelector: string,
+      text: string,
+      opts?: ToFillMatcherOpts
+    ) {
+      refuseNegation(this, 'cannot negate toFill')
       return await toFill(page, cssSelector, text, opts)
     },
 
-    async toUncheck(page: Page, text: string, opts?: WaitForSelectorOptions) {
+    async toUncheck(this: NegationState, page: Page, text: string, opts?: WaitForSelectorOptions) {
+      refuseNegation(this, 'Cannot negate toUncheck, try toCheck')
       return await toUncheck(page, text, opts)
     },
 

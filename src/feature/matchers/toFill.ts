@@ -1,6 +1,7 @@
 import { Page, WaitForSelectorOptions } from 'puppeteer'
 import applyDefaultWaitForOpts from '../helpers/applyDefaultWaitForOpts.js'
 import metaOrControlKey from '../helpers/metaOrControlKey.js'
+import { actionPassed } from '../internal/actionMatcher.js'
 
 export default async function toFill(
   page: Page,
@@ -25,16 +26,11 @@ export default async function toFill(
 
     await page.type(cssSelector, text)
 
-    return {
-      pass: true,
-      message: () => {
-        throw new Error('cannot negate toFill')
-      },
-    }
+    return actionPassed()
   } catch {
     return {
       pass: false,
-      message: () => `failed to fill input matching selector ${cssSelector} with text "text"`,
+      message: () => `failed to fill input matching selector ${cssSelector} with text "${text}"`,
     }
   }
 }
